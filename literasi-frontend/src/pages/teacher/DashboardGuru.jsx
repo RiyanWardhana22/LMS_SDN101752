@@ -27,7 +27,7 @@ export default function DashboardGuru() {
       {/* 4 Kartu Statistik Ringkas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Card 1: Siswa Aktif */}
-        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(26,26,46,0.06)] p-6 border border-neutral-100 hover:-translate-y-1 transition-transform">
+        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(26,26,46,0.06)] p-6 border border-neutral-100 ">
           <div className="flex items-center gap-3 text-neutral-500 mb-4">
             <div className="p-2 bg-[#eafaf1] rounded-lg">
               <Users weight="fill" size={24} className="text-[#2ecc71]" />
@@ -43,7 +43,7 @@ export default function DashboardGuru() {
         </div>
 
         {/* Card 2: Tugas Belum Dikoreksi (Dengan Badge Urgent) */}
-        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(26,26,46,0.06)] p-6 border border-neutral-100 hover:-translate-y-1 transition-transform relative overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(26,26,46,0.06)] p-6 border border-neutral-100 relative overflow-hidden">
           {/* Badge Merah untuk Perhatian Khusus */}
           <div className="absolute top-0 right-0 bg-[#e74c3c] text-white text-[10px] font-black px-3 py-1 rounded-bl-xl shadow-sm">
             URGENT
@@ -62,7 +62,7 @@ export default function DashboardGuru() {
         </div>
 
         {/* Card 3: Rata-rata Nilai */}
-        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(26,26,46,0.06)] p-6 border border-neutral-100 hover:-translate-y-1 transition-transform">
+        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(26,26,46,0.06)] p-6 border border-neutral-100">
           <div className="flex items-center gap-3 text-neutral-500 mb-4">
             <div className="p-2 bg-[#ebf5fb] rounded-lg">
               <ChartLine weight="fill" size={24} className="text-[#3498db]" />

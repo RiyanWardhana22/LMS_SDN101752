@@ -1,14 +1,63 @@
+import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
+import { List, Screencast } from "@phosphor-icons/react";
+
 export default function DashboardLayout({ children, role, title }) {
   const user = JSON.parse(localStorage.getItem("user"));
+
+  // State untuk Sidebar (Mobile) dan Smartboard (Layar Besar)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSmartboard, setIsSmartboard] = useState(false);
+
+  // Auto-deteksi layar super lebar (Smartboard) saat dimuat
+  useEffect(() => {
+    if (window.innerWidth >= 1920) setIsSmartboard(true);
+  }, []);
+
   return (
-    <div className="flex min-h-screen bg-[#f5f5ff]">
-      <Sidebar role={role} />
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="h-[64px] bg-white border-b border-neutral-200 flex items-center justify-between px-8 z-10">
-          <h1 className="text-xl font-extrabold text-neutral-900">{title}</h1>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
+    // Tambahkan class 'smartboard-mode' jika toggle aktif
+    <div
+      className={`flex h-[100dvh] bg-[#f5f5ff] overflow-hidden ${isSmartboard ? "smartboard-mode" : ""}`}
+    >
+      {/* Panggil Sidebar dengan mengirimkan state */}
+      <Sidebar
+        role={role}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
+
+      {/* Konten Utama Kanan */}
+      <div className="flex-1 flex flex-col h-full w-full overflow-hidden relative">
+        {/* Top Bar (Header) */}
+        <header className="h-[64px] sm:h-[72px] bg-white border-b border-neutral-200 flex items-center justify-between px-4 lg:px-8 z-10 shrink-0">
+          <div className="flex items-center gap-3 lg:gap-0">
+            {/* Tombol Hamburger (Muncul hanya di Mobile/Tablet) */}
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden p-2 text-neutral-600 hover:bg-neutral-100 rounded-xl transition-colors"
+            >
+              <List size={28} weight="bold" />
+            </button>
+            <h1 className="text-lg sm:text-xl font-extrabold text-neutral-900 truncate max-w-[200px] sm:max-w-none">
+              {title}
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-3 sm:gap-6">
+            {/* Toggle Smartboard (Disembunyikan di HP karena HP tidak muat untuk smartboard) */}
+            <button
+              onClick={() => setIsSmartboard(!isSmartboard)}
+              className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 font-bold text-xs transition-colors ${
+                isSmartboard
+                  ? "border-[#ff6b35] bg-[#fff3ee] text-[#ff6b35]"
+                  : "border-neutral-200 text-neutral-400 hover:text-neutral-700"
+              }`}
+            >
+              <Screencast size={18} weight="bold" />
+              Smartboard Mode
+            </button>
+
+            <div className="text-right hidden sm:block">
               <p className="text-sm font-bold text-neutral-900">
                 {user?.username}
               </p>
@@ -16,13 +65,16 @@ export default function DashboardLayout({ children, role, title }) {
                 {role}
               </p>
             </div>
-            <div className="w-10 h-10 bg-gradient-to-tr from-[#4ecdc4] to-[#3498db] rounded-full border-2 border-white shadow-sm"></div>
+            {/* Avatar */}
+            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-tr from-[#4ecdc4] to-[#3498db] rounded-full border-2 border-white shadow-sm shrink-0 flex items-center justify-center text-white font-bold text-sm">
+              {user?.username?.charAt(0).toUpperCase()}
+            </div>
           </div>
         </header>
 
         {/* Area Render Halaman */}
-        <main className="flex-1 p-8 overflow-y-auto">
-          <div className="max-w-6xl mx-auto">{children}</div>
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto pb-10">{children}</div>
         </main>
       </div>
     </div>
