@@ -81,9 +81,6 @@ export default function Sidebar({ role, isOpen, onClose }) {
         {/* Logo Area & Tombol Tutup Mobile */}
         <div className="mb-8 px-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff6b35] to-[#ff8c5a] flex items-center justify-center text-white font-black">
-              L
-            </div>
             <h2 className="text-2xl font-black text-white tracking-wider">
               Litera<span className="text-[#ff6b35]">SI</span>
             </h2>
@@ -103,7 +100,7 @@ export default function Sidebar({ role, isOpen, onClose }) {
             <NavLink
               key={idx}
               to={item.path}
-              onClick={onClose} // Otomatis tutup sidebar setelah menu diklik di HP
+              onClick={onClose}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all duration-150 ${
                   isActive
@@ -122,10 +119,9 @@ export default function Sidebar({ role, isOpen, onClose }) {
         <div className="mt-auto pt-4 flex flex-col gap-4 border-t border-white/10">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-[#e74c3c] hover:bg-[#e74c3c]/10 transition-all"
+            className="flex cursor-pointer items-center gap-3 px-4 py-3 border-2 border-solid rounded-xl font-extrabold text-[#e74c3c] hover:bg-[#e74c3c]/10 transition-all"
           >
-            <SignOut weight="bold" size={24} />
-            Keluar
+            KELUAR
           </button>
         </div>
       </aside>
