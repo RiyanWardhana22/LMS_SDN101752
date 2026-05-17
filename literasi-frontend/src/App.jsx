@@ -10,6 +10,7 @@ import DashboardGuru from "./pages/teacher/DashboardGuru";
 import LoginSiswa from "./components/LoginSiswa";
 import BerandaSiswa from "./pages/student/BerandaSiswa";
 import ModulAR from "./pages/student/ModulAR";
+import WorkshopAI from "./pages/teacher/WorkshopAI";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -28,7 +29,10 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<LoginSiswa />} />
+        {/* ADMIN */}
         <Route path="/login-staf" element={<Login />} />
+
+        {/* SISWA */}
         <Route
           path="/siswa/beranda"
           element={
@@ -46,6 +50,7 @@ function App() {
           }
         />
 
+        {/* GURU */}
         <Route
           path="/admin/dashboard"
           element={
@@ -59,6 +64,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["guru"]}>
               <DashboardGuru />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/workshop-ai"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <WorkshopAI />
             </ProtectedRoute>
           }
         />
