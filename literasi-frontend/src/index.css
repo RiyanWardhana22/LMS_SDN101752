@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap");
 
 @layer base {
   :root {
@@ -31,15 +32,6 @@
     repeat-x;
   background-size: 50% 100%;
   animation: wave-horizontal 10s linear infinite;
-}
-
-@keyframes wave-horizontal {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
 }
 
 .btn-primary {
