@@ -1,16 +1,18 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Content-Type: application/json; charset=UTF-8");
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
             http_response_code(200);
             exit();
 }
+
 $request_uri = $_SERVER['REQUEST_URI'];
-$base_path = '/literasi-backend';
+$base_path = '/lms_sdn101752/literasi-backend';
+
 $path = str_replace($base_path, '', $request_uri);
 $path = parse_url($path, PHP_URL_PATH);
-
 switch ($path) {
             case '/api/auth/verify_credentials':
                         require __DIR__ . '/api/auth/verify_credentials.php';
