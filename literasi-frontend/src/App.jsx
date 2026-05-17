@@ -10,6 +10,7 @@ import DashboardGuru from "./pages/teacher/DashboardGuru";
 import LoginSiswa from "./components/LoginSiswa";
 import BerandaSiswa from "./pages/student/BerandaSiswa";
 import ModulAR from "./pages/student/ModulAR";
+import ManajemenMateri from "./pages/teacher/ManajemenMateri";
 import WorkshopAI from "./pages/teacher/WorkshopAI";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -64,6 +65,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["guru"]}>
               <DashboardGuru />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/materi"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <ManajemenMateri />
             </ProtectedRoute>
           }
         />
