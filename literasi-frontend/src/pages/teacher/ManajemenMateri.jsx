@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import {
   Plus,
@@ -12,6 +13,7 @@ import {
 
 export default function ManajemenMateri() {
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
   const [materiList] = useState([
     {
       id: 1,
@@ -66,7 +68,10 @@ export default function ManajemenMateri() {
             Kelola bahan ajar, modul AR, dan video pembelajaran untuk kelasmu.
           </p>
         </div>
-        <button className="btn-primary py-3 px-6 cursor-pointer rounded-2xl flex items-center justify-center gap-2 text-sm whitespace-nowrap">
+        <button
+          onClick={() => navigate("/guru/materi/tambah")}
+          className="btn-primary py-3 px-6 cursor-pointer rounded-2xl flex items-center justify-center gap-2 text-sm whitespace-nowrap"
+        >
           <Plus weight="bold" size={20} />
           Buat Materi Baru
         </button>
