@@ -1,6 +1,8 @@
+import { useNavigate } from "react-router-dom";
 import StudentLayout from "../../components/layout/StudentLayout";
 import { LockKey, Star } from "@phosphor-icons/react";
 export default function BerandaSiswa() {
+  const navigate = useNavigate();
   const wilayahBelajar = [
     {
       id: 1,
@@ -78,8 +80,15 @@ export default function BerandaSiswa() {
 
               {/* Tombol Node Pulau */}
               <button
+                onClick={() => {
+                  if (wilayah.status === "aktif") {
+                    navigate("/siswa/ar");
+                  }
+                }}
                 className={`relative w-24 h-24 rounded-full flex items-center justify-center text-4xl transition-transform active:scale-95 ${
-                  wilayah.status === "aktif" ? "animate-bounce" : ""
+                  wilayah.status === "aktif"
+                    ? "animate-bounce cursor-pointer"
+                    : "cursor-default"
                 }`}
                 style={{
                   backgroundColor:

@@ -9,6 +9,7 @@ import DashboardAdmin from "./pages/admin/DashboardAdmin";
 import DashboardGuru from "./pages/teacher/DashboardGuru";
 import LoginSiswa from "./components/LoginSiswa";
 import BerandaSiswa from "./pages/student/BerandaSiswa";
+import ModulAR from "./pages/student/ModulAR";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -33,6 +34,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["siswa"]}>
               <BerandaSiswa />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/ar"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <ModulAR />
             </ProtectedRoute>
           }
         />
