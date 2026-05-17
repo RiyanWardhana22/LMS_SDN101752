@@ -32,6 +32,19 @@ export default function ModulAR() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black font-['Nunito']">
+      <style>
+        {`
+          video, .a-canvas {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 0 !important;
+          }
+        `}
+      </style>
       {/* 1. LAYAR LOADING AR */}
       {isLoading && (
         <div className="absolute inset-0 z-50 bg-[#1a1a2e] flex flex-col items-center justify-center p-6 text-center">
@@ -105,36 +118,40 @@ export default function ModulAR() {
       )}
 
       {/* 4. A-FRAME & MIND-AR SCENE */}
-      {/* Kita menggunakan marker testing bawaan MindAR (.mind) dan objek kubus sederhana agar dipastikan berjalan 100% */}
-      <a-scene
-        ref={sceneRef}
-        mindar-image="imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind; autoStart: true; uiLoading: no; uiError: no;"
-        color-space="sRGB"
-        embedded
-        renderer="colorManagement: true, physicallyCorrectLights"
-        vr-mode-ui="enabled: false"
-        device-orientation-permission-ui="enabled: false"
-      >
-        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <div className="absolute inset-0 z-0">
+        <a-scene
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "block",
+          }}
+          ref={sceneRef}
+          mindar-image="imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind; autoStart: true; uiLoading: no; uiError: no;"
+          color-space="sRGB"
+          embedded
+          renderer="colorManagement: true, physicallyCorrectLights"
+          vr-mode-ui="enabled: false"
+          device-orientation-permission-ui="enabled: false"
+        >
+          <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        {/* Ini adalah objek yang akan muncul ketika marker dideteksi */}
-        <a-entity mindar-image-target="targetIndex: 0">
-          {/* Kotak animasi 3D sebagai placeholder materi (bisa diganti model 3D gltf nanti) */}
-          <a-box
-            position="0 0 0.1"
-            scale="0.5 0.5 0.5"
-            color="#ff6b35"
-            animation="property: rotation; to: 0 360 0; loop: true; dur: 3000"
-          ></a-box>
-          <a-text
-            value="Materi AR\nSDN 101752"
-            color="#ffffff"
-            align="center"
-            position="0 0.6 0.1"
-            scale="0.5 0.5 0.5"
-          ></a-text>
-        </a-entity>
-      </a-scene>
+          <a-entity mindar-image-target="targetIndex: 0">
+            <a-box
+              position="0 0 0.1"
+              scale="0.5 0.5 0.5"
+              color="#ff6b35"
+              animation="property: rotation; to: 0 360 0; loop: true; dur: 3000"
+            ></a-box>
+            <a-text
+              value="Materi AR\nSDN 101752"
+              color="#ffffff"
+              align="center"
+              position="0 0.6 0.1"
+              scale="0.5 0.5 0.5"
+            ></a-text>
+          </a-entity>
+        </a-scene>
+      </div>
     </div>
   );
 }
