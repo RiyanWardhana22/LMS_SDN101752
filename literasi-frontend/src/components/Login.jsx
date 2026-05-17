@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 export default function Login() {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -8,6 +8,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [token, setToken] = useState("");
   const API_URL = import.meta.env.VITE_API_BASE_URL;
+  const navigate = useNavigate();
   const handleCekKredensial = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -51,9 +52,13 @@ export default function Login() {
       });
 
       const data = await response.json();
-
       if (response.ok) {
-        alert(`Berhasil login! Selamat datang, ${data.user.role}`);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        if (data.user.role === "admin") {
+          navigate("/admin/dashboard");
+        } else if (data.user.role === "guru") {
+          navigate("/guru/dashboard");
+        }
       } else {
         setErrorMsg(data.message || "Token tidak valid.");
       }
