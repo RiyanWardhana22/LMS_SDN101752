@@ -67,7 +67,13 @@ export default function FormMateri() {
         ]);
       }
     } catch (error) {
-      alert("Gagal mengunggah ke Cloudinary");
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Gagal mengunggah ke Cloudinary",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } finally {
       setIsUploadingCloud(false);
     }
@@ -76,9 +82,14 @@ export default function FormMateri() {
   const handleARUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     if (!file.name.endsWith(".mind")) {
-      alert("Format harus .mind!");
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Format harus .mind!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
       return;
     }
 
@@ -109,7 +120,13 @@ export default function FormMateri() {
         alert(data.message);
       }
     } catch (error) {
-      alert("Gagal mengunggah AR ke server lokal");
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Gagal mengunggah AR ke server lokal",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     }
   };
 
@@ -128,15 +145,26 @@ export default function FormMateri() {
     setIsSaving(true);
     const userString = localStorage.getItem("user");
     if (!userString) {
-      alert("Sesi Anda telah habis. Silakan login kembali!");
+      Swal.fire({
+        position: "top-end",
+        icon: "warning",
+        title: "Sesi Anda telah habis. Silakan login kembali!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
       navigate("/");
       return;
     }
     const user = JSON.parse(userString);
     if (!user.id) {
-      alert(
-        "ID Guru tidak terdeteksi. Pastikan Anda login dengan akun yang valid di Database.",
-      );
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title:
+          "ID Guru tidak terdeteksi. Pastikan Anda login dengan akun yang valid di Database.",
+        showConfirmButton: false,
+        timer: 1500,
+      });
       setIsSaving(false);
       return;
     }
@@ -176,13 +204,24 @@ export default function FormMateri() {
           "SERVER BUKAN MENGEMBALIKAN JSON, MELAINKAN:",
           textResponse,
         );
-        alert(
-          "Terjadi kesalahan fatal di server database. Cek tulisan merah di console!",
-        );
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title:
+            "Terjadi kesalahan fatal di server database. Cek tulisan merah di console!",
+          showConfirmButton: false,
+          timer: 1500,
+        });
       }
     } catch (error) {
       console.error("Error fetch:", error);
-      alert("Gagal menghubungi server. Pastikan Laragon/Apache menyala.");
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Gagal menghubungi server. Pastikan Laragon/Apache menyala.",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } finally {
       setIsSaving(false);
     }
