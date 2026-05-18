@@ -126,7 +126,21 @@ export default function FormMateri() {
   const handleSave = async (e) => {
     e.preventDefault();
     setIsSaving(true);
-    const user = JSON.parse(localStorage.getItem("user"));
+    const userString = localStorage.getItem("user");
+    if (!userString) {
+      alert("Sesi Anda telah habis. Silakan login kembali!");
+      navigate("/");
+      return;
+    }
+    const user = JSON.parse(userString);
+    if (!user.id) {
+      alert(
+        "ID Guru tidak terdeteksi. Pastikan Anda login dengan akun yang valid di Database.",
+      );
+      setIsSaving(false);
+      return;
+    }
+
     const payload = {
       guru_id: user.id,
       judul,
@@ -148,18 +162,27 @@ export default function FormMateri() {
           body: JSON.stringify(payload),
         },
       );
-
-      const data = await response.json();
-
-      if (data.status === "success") {
-        alert("Berhasil: " + data.message);
-        navigate("/guru/materi");
-      } else {
-        alert("Gagal: " + data.message);
+      const textResponse = await response.text();
+      try {
+        const data = JSON.parse(textResponse);
+        if (data.status === "success") {
+          alert("Berhasil: " + data.message);
+          navigate("/guru/materi");
+        } else {
+          alert("Gagal menyimpan: " + data.message);
+        }
+      } catch (jsonParseError) {
+        console.error(
+          "SERVER BUKAN MENGEMBALIKAN JSON, MELAINKAN:",
+          textResponse,
+        );
+        alert(
+          "Terjadi kesalahan fatal di server database. Cek tulisan merah di console!",
+        );
       }
     } catch (error) {
-      console.error("Error saving data:", error);
-      alert("Terjadi kesalahan koneksi ke server.");
+      console.error("Error fetch:", error);
+      alert("Gagal menghubungi server. Pastikan Laragon/Apache menyala.");
     } finally {
       setIsSaving(false);
     }
