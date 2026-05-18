@@ -38,7 +38,6 @@ export default function Login() {
     }
   };
 
-  // Fungsi untuk Langkah 2: Verifikasi Token
   const handleVerifikasiToken = async (e) => {
     e.preventDefault();
     setIsLoading(true);

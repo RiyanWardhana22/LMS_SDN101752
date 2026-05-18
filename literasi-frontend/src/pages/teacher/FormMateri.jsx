@@ -1,49 +1,168 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../components/layout/DashboardLayout";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 import {
   CaretLeft,
   FloppyDisk,
-  TextItalic,
-  TextUnderline,
-  ListBullets,
-  Link,
   VideoCamera,
   Cube,
   XCircle,
+  Link,
+  UploadSimple,
 } from "@phosphor-icons/react";
-import { FaBold } from "react-icons/fa";
 
 export default function FormMateri() {
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
   const [judul, setJudul] = useState("");
+  const [konten, setKonten] = useState("");
   const [mediaList, setMediaList] = useState([]);
+  const [mataPelajaran, setMataPelajaran] = useState("IPA (Sains)");
+  const [kelas, setKelas] = useState("Kelas 4");
+  const [visibilitas, setVisibilitas] = useState("publik");
+  const [isUploadingCloud, setIsUploadingCloud] = useState(false);
+  const fileInputRef = useRef(null);
+  const arInputRef = useRef(null);
 
-  const handleSave = (e) => {
-    e.preventDefault();
-    setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      navigate("/guru/materi");
-    }, 1500);
+  const CLOUD_NAME = "dy419a52c";
+  const UPLOAD_PRESET = "r7a8ph82";
+
+  const addVideoLink = () => {
+    setMediaList([
+      ...mediaList,
+      { id: Date.now(), type: "video_link", url: "" },
+    ]);
   };
-  const addMedia = (type) => {
-    if (type === "video") {
-      setMediaList([
-        ...mediaList,
-        { id: Date.now(), type: "video", url: "https://youtube.com/..." },
-      ]);
-    } else if (type === "ar") {
-      setMediaList([
-        ...mediaList,
-        { id: Date.now(), type: "ar", marker: "targets.mind" },
-      ]);
+
+  const handleCloudinaryUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploadingCloud(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
+
+    try {
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`,
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+      const data = await res.json();
+
+      if (data.secure_url) {
+        setMediaList([
+          ...mediaList,
+          {
+            id: Date.now(),
+            type: "video_cloud",
+            url: data.secure_url,
+            filename: file.name,
+          },
+        ]);
+      }
+    } catch (error) {
+      alert("Gagal mengunggah ke Cloudinary");
+    } finally {
+      setIsUploadingCloud(false);
+    }
+  };
+
+  const handleARUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.name.endsWith(".mind")) {
+      alert("Format harus .mind!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch(
+        "http://localhost/lms_sdn101752/literasi-backend/upload_ar.php",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+      const data = await res.json();
+
+      if (data.status === "success") {
+        setMediaList([
+          ...mediaList,
+          {
+            id: Date.now(),
+            type: "ar_mind",
+            url: data.file_path,
+            filename: file.name,
+          },
+        ]);
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      alert("Gagal mengunggah AR ke server lokal");
     }
   };
 
   const removeMedia = (id) => {
     setMediaList(mediaList.filter((m) => m.id !== id));
+  };
+
+  const handleUpdateMediaUrl = (id, newUrl) => {
+    setMediaList(
+      mediaList.map((m) => (m.id === id ? { ...m, url: newUrl } : m)),
+    );
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    const user = JSON.parse(localStorage.getItem("user"));
+    const payload = {
+      guru_id: user.id,
+      judul,
+      konten,
+      mata_pelajaran: mataPelajaran,
+      kelas,
+      visibilitas,
+      media: mediaList,
+    };
+
+    try {
+      const response = await fetch(
+        "http://localhost/lms_sdn101752/literasi-backend/api/materi/create.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        alert("Berhasil: " + data.message);
+        navigate("/guru/materi");
+      } else {
+        alert("Gagal: " + data.message);
+      }
+    } catch (error) {
+      console.error("Error saving data:", error);
+      alert("Terjadi kesalahan koneksi ke server.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -52,203 +171,205 @@ export default function FormMateri() {
         onSubmit={handleSave}
         className="max-w-5xl mx-auto flex flex-col gap-6"
       >
+        {/* Header Aksi */}
         <div className="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-neutral-100">
           <button
             type="button"
             onClick={() => navigate("/guru/materi")}
-            className="flex items-center gap-2 text-neutral-500 hover:text-[#ff6b35] font-bold text-sm transition-colors"
+            className="flex items-center gap-2 text-neutral-500 hover:text-[#ff6b35] font-bold text-sm"
           >
             <CaretLeft weight="bold" size={20} /> Kembali
           </button>
-
           <button
             type="submit"
             disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-2 bg-[#2ecc71] hover:bg-[#27ae60] text-white font-bold rounded-xl transition-all shadow-[0_4px_0_#1e8449] active:translate-y-1 active:shadow-none disabled:opacity-50"
+            className="flex items-center gap-2 px-6 py-2 bg-[#2ecc71] hover:bg-[#27ae60] text-white font-bold rounded-xl transition-all shadow-[0_4px_0_#1e8449]"
           >
-            <FloppyDisk weight="bold" size={20} />
-            {isSaving ? "Menyimpan..." : "Simpan & Terbitkan"}
+            <FloppyDisk weight="bold" size={20} />{" "}
+            {isSaving ? "Menyimpan..." : "Simpan Materi"}
           </button>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
-          <div className="flex-1 bg-white rounded-3xl shadow-sm border border-neutral-100 overflow-hidden flex flex-col">
-            <div className="bg-neutral-50 border-b border-neutral-100 p-3 flex flex-wrap items-center gap-2">
-              <div className="flex items-center bg-white border border-neutral-200 rounded-lg p-1 shadow-sm">
-                <button
-                  type="button"
-                  className="p-2 text-neutral-600 hover:bg-neutral-100 rounded-md transition-colors"
-                >
-                  <FaBold />
-                </button>
-                <button
-                  type="button"
-                  className="p-2 text-neutral-600 hover:bg-neutral-100 rounded-md transition-colors"
-                >
-                  <TextItalic weight="bold" size={18} />
-                </button>
-                <button
-                  type="button"
-                  className="p-2 text-neutral-600 hover:bg-neutral-100 rounded-md transition-colors"
-                >
-                  <TextUnderline weight="bold" size={18} />
-                </button>
-              </div>
-              <div className="w-px h-6 bg-neutral-200 mx-1"></div>
-              <div className="flex items-center bg-white border border-neutral-200 rounded-lg p-1 shadow-sm">
-                <button
-                  type="button"
-                  className="p-2 text-neutral-600 hover:bg-neutral-100 rounded-md transition-colors"
-                >
-                  <ListBullets weight="bold" size={18} />
-                </button>
-                <button
-                  type="button"
-                  className="p-2 text-neutral-600 hover:bg-neutral-100 rounded-md transition-colors"
-                >
-                  <Link weight="bold" size={18} />
-                </button>
-              </div>
-
-              <div className="flex-1"></div>
-
-              {/* Tombol Sisipkan Khusus */}
-              <button
-                type="button"
-                onClick={() => addMedia("video")}
-                className="flex items-center gap-2 px-3 py-1.5 bg-[#fdedec] text-[#e74c3c] hover:bg-[#e74c3c] hover:text-white font-bold text-xs rounded-lg transition-colors border border-[#e74c3c]/20"
-              >
-                <VideoCamera weight="fill" size={16} /> Sisipkan Video
-              </button>
-              <button
-                type="button"
-                onClick={() => addMedia("ar")}
-                className="flex items-center gap-2 px-3 py-1.5 bg-[#eafaf1] text-[#2ecc71] hover:bg-[#2ecc71] hover:text-white font-bold text-xs rounded-lg transition-colors border border-[#2ecc71]/20"
-              >
-                <Cube weight="fill" size={16} /> Sisipkan AR
-              </button>
-            </div>
-
-            {/* Area Ketik Editor */}
-            <div className="p-8 flex-1 flex flex-col min-h-[400px]">
+          {/* AREA KIRI: Editor Teks & Media */}
+          <div className="flex-1 flex flex-col gap-6">
+            <div className="bg-white rounded-3xl shadow-sm border border-neutral-100 overflow-hidden flex flex-col p-6">
               <input
                 type="text"
-                placeholder="Judul Materi..."
-                className="w-full text-4xl font-black text-neutral-900 placeholder:text-neutral-300 border-none focus:ring-0 outline-none mb-6 bg-transparent"
+                placeholder="Masukkan Judul Materi..."
+                required
+                className="w-full text-3xl font-black text-neutral-900 placeholder:text-neutral-300 border-none focus:ring-0 outline-none mb-6 bg-transparent"
                 value={judul}
                 onChange={(e) => setJudul(e.target.value)}
-                required
               />
-              <textarea
-                placeholder="Ketik isi materi di sini... Anda bisa menekan tombol di atas untuk menyisipkan Video atau AR."
-                className="w-full flex-1 text-neutral-700 leading-relaxed border-none focus:ring-0 outline-none resize-none bg-transparent"
-              ></textarea>
 
-              {/* Area Render Media yang disisipkan */}
-              {mediaList.length > 0 && (
-                <div className="mt-8 flex flex-col gap-4 border-t-2 border-dashed border-neutral-200 pt-6">
-                  <h4 className="font-bold text-neutral-400 text-sm uppercase tracking-wider">
-                    Media Tersisip
-                  </h4>
+              {/* React Quill WYSIWYG */}
+              <div className="h-[300px] mb-12">
+                <ReactQuill
+                  theme="snow"
+                  value={konten}
+                  onChange={setKonten}
+                  style={{ height: "100%" }}
+                  placeholder="Ketik isi materi, penjelasan, atau instruksi di sini..."
+                />
+              </div>
+            </div>
 
-                  {mediaList.map((media) => (
-                    <div
-                      key={media.id}
-                      className={`relative p-4 rounded-2xl border-2 flex items-center gap-4 ${media.type === "video" ? "bg-[#fdedec]/50 border-[#e74c3c]/30" : "bg-[#eafaf1]/50 border-[#2ecc71]/30"}`}
-                    >
-                      <div
-                        className={`p-3 rounded-xl text-white ${media.type === "video" ? "bg-[#e74c3c]" : "bg-[#2ecc71]"}`}
-                      >
-                        {media.type === "video" ? (
-                          <VideoCamera weight="fill" size={24} />
-                        ) : (
-                          <Cube weight="fill" size={24} />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-bold text-neutral-900">
-                          {media.type === "video"
-                            ? "Tautan Video YouTube"
-                            : "Modul WebAR (MindAR)"}
-                        </p>
-                        <input
-                          type="text"
-                          defaultValue={
-                            media.type === "video" ? media.url : media.marker
-                          }
-                          className="w-full mt-1 bg-white border border-neutral-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-[#ff6b35]"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeMedia(media.id)}
-                        className="p-2 text-neutral-400 hover:text-[#e74c3c] transition-colors"
-                      >
-                        <XCircle weight="fill" size={24} />
-                      </button>
+            {/* Panel Penyisipan Media Khusus */}
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-neutral-100">
+              <h3 className="font-black text-neutral-900 mb-4 border-b border-neutral-100 pb-2">
+                Sisipkan Multimedia
+              </h3>
+
+              <div className="flex flex-wrap gap-3 mb-6">
+                <button
+                  type="button"
+                  onClick={addVideoLink}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#fdedec] text-[#e74c3c] font-bold text-sm rounded-xl"
+                >
+                  <Link weight="bold" /> Link YouTube
+                </button>
+
+                {/* Tombol Upload Video */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current.click()}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#fff3ee] text-[#ff6b35] font-bold text-sm rounded-xl"
+                >
+                  <UploadSimple weight="bold" />{" "}
+                  {isUploadingCloud ? "Mengunggah..." : "Upload Video (Cloud)"}
+                </button>
+                <input
+                  type="file"
+                  accept="video/*"
+                  ref={fileInputRef}
+                  onChange={handleCloudinaryUpload}
+                  className="hidden"
+                />
+
+                {/* Tombol Upload AR */}
+                <button
+                  type="button"
+                  onClick={() => arInputRef.current.click()}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#eafaf1] text-[#2ecc71] font-bold text-sm rounded-xl"
+                >
+                  <Cube weight="bold" /> Upload File .mind (AR)
+                </button>
+                <input
+                  type="file"
+                  accept=".mind"
+                  ref={arInputRef}
+                  onChange={handleARUpload}
+                  className="hidden"
+                />
+              </div>
+
+              {/* Daftar Media yang sudah ditambahkan */}
+              <div className="flex flex-col gap-4">
+                {mediaList.map((media) => (
+                  <div
+                    key={media.id}
+                    className="p-4 rounded-xl border-2 flex items-center gap-4 bg-neutral-50 border-neutral-200"
+                  >
+                    <div className="p-3 rounded-xl text-white bg-neutral-400">
+                      {media.type.includes("video") ? (
+                        <VideoCamera weight="fill" size={24} />
+                      ) : (
+                        <Cube weight="fill" size={24} />
+                      )}
                     </div>
-                  ))}
-                </div>
-              )}
+                    <div className="flex-1">
+                      <p className="font-bold text-neutral-900 text-sm">
+                        {media.type === "video_link" && "Link Video YouTube"}
+                        {media.type === "video_cloud" &&
+                          `Video Cloudinary: ${media.filename}`}
+                        {media.type === "ar_mind" &&
+                          `Modul AR: ${media.filename}`}
+                      </p>
+
+                      {media.type === "video_link" ? (
+                        <input
+                          type="url"
+                          placeholder="https://youtube.com/watch?v=..."
+                          required
+                          value={media.url}
+                          onChange={(e) =>
+                            handleUpdateMediaUrl(media.id, e.target.value)
+                          }
+                          className="w-full mt-2 bg-white border border-neutral-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#ff6b35]"
+                        />
+                      ) : (
+                        <p className="text-xs text-neutral-500 mt-1 break-all bg-neutral-200 p-2 rounded-lg">
+                          {media.url}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeMedia(media.id)}
+                      className="p-2 text-neutral-400 hover:text-[#e74c3c] transition-colors"
+                    >
+                      <XCircle weight="fill" size={28} />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* AREA KANAN: Panel Pengaturan */}
+          {/* AREA KANAN: Pengaturan Materi (Tetap Sama) */}
           <div className="w-full lg:w-80 flex flex-col gap-6">
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-neutral-100">
               <h3 className="font-black text-neutral-900 mb-4 border-b border-neutral-100 pb-2">
-                Pengaturan Materi
+                Kategori
               </h3>
-
               <div className="flex flex-col gap-4">
                 <div>
                   <label className="block text-xs font-bold text-neutral-500 mb-1">
                     Mata Pelajaran
                   </label>
-                  <select className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-sm font-bold text-neutral-700 outline-none focus:border-[#ff6b35]">
-                    <option>IPA (Sains)</option>
-                    <option>IPS (Sosial)</option>
-                    <option>Matematika</option>
-                    <option>Bahasa Indonesia</option>
+                  <select
+                    value={mataPelajaran}
+                    onChange={(e) => setMataPelajaran(e.target.value)}
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-sm font-bold text-neutral-700 outline-none"
+                  >
+                    <option value="IPA (Sains)">IPA (Sains)</option>
+                    <option value="IPS (Sosial)">IPS (Sosial)</option>
+                    <option value="Matematika">Matematika</option>
+                    <option value="Bahasa Indonesia">Bahasa Indonesia</option>
                   </select>
                 </div>
-
                 <div>
                   <label className="block text-xs font-bold text-neutral-500 mb-1">
                     Target Kelas
                   </label>
-                  <select className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-sm font-bold text-neutral-700 outline-none focus:border-[#ff6b35]">
-                    <option>Kelas 1</option>
-                    <option>Kelas 2</option>
-                    <option>Kelas 3</option>
-                    <option>Kelas 4</option>
-                    <option>Kelas 5</option>
-                    <option>Kelas 6</option>
+                  <select
+                    value={kelas}
+                    onChange={(e) => setKelas(e.target.value)}
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-sm font-bold text-neutral-700 outline-none"
+                  >
+                    <option value="Kelas 1">Kelas 1</option>
+                    <option value="Kelas 2">Kelas 2</option>
+                    <option value="Kelas 3">Kelas 3</option>
+                    <option value="Kelas 4">Kelas 4</option>
+                    <option value="Kelas 5">Kelas 5</option>
+                    <option value="Kelas 6">Kelas 6</option>
                   </select>
                 </div>
-
                 <div>
                   <label className="block text-xs font-bold text-neutral-500 mb-1">
                     Status Visibilitas
                   </label>
-                  <select className="w-full bg-[#fff3ee] border border-[#ff6b35] rounded-xl p-3 text-sm font-bold text-[#e54e1b] outline-none">
-                    <option>Tersedia untuk Siswa</option>
-                    <option>Sembunyikan (Draft)</option>
+                  <select
+                    value={visibilitas}
+                    onChange={(e) => setVisibilitas(e.target.value)}
+                    className="w-full bg-[#fff3ee] border border-[#ff6b35] rounded-xl p-3 text-sm font-bold text-[#e54e1b] outline-none"
+                  >
+                    <option value="publik">Tersedia untuk Siswa</option>
+                    <option value="draft">Sembunyikan (Draft)</option>
                   </select>
                 </div>
               </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-[#4ecdc4] to-[#3498db] rounded-3xl p-6 shadow-sm text-white">
-              <h3 className="font-black mb-2 flex items-center gap-2">
-                <Cube weight="fill" /> Tips Modul AR
-              </h3>
-              <p className="text-sm font-medium opacity-90 leading-relaxed">
-                Untuk menyisipkan AR, pastikan Anda sudah mengunggah file{" "}
-                <code className="bg-black/20 px-1 rounded">.mind</code> ke
-                server. Siswa akan langsung melihat tombol "Mulai AR" di bagian
-                bawah teks bacaan.
-              </p>
             </div>
           </div>
         </div>

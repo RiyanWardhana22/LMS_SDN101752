@@ -60,7 +60,6 @@ export default function LoginSiswa() {
         )}
 
         <form onSubmit={handleLogin}>
-          {/* 6 Kotak Input Kode */}
           <div className="flex justify-center gap-2 md:gap-3 mb-8">
             {code.map((digit, index) => (
               <input
@@ -79,7 +78,7 @@ export default function LoginSiswa() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-[#ff6b35] text-white font-black text-xl py-4 rounded-2xl shadow-[0_6px_0_#e54e1b] hover:bg-[#ff8c5a] active:translate-y-[6px] active:shadow-none transition-all"
+            className="w-full bg-[#ff6b35] cursor-pointer text-white font-black text-xl py-4 rounded-2xl shadow-[0_6px_0_#e54e1b] hover:bg-[#ff8c5a] active:translate-y-[6px] active:shadow-none transition-all"
           >
             {isLoading ? "Tunggu sebentar..." : "Mulai Belajar! 🚀"}
           </button>
@@ -88,7 +87,7 @@ export default function LoginSiswa() {
         {/* Tombol navigasi balik untuk guru/admin */}
         <button
           onClick={() => navigate("/login-staf")}
-          className="mt-8 text-neutral-400 font-bold hover:text-[#ff6b35] transition-colors"
+          className="mt-8 text-neutral-400 font-bold hover:text-[#ff6b35] cursor-pointer transition-colors"
         >
           Masuk sebagai Guru / Admin
         </button>
