@@ -123,7 +123,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full btn-primary font-bold text-lg py-3 rounded-2xl mt-4"
+                className="w-full btn-primary cursor-pointer font-bold text-lg py-3 rounded-2xl mt-4"
               >
                 {isLoading ? "Memeriksa..." : "Lanjutkan"}
               </button>
@@ -151,14 +151,14 @@ export default function Login() {
                   className="w-full px-4 py-3 rounded-xl border-2 border-neutral-200 focus:border-[#ff6b35] focus:ring-0 outline-none transition-colors font-bold text-center tracking-widest text-2xl"
                   placeholder="------"
                   value={token}
-                  onChange={(e) => setToken(e.target.value.replace(/\D/g, ""))} // Hanya angka
+                  onChange={(e) => setToken(e.target.value.replace(/\D/g, ""))}
                   required
                 />
               </div>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full btn-primary font-bold text-lg py-3 rounded-2xl mt-4"
+                className="w-full btn-primary cursor-pointer font-bold text-lg py-3 rounded-2xl mt-4"
               >
                 {isLoading ? "Memverifikasi..." : "Masuk ke Dashboard"}
               </button>
@@ -170,7 +170,7 @@ export default function Login() {
                   setToken("");
                   setErrorMsg("");
                 }}
-                className="w-full text-neutral-500 font-bold text-sm py-2 mt-2 hover:text-[#ff6b35] transition-colors"
+                className="w-full text-neutral-500 cursor-pointer font-bold text-sm py-2 mt-2 hover:text-[#ff6b35] transition-colors"
               >
                 ← Kembali ke awal
               </button>

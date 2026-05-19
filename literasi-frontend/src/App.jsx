@@ -13,6 +13,7 @@ import ModulAR from "./pages/student/ModulAR";
 import ManajemenMateri from "./pages/teacher/ManajemenMateri";
 import WorkshopAI from "./pages/teacher/WorkshopAI";
 import FormMateri from "./pages/teacher/FormMateri";
+import EditMateri from "./pages/teacher/EditMateri";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -82,6 +83,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["guru"]}>
               <FormMateri />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/materi/edit/:id"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <EditMateri />
             </ProtectedRoute>
           }
         />
