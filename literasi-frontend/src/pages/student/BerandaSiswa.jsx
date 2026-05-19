@@ -67,7 +67,6 @@ export default function BerandaSiswa() {
               key={wilayah.id}
               className={`relative mb-12 flex flex-col items-center w-full ${transformClass}`}
             >
-              {/* Nama Pulau (Tooltip) */}
               <div
                 className={`mb-3 px-4 py-1.5 rounded-xl font-bold text-sm border-2 shadow-sm ${wilayah.status === "terkunci" ? "bg-neutral-100 text-neutral-400 border-neutral-200" : "bg-white text-neutral-800"}`}
                 style={{
