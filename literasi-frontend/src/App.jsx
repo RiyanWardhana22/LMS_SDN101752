@@ -14,6 +14,8 @@ import ManajemenMateri from "./pages/teacher/ManajemenMateri";
 import WorkshopAI from "./pages/teacher/WorkshopAI";
 import FormMateri from "./pages/teacher/FormMateri";
 import EditMateri from "./pages/teacher/EditMateri";
+import ManajemenTugas from "./pages/teacher/ManajemenTugas";
+import FormTugas from "./pages/teacher/FormTugas";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -91,6 +93,22 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["guru"]}>
               <EditMateri />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/tugas"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <ManajemenTugas />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/tugas/tambah"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <FormTugas />
             </ProtectedRoute>
           }
         />

@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   X,
 } from "@phosphor-icons/react";
+import { FaClipboardList } from "react-icons/fa";
 
 export default function Sidebar({ role, isOpen, onClose }) {
   const navigate = useNavigate();
@@ -54,6 +55,11 @@ export default function Sidebar({ role, isOpen, onClose }) {
       icon: <BookOpen weight="fill" size={24} />,
     },
     {
+      name: "Tugas & Kuis",
+      path: "/guru/tugas",
+      icon: <FaClipboardList weight="fill" size={24} />,
+    },
+    {
       name: "Workshop AI",
       path: "/guru/workshop-ai",
       icon: <ChalkboardTeacher weight="fill" size={24} />,
@@ -64,7 +70,6 @@ export default function Sidebar({ role, isOpen, onClose }) {
 
   return (
     <>
-      {/* 1. Overlay Hitam (Hanya muncul di Mobile/Tablet saat menu terbuka) */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden transition-opacity"
