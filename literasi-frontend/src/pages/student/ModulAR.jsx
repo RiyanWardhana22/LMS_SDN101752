@@ -120,13 +120,9 @@ export default function ModulAR() {
       {/* 4. A-FRAME & MIND-AR SCENE */}
       <div className="absolute inset-0 z-0">
         <a-scene
-          style={{
-            width: "100%",
-            height: "100%",
-            display: "block",
-          }}
+          style={{ width: "100%", height: "100%", display: "block" }}
           ref={sceneRef}
-          mindar-image="imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind; autoStart: true; uiLoading: no; uiError: no;"
+          mindar-image={`imageTargetSrc: ${localStorage.getItem("current_ar_marker") || "/targets.mind"}; autoStart: true; uiLoading: no; uiError: no;`}
           color-space="sRGB"
           embedded
           renderer="colorManagement: true, physicallyCorrectLights"
