@@ -15,11 +15,14 @@ export default function Login() {
     setErrorMsg("");
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/verify_credentials`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
+      const response = await fetch(
+        `${API_URL}/api/auth/verify_credentials.php`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        },
+      );
 
       const data = await response.json();
 
