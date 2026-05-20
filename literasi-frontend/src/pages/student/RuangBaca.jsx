@@ -96,9 +96,8 @@ export default function RuangBaca() {
         {materi.media && materi.media.length > 0 && (
           <div className="bg-neutral-50 p-8 lg:p-12 border-2 border-neutral-100 rounded-b-3xl shadow-sm flex flex-col gap-8">
             <h3 className="font-black text-neutral-900 text-2xl border-b-2 border-neutral-200 pb-4">
-              Media Belajar Interaktif ✨
+              Media Belajar Interaktif
             </h3>
-
             <div className="flex flex-col gap-8">
               {materi.media.map((med, index) => (
                 <div key={index} className="w-full">

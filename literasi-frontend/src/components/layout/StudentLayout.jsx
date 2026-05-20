@@ -5,7 +5,7 @@ export default function StudentLayout({ children }) {
   const navItems = [
     { name: "Beranda", path: "/siswa/beranda", icon: House },
     { name: "Materi", path: "/siswa/materi", icon: Books },
-    { name: "Tugasku", path: "/siswa/tugasku", icon: Pencil },
+    { name: "Tugasku", path: "/siswa/evaluasi", icon: Pencil },
     { name: "Prestasi", path: "/siswa/prestasi", icon: Trophy },
     { name: "Profilku", path: "/siswa/profil", icon: User },
   ];

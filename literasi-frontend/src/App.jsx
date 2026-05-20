@@ -18,6 +18,8 @@ import ManajemenTugas from "./pages/teacher/ManajemenTugas";
 import FormTugas from "./pages/teacher/FormTugas";
 import PustakaBelajar from "./pages/student/PustakaBelajar";
 import RuangBaca from "./pages/student/RuangBaca";
+import RuangEvaluasi from "./pages/student/RuangEvaluasi";
+import LembarKerja from "./pages/student/LembarKerja";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -69,6 +71,22 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["siswa"]}>
               <RuangBaca />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/evaluasi"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <RuangEvaluasi />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/kerjakan/:id"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <LembarKerja />
             </ProtectedRoute>
           }
         />
