@@ -30,9 +30,7 @@ export default function Login() {
         setErrorMsg(data.message || "Gagal login. Periksa kembali data Anda.");
       }
     } catch (err) {
-      setErrorMsg(
-        "Tidak dapat terhubung ke server. Pastikan Laragon berjalan.",
-      );
+      setErrorMsg("Tidak dapat terhubung ke server.");
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +70,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-[0_8px_32px_rgba(255,107,53,0.12)] w-full max-w-md overflow-hidden relative border border-neutral-100">
         {errorMsg && (
-          <div className="absolute top-4 left-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-xl text-sm z-10 text-center animate-bounce">
+          <div className="absolute top-4 left-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-xl text-sm z-10 text-center">
             {errorMsg}
           </div>
         )}
@@ -136,8 +134,9 @@ export default function Login() {
               Verifikasi Keamanan
             </h2>
             <p className="text-neutral-500 mb-6">
-              Kami telah menghasilkan token untuk sesi Anda. Silakan cek
-              console/database.
+              Kami telah mengirimkan{" "}
+              <span className="font-bold text-[#ff6b35]">Kode 6-Digit</span> ke
+              alamat email Anda. Silakan periksa Kotak Masuk atau folder Spam.
             </p>
 
             <form onSubmit={handleVerifikasiToken} className="space-y-4">
