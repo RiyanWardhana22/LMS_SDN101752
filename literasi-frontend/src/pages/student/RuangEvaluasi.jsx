@@ -46,7 +46,7 @@ export default function RuangEvaluasi() {
         <div className="bg-gradient-to-r from-[#ff6b35] to-[#ff8c5a] rounded-3xl p-8 mb-8 text-white flex items-center justify-between shadow-lg relative overflow-hidden">
           <div className="relative z-10">
             <h2 className="text-3xl md:text-4xl font-black mb-2 flex items-center gap-3">
-              Waktunya Menguji Kemampuanmu! 🎯
+              Waktunya Menguji Kemampuanmu!
             </h2>
             <p className="font-medium opacity-90 max-w-lg leading-relaxed text-sm md:text-base">
               Kerjakan kuis dan tugas di bawah ini sebelum batas waktunya habis.
