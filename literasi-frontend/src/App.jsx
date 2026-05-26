@@ -20,6 +20,7 @@ import PustakaBelajar from "./pages/student/PustakaBelajar";
 import RuangBaca from "./pages/student/RuangBaca";
 import RuangEvaluasi from "./pages/student/RuangEvaluasi";
 import LembarKerja from "./pages/student/LembarKerja";
+import KoreksiTugas from "./pages/teacher/KoreksiTugas";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -145,6 +146,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["guru"]}>
               <FormTugas />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/tugas/koreksi/:id"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <KoreksiTugas />
             </ProtectedRoute>
           }
         />

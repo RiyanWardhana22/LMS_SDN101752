@@ -162,6 +162,16 @@ export default function ManajemenTugas() {
                     </td>
                     <td className="p-5">
                       <div className="flex items-center justify-center gap-2">
+                        {/* Tombol Koreksi Baru */}
+                        <button
+                          onClick={() =>
+                            navigate(`/guru/tugas/koreksi/${tugas.id}`)
+                          }
+                          className="px-3 py-1.5 bg-[#eafaf1] hover:bg-[#2ecc71] hover:text-white text-[#2ecc71] text-xs font-black rounded-xl transition-colors cursor-pointer border border-[#2ecc71]/20 flex items-center gap-1"
+                        >
+                          Lihat Hasil
+                        </button>
+
                         <button className="p-2 bg-neutral-100 hover:bg-neutral-200 rounded-xl text-neutral-600 transition-colors cursor-pointer">
                           <PencilSimple size={16} weight="bold" />
                         </button>

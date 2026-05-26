@@ -128,7 +128,7 @@ export default function FormTugas() {
           <button
             type="submit"
             disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-2 bg-[#2ecc71] hover:bg-[#27ae60] text-white font-bold rounded-xl shadow-[0_4px_0_#1e8449]"
+            className="flex items-center cursor-pointer gap-2 px-6 py-2 bg-[#2ecc71] hover:bg-[#27ae60] text-white font-bold rounded-xl shadow-[0_4px_0_#1e8449]"
           >
             <FloppyDisk weight="bold" size={20} />{" "}
             {isSaving ? "Menyimpan..." : "Terbitkan Sekarang"}
@@ -156,14 +156,14 @@ export default function FormTugas() {
                 <button
                   type="button"
                   onClick={() => setTipe("tugas")}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-bold rounded-lg transition-all ${tipe === "tugas" ? "bg-white text-[#ff6b35] shadow-sm" : "text-neutral-500 hover:text-neutral-700"}`}
+                  className={`flex-1 flex items-center cursor-pointer justify-center gap-2 py-2 text-sm font-bold rounded-lg transition-all ${tipe === "tugas" ? "bg-white text-[#ff6b35] shadow-sm" : "text-neutral-500 hover:text-neutral-700"}`}
                 >
                   Tugas (Esai)
                 </button>
                 <button
                   type="button"
                   onClick={() => setTipe("kuis")}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-bold rounded-lg transition-all ${tipe === "kuis" ? "bg-white text-[#3498db] shadow-sm" : "text-neutral-500 hover:text-neutral-700"}`}
+                  className={`flex-1 flex items-center cursor-pointer justify-center gap-2 py-2 text-sm font-bold rounded-lg transition-all ${tipe === "kuis" ? "bg-white text-[#3498db] shadow-sm" : "text-neutral-500 hover:text-neutral-700"}`}
                 >
                   Kuis (Pilihan Ganda)
                 </button>
@@ -287,7 +287,7 @@ export default function FormTugas() {
             <button
               type="button"
               onClick={tambahSoal}
-              className="w-full py-4 border-2 border-dashed border-[#3498db] text-[#3498db] font-black text-sm rounded-3xl hover:bg-[#ebf5fb] transition-colors flex items-center justify-center gap-2"
+              className="w-full py-4 cursor-pointer border-2 border-dashed border-[#3498db] text-[#3498db] font-black text-sm rounded-3xl hover:bg-[#ebf5fb] transition-colors flex items-center justify-center gap-2"
             >
               <Plus weight="bold" size={20} /> Tambah Soal Berikutnya
             </button>

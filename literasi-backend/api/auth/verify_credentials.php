@@ -21,7 +21,7 @@ if (!empty($data->username) && !empty($data->password)) {
     $user = $stmt->fetch();
     if ($user && password_verify($data->password, $user['password_hash'])) {
         $token = sprintf("%06d", mt_rand(1, 999999));
-        $expires = date("Y-m-d H:i:s", strtotime('+10 minutes'));
+        $expires = date("Y-m-d H:i:s", strtotime('+5 minutes'));
         $update_query = "UPDATE users SET verification_token = ?, token_expires_at = ? WHERE id = ?";
         $update_stmt = $conn->prepare($update_query);
         $update_stmt->execute([$token, $expires, $user['id']]);
@@ -48,7 +48,7 @@ if (!empty($data->username) && !empty($data->password)) {
                     <div style='font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #3498db; background: #ebf5fb; padding: 15px; border-radius: 8px; margin: 20px 0;'>
                         {$token}
                     </div>
-                    <p style='color: #888; font-size: 12px;'>Kode ini hanya berlaku selama 10 menit.<br>Jika Anda tidak merasa login, abaikan pesan ini.</p>
+                    <p style='color: #888; font-size: 12px;'>Kode ini hanya berlaku selama 5 menit.<br>Jika Anda tidak merasa login, abaikan pesan ini.</p>
                 </div>
             ";
 
