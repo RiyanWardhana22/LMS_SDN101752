@@ -97,18 +97,14 @@ export default function KelolaProfil() {
       );
 
       const data = await response.json();
-
       if (data.status === "success") {
-        // UPDATE LOCAL STORAGE dengan data user yang baru dari database
         localStorage.setItem("user", JSON.stringify(data.user));
-
         Swal.fire({
           icon: "success",
           title: "Berhasil!",
           text: data.message,
           confirmButtonColor: "#ff6b35",
         }).then(() => {
-          // Memuat ulang halaman agar perubahan nama/foto di header/sidebar langsung berubah
           window.location.reload();
         });
       } else {
@@ -255,7 +251,7 @@ export default function KelolaProfil() {
                 disabled={isSaving || isUploading}
                 className="px-8 py-3 bg-[#ff6b35] hover:bg-[#e0531f] text-white font-black rounded-xl shadow-[0_4px_0_#b83f12] transition-all flex items-center gap-2 active:translate-y-1 active:shadow-none disabled:opacity-50 cursor-pointer"
               >
-                {isSaving ? "Menyimpan..." : "Simpan Perubahan Profil"}
+                {isSaving ? "Menyimpan..." : "Simpan"}
               </button>
             </div>
           </form>

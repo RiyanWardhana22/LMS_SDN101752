@@ -44,7 +44,7 @@ export default function Sidebar({ role, isOpen, onClose }) {
 
   const guruMenu = [
     {
-      name: "Meja Kerja",
+      name: "Dashboard",
       path: "/guru/dashboard",
       icon: <SquaresFour weight="fill" size={24} />,
     },
