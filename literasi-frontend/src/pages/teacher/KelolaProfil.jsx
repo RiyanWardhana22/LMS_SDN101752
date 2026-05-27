@@ -79,11 +79,11 @@ export default function KelolaProfil() {
 
     const payload = {
       id: localUser.id,
-      nama,
-      username,
-      email,
-      password,
-      foto_profile: fotoProfile,
+      nama: nama || localUser.nama,
+      username: username || localUser.username,
+      email: email || localUser.email,
+      password: password,
+      foto_profile: fotoProfile || localUser.foto_profile,
     };
 
     try {
@@ -193,9 +193,9 @@ export default function KelolaProfil() {
                 </label>
                 <input
                   type="text"
-                  required
                   value={nama}
                   onChange={(e) => setNama(e.target.value)}
+                  placeholder={localUser.nama || "Ketik nama baru..."}
                   className="w-full px-4 py-3 rounded-xl border-2 border-neutral-200 focus:border-[#ff6b35] focus:ring-0 outline-none font-semibold text-neutral-800"
                 />
               </div>
@@ -206,16 +206,16 @@ export default function KelolaProfil() {
                 </label>
                 <input
                   type="text"
-                  required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
+                  placeholder={localUser.username || "Ketik username baru..."}
                   className="w-full px-4 py-3 rounded-xl border-2 border-neutral-200 focus:border-[#ff6b35] focus:ring-0 outline-none font-semibold text-neutral-800"
                 />
               </div>
 
               <div className="md:col-span-2">
                 <label className="text-xs font-black text-neutral-500 uppercase tracking-wider block mb-2 flex items-center gap-1.5">
-                  <Envelope size={16} weight="bold" /> Alamat Email (Opsional)
+                  <Envelope size={16} weight="bold" /> Alamat Email
                 </label>
                 <input
                   type="email"
@@ -225,8 +225,8 @@ export default function KelolaProfil() {
                   className="w-full px-4 py-3 rounded-xl border-2 border-neutral-200 focus:border-[#ff6b35] focus:ring-0 outline-none font-semibold text-neutral-800"
                 />
                 <p className="text-[11px] font-medium text-neutral-400 mt-1.5">
-                  Email saat ini ditampilkan. Kosongkan jika tidak ingin
-                  mengubah email lama.
+                  Kosongkan kolom apa pun yang tidak ingin Anda ubah. Sistem
+                  akan mempertahankan data lama Anda.
                 </p>
               </div>
 
