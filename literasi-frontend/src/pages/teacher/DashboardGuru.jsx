@@ -11,13 +11,35 @@ import {
 
 export default function DashboardGuru() {
   const user = JSON.parse(localStorage.getItem("user"));
+  const getGreeting = () => {
+    const now = new Date();
+    const indonesiaTime = new Date(
+      now.toLocaleString("en-US", { timeZone: "Asia/Jakarta" }),
+    );
+    const hour = indonesiaTime.getHours();
+
+    let greeting = "";
+
+    if (hour >= 5 && hour < 12) {
+      greeting = "Selamat pagi";
+    } else if (hour >= 12 && hour < 15) {
+      greeting = "Selamat siang";
+    } else if (hour >= 15 && hour < 19) {
+      greeting = "Selamat sore";
+    } else {
+      greeting = "Selamat malam";
+    }
+
+    return { greeting };
+  };
+
+  const { greeting } = getGreeting();
 
   return (
     <DashboardLayout role="guru" title="Meja Kerja Digital">
-      {/* Header Section */}
       <div className="mb-8">
         <h2 className="text-3xl font-black text-neutral-900 mb-2">
-          Selamat pagi, {user?.username || "Guru"}! 👋
+          {greeting}, {user?.username || "Guru"}!
         </h2>
         <p className="text-neutral-500 font-medium">
           Ini adalah ringkasan aktivitas kelasmu hari ini.
@@ -26,7 +48,6 @@ export default function DashboardGuru() {
 
       {/* 4 Kartu Statistik Ringkas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Card 1: Siswa Aktif */}
         <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(26,26,46,0.06)] p-6 border border-neutral-100 ">
           <div className="flex items-center gap-3 text-neutral-500 mb-4">
             <div className="p-2 bg-[#eafaf1] rounded-lg">
@@ -76,7 +97,7 @@ export default function DashboardGuru() {
         </div>
 
         {/* Card 4: Materi Aktif */}
-        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(26,26,46,0.06)] p-6 border border-neutral-100 hover:-translate-y-1 transition-transform">
+        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(26,26,46,0.06)] p-6 border border-neutral-100 ">
           <div className="flex items-center gap-3 text-neutral-500 mb-4">
             <div className="p-2 bg-[#fef9e7] rounded-lg">
               <BookBookmark
@@ -210,7 +231,7 @@ export default function DashboardGuru() {
             </div>
           </div>
 
-          <button className="w-full mt-6 py-3 border-2 border-neutral-100 rounded-xl text-sm font-bold text-neutral-500 hover:border-neutral-300 hover:text-neutral-700 transition-colors">
+          <button className="w-full mt-6 py-3 cursor-pointer border-2 border-neutral-100 rounded-xl text-sm font-bold text-neutral-500 hover:border-neutral-300 hover:text-neutral-700 transition-colors">
             Lihat Semua Aktivitas
           </button>
         </div>
