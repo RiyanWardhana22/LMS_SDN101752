@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 26, 2026 at 07:37 AM
+-- Generation Time: May 27, 2026 at 05:04 PM
 -- Server version: 8.0.42
 -- PHP Version: 8.3.22
 
@@ -113,8 +113,10 @@ CREATE TABLE `users` (
   `id` int NOT NULL,
   `nama` varchar(100) NOT NULL,
   `role` enum('siswa','guru','admin') NOT NULL,
+  `xp` int DEFAULT '0',
   `username` varchar(50) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
+  `foto_profile` varchar(500) DEFAULT NULL,
   `password_hash` varchar(255) DEFAULT NULL,
   `kode_unik` varchar(6) DEFAULT NULL,
   `verification_token` varchar(6) DEFAULT NULL,
@@ -127,10 +129,10 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `nama`, `role`, `username`, `email`, `password_hash`, `kode_unik`, `verification_token`, `token_expires_at`, `created_at`, `updated_at`) VALUES
-(1, 'Admin Utama', 'admin', 'admin', 'riyanwardhana2@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, NULL, NULL, '2026-05-17 11:35:44', '2026-05-20 17:20:44'),
-(2, 'Budi', 'siswa', NULL, NULL, NULL, 'ABC123', NULL, NULL, '2026-05-17 11:35:44', '2026-05-17 11:35:44'),
-(3, 'Guru Budi', 'guru', 'gurudemo', 'riyanwardhana55@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, NULL, NULL, '2026-05-17 16:01:19', '2026-05-26 07:12:13');
+INSERT INTO `users` (`id`, `nama`, `role`, `xp`, `username`, `email`, `foto_profile`, `password_hash`, `kode_unik`, `verification_token`, `token_expires_at`, `created_at`, `updated_at`) VALUES
+(1, 'Admin Utama', 'admin', 0, 'admin', 'riyanwardhana2@gmail.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, NULL, NULL, '2026-05-17 11:35:44', '2026-05-27 14:26:49'),
+(2, 'Budi', 'siswa', 122, NULL, NULL, NULL, NULL, 'ABC123', NULL, NULL, '2026-05-17 11:35:44', '2026-05-27 17:04:02'),
+(3, 'Riyan Wardhana', 'guru', 0, 'riyan22', 'riyanwardhana55@gmail.com', 'https://res.cloudinary.com/dbteh8sbe/image/upload/v1779897441/zwisbpk3n6nxnmrnwpda.jpg', '$2y$10$uD//dYpN70LzHzmgjGmC8u63aJIyJOywCeN9P2OlAh28PhU/JKpgK', NULL, NULL, NULL, '2026-05-17 16:01:19', '2026-05-27 16:23:11');
 
 --
 -- Indexes for dumped tables

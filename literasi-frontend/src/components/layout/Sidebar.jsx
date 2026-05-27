@@ -24,22 +24,18 @@ export default function Sidebar({ role, isOpen, onClose }) {
     {
       name: "Dasbor Utama",
       path: "/admin/dashboard",
-      icon: <SquaresFour weight="fill" size={24} />,
     },
     {
       name: "Manajemen Pengguna",
       path: "/admin/users",
-      icon: <Users weight="fill" size={24} />,
     },
     {
       name: "Laporan Sekolah",
       path: "/admin/reports",
-      icon: <BookOpen weight="fill" size={24} />,
     },
     {
       name: "Mode Darurat",
       path: "/admin/emergency",
-      icon: <WarningCircle weight="fill" size={24} />,
     },
   ];
 
@@ -47,32 +43,30 @@ export default function Sidebar({ role, isOpen, onClose }) {
     {
       name: "Dashboard",
       path: "/guru/dashboard",
-      icon: <SquaresFour weight="fill" size={24} />,
     },
     {
       name: "Manajemen Materi",
       path: "/guru/materi",
-      icon: <BookOpen weight="fill" size={24} />,
     },
     {
       name: "Tugas & Kuis",
       path: "/guru/tugas",
-      icon: <FaClipboardList weight="fill" size={24} />,
     },
     {
       name: "Buku Nilai & Analitik",
       path: "/guru/buku-nilai",
-      icon: <ChartLineUp weight="fill" size={24} />,
+    },
+    {
+      name: "Siswa & Peringkat",
+      path: "/guru/siswa",
     },
     {
       name: "Workshop AI",
       path: "/guru/workshop-ai",
-      icon: <ChalkboardTeacher weight="fill" size={24} />,
     },
     {
       name: "Pengaturan Profil",
       path: "/guru/pengaturan",
-      icon: <BsPersonFillGear dTeacher weight="fill" size={24} />,
     },
   ];
 
@@ -87,20 +81,17 @@ export default function Sidebar({ role, isOpen, onClose }) {
         ></div>
       )}
 
-      {/* 2. Sidebar Container (Absolute di Mobile, Static di Desktop) */}
       <aside
         className={`fixed lg:static top-0 left-0 w-[240px] h-[100dvh] bg-[#1a1a2e] p-6 flex flex-col gap-2 text-[#c8c8e0] shadow-2xl lg:shadow-xl z-50 transform transition-transform duration-300 ease-spring ${
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        {/* Logo Area & Tombol Tutup Mobile */}
         <div className="mb-8 px-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h2 className="text-2xl font-black text-white tracking-wider">
               Litera<span className="text-[#ff6b35]">SI</span>
             </h2>
           </div>
-          {/* Tombol X hanya tampil di Mobile/Tablet */}
           <button
             onClick={onClose}
             className="lg:hidden text-neutral-400 hover:text-white p-1"
