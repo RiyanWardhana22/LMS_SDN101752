@@ -9,8 +9,8 @@ Sebelum kalian login harap ganti dulu email yang tertera dari akun/role GURU dan
   password = password
 
 - ROLE GURU:
-  Username = gurudemo
-  password = password
+  Username = riyan22
+  password = riyan2206
 
 - ROLE SISWA: abc123
 

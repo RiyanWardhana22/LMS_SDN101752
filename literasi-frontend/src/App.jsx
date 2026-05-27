@@ -22,6 +22,7 @@ import RuangEvaluasi from "./pages/student/RuangEvaluasi";
 import LembarKerja from "./pages/student/LembarKerja";
 import KoreksiTugas from "./pages/teacher/KoreksiTugas";
 import KelolaProfil from "./pages/teacher/KelolaProfil";
+import BukuNilai from "./pages/teacher/BukuNilai";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -171,6 +172,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["guru"]}>
               <WorkshopAI />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/buku-nilai"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <BukuNilai />
             </ProtectedRoute>
           }
         />

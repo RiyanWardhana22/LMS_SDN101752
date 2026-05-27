@@ -8,6 +8,7 @@ import {
   SignOut,
   ShieldCheck,
   X,
+  ChartLineUp,
 } from "@phosphor-icons/react";
 import { BsPersonFillGear } from "react-icons/bs";
 import { FaClipboardList } from "react-icons/fa";
@@ -57,6 +58,11 @@ export default function Sidebar({ role, isOpen, onClose }) {
       name: "Tugas & Kuis",
       path: "/guru/tugas",
       icon: <FaClipboardList weight="fill" size={24} />,
+    },
+    {
+      name: "Buku Nilai & Analitik",
+      path: "/guru/buku-nilai",
+      icon: <ChartLineUp weight="fill" size={24} />,
     },
     {
       name: "Workshop AI",
