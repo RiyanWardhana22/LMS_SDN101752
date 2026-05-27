@@ -29,8 +29,8 @@ export default function EditMateri() {
   const fileInputRef = useRef(null);
   const arInputRef = useRef(null);
 
-  const CLOUD_NAME = "dy419a52c";
-  const UPLOAD_PRESET = "r7a8ph82";
+  const CLOUD_NAME = "dbteh8sbe";
+  const UPLOAD_PRESET = "literasi_preset";
   useEffect(() => {
     const loadMateriDetails = async () => {
       try {

@@ -39,7 +39,7 @@ export default function DashboardGuru() {
     <DashboardLayout role="guru" title="Meja Kerja Digital">
       <div className="mb-8">
         <h2 className="text-3xl font-black text-neutral-900 mb-2">
-          {greeting}, {user?.username || "Guru"}!
+          {greeting}, {user?.nama || "Guru"}!
         </h2>
         <p className="text-neutral-500 font-medium">
           Ini adalah ringkasan aktivitas kelasmu hari ini.

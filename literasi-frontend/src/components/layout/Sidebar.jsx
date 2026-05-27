@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   X,
 } from "@phosphor-icons/react";
+import { BsPersonFillGear } from "react-icons/bs";
 import { FaClipboardList } from "react-icons/fa";
 
 export default function Sidebar({ role, isOpen, onClose }) {
@@ -18,8 +19,6 @@ export default function Sidebar({ role, isOpen, onClose }) {
     localStorage.removeItem("user");
     navigate("/");
   };
-
-  // Konfigurasi Menu
   const adminMenu = [
     {
       name: "Dasbor Utama",
@@ -63,6 +62,11 @@ export default function Sidebar({ role, isOpen, onClose }) {
       name: "Workshop AI",
       path: "/guru/workshop-ai",
       icon: <ChalkboardTeacher weight="fill" size={24} />,
+    },
+    {
+      name: "Pengaturan Profil",
+      path: "/guru/pengaturan",
+      icon: <BsPersonFillGear dTeacher weight="fill" size={24} />,
     },
   ];
 

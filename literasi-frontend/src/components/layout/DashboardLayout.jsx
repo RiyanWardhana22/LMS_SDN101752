@@ -4,18 +4,13 @@ import { List, Screencast } from "@phosphor-icons/react";
 
 export default function DashboardLayout({ children, role, title }) {
   const user = JSON.parse(localStorage.getItem("user"));
-
-  // State untuk Sidebar (Mobile) dan Smartboard (Layar Besar)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSmartboard, setIsSmartboard] = useState(false);
-
-  // Auto-deteksi layar super lebar (Smartboard) saat dimuat
   useEffect(() => {
     if (window.innerWidth >= 1920) setIsSmartboard(true);
   }, []);
 
   return (
-    // Tambahkan class 'smartboard-mode' jika toggle aktif
     <div
       className={`flex h-[100dvh] bg-[#f5f5ff] overflow-hidden ${isSmartboard ? "smartboard-mode" : ""}`}
     >
@@ -28,10 +23,8 @@ export default function DashboardLayout({ children, role, title }) {
 
       {/* Konten Utama Kanan */}
       <div className="flex-1 flex flex-col h-full w-full overflow-hidden relative">
-        {/* Top Bar (Header) */}
         <header className="h-[64px] sm:h-[72px] bg-white border-b border-neutral-200 flex items-center justify-between px-4 lg:px-8 z-10 shrink-0">
           <div className="flex items-center gap-3 lg:gap-0">
-            {/* Tombol Hamburger (Muncul hanya di Mobile/Tablet) */}
             <button
               onClick={() => setIsSidebarOpen(true)}
               className="lg:hidden p-2 text-neutral-600 hover:bg-neutral-100 rounded-xl transition-colors"
@@ -44,7 +37,6 @@ export default function DashboardLayout({ children, role, title }) {
           </div>
 
           <div className="flex items-center gap-3 sm:gap-6">
-            {/* Toggle Smartboard (Disembunyikan di HP karena HP tidak muat untuk smartboard) */}
             <button
               onClick={() => setIsSmartboard(!isSmartboard)}
               className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 font-bold text-xs transition-colors ${
@@ -58,9 +50,7 @@ export default function DashboardLayout({ children, role, title }) {
             </button>
 
             <div className="text-right hidden sm:block">
-              <p className="text-sm font-bold text-neutral-900">
-                {user?.username}
-              </p>
+              <p className="text-sm font-bold text-neutral-900">{user?.nama}</p>
               <p className="text-xs font-semibold text-neutral-500 capitalize">
                 {role}
               </p>
