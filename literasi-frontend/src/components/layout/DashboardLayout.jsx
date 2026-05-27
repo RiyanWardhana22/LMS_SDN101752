@@ -14,7 +14,6 @@ export default function DashboardLayout({ children, role, title }) {
     <div
       className={`flex h-[100dvh] bg-[#f5f5ff] overflow-hidden ${isSmartboard ? "smartboard-mode" : ""}`}
     >
-      {/* Panggil Sidebar dengan mengirimkan state */}
       <Sidebar
         role={role}
         isOpen={isSidebarOpen}
@@ -49,15 +48,27 @@ export default function DashboardLayout({ children, role, title }) {
               Smartboard Mode
             </button>
 
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-bold text-neutral-900">{user?.nama}</p>
-              <p className="text-xs font-semibold text-neutral-500 capitalize">
-                {role}
-              </p>
-            </div>
-            {/* Avatar */}
-            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-tr from-[#4ecdc4] to-[#3498db] rounded-full border-2 border-white shadow-sm shrink-0 flex items-center justify-center text-white font-bold text-sm">
-              {user?.username?.charAt(0).toUpperCase()}
+            <div className="flex items-center gap-3">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-black text-neutral-900">
+                  {user.nama}
+                </p>
+                <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+                  {user.role}
+                </p>
+              </div>
+
+              {user.foto_profile ? (
+                <img
+                  src={user.foto_profile}
+                  alt="Profile"
+                  className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-[0_2px_8px_rgba(255,107,53,0.2)]"
+                />
+              ) : (
+                <div className="w-12 h-12 bg-gradient-to-br from-[#ff6b35] to-[#ff8c5a] rounded-full border-2 border-white shadow-[0_2px_8px_rgba(255,107,53,0.2)] flex items-center justify-center text-white font-black text-xl">
+                  {user.nama ? user.nama.charAt(0).toUpperCase() : "U"}
+                </div>
+              )}
             </div>
           </div>
         </header>

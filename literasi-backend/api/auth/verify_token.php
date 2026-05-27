@@ -2,7 +2,7 @@
 include_once __DIR__ . '/../../config/database.php';
 $data = json_decode(file_get_contents("php://input"));
 if (!empty($data->username) && !empty($data->token)) {
-            $query = "SELECT id, role, token_expires_at FROM users WHERE username = ? AND verification_token = ? LIMIT 1";
+            $query = "SELECT id, username, nama, role, email, foto_profile FROM users WHERE username = ? AND verification_token = ? LIMIT 1";
             $stmt = $conn->prepare($query);
             $stmt->execute([$data->username, $data->token]);
             $user = $stmt->fetch();
