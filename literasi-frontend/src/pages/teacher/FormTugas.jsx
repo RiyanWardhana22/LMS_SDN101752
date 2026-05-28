@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import ReactQuill from "react-quill-new";
@@ -19,9 +19,26 @@ export default function FormTugas() {
   const [tipe, setTipe] = useState("tugas");
   const [tenggat, setTenggat] = useState("");
   const [deskripsiTugas, setDeskripsiTugas] = useState("");
+  const [rombelId, setRombelId] = useState("");
+  const [rombelList, setRombelList] = useState([]);
   const [soalKuis, setSoalKuis] = useState([
     { id: Date.now(), pertanyaan: "", a: "", b: "", c: "", d: "", kunci: "a" },
   ]);
+  useEffect(() => {
+    const fetchRombel = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost/lms_sdn101752/literasi-backend/api/kelas/read_rombel.php",
+        );
+        const data = await res.json();
+        if (data.status === "success") setRombelList(data.data);
+      } catch (error) {
+        console.error("Gagal memuat Rombel", error);
+      }
+    };
+    fetchRombel();
+  }, []);
+
   const tambahSoal = () => {
     setSoalKuis([
       ...soalKuis,
@@ -48,6 +65,7 @@ export default function FormTugas() {
     }
     setSoalKuis(soalKuis.filter((soal) => soal.id !== id));
   };
+
   const updateSoal = (id, field, value) => {
     setSoalKuis(
       soalKuis.map((soal) =>
@@ -55,13 +73,14 @@ export default function FormTugas() {
       ),
     );
   };
+
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!judul || !tenggat) {
+    if (!judul || !tenggat || !rombelId) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
-        text: "Pastikan Judul dan Tenggat Waktu sudah terisi!",
+        text: "Pastikan Judul, Target Kelas, dan Tenggat Waktu sudah terisi!",
       });
       return;
     }
@@ -70,6 +89,7 @@ export default function FormTugas() {
     const user = JSON.parse(localStorage.getItem("user"));
     const payload = {
       guru_id: user.id,
+      rombel_id: rombelId,
       judul,
       tipe,
       tenggat,
@@ -86,8 +106,7 @@ export default function FormTugas() {
         },
       );
 
-      const textRes = await response.text();
-      const data = JSON.parse(textRes);
+      const data = await response.json();
 
       if (data.status === "success") {
         Swal.fire({
@@ -111,7 +130,7 @@ export default function FormTugas() {
   };
 
   return (
-    <DashboardLayout role="guru" title="Buat Evaluasi Baru">
+    <DashboardLayout role="guru" title="Buat Tugas Baru">
       <form
         onSubmit={handleSave}
         className="max-w-4xl mx-auto flex flex-col gap-6 pb-12"
@@ -121,16 +140,15 @@ export default function FormTugas() {
           <button
             type="button"
             onClick={() => navigate("/guru/tugas")}
-            className="flex items-center gap-2 text-neutral-500 hover:text-[#ff6b35] font-bold text-sm"
+            className="flex items-center gap-2 text-neutral-500 hover:text-[#ff6b35] font-bold text-sm bg-transparent border-none cursor-pointer"
           >
             <CaretLeft weight="bold" size={20} /> Batal
           </button>
           <button
             type="submit"
             disabled={isSaving}
-            className="flex items-center cursor-pointer gap-2 px-6 py-2 bg-[#2ecc71] hover:bg-[#27ae60] text-white font-bold rounded-xl shadow-[0_4px_0_#1e8449]"
+            className="flex items-center cursor-pointer gap-2 px-6 py-2 bg-[#2ecc71] hover:bg-[#27ae60] text-white font-bold rounded-xl shadow-[0_4px_0_#1e8449] border-none active:translate-y-1 active:shadow-none transition-all disabled:opacity-50"
           >
-            <FloppyDisk weight="bold" size={20} />{" "}
             {isSaving ? "Menyimpan..." : "Terbitkan Sekarang"}
           </button>
         </div>
@@ -146,8 +164,8 @@ export default function FormTugas() {
             onChange={(e) => setJudul(e.target.value)}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-neutral-100">
-            {/* Tipe Evaluasi Switcher */}
+          {/* PERBAIKAN: Ubah menjadi 3 kolom untuk menyisipkan Dropdown Rombel */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-neutral-100">
             <div>
               <label className="block text-xs font-bold text-neutral-500 mb-2">
                 Tipe Evaluasi
@@ -156,29 +174,51 @@ export default function FormTugas() {
                 <button
                   type="button"
                   onClick={() => setTipe("tugas")}
-                  className={`flex-1 flex items-center cursor-pointer justify-center gap-2 py-2 text-sm font-bold rounded-lg transition-all ${tipe === "tugas" ? "bg-white text-[#ff6b35] shadow-sm" : "text-neutral-500 hover:text-neutral-700"}`}
+                  className={`flex-1 flex items-center cursor-pointer justify-center gap-2 py-2 text-sm font-bold rounded-lg border-none transition-all ${tipe === "tugas" ? "bg-white text-[#ff6b35] shadow-sm" : "text-neutral-500 hover:text-neutral-700 bg-transparent"}`}
                 >
                   Tugas (Esai)
                 </button>
                 <button
                   type="button"
                   onClick={() => setTipe("kuis")}
-                  className={`flex-1 flex items-center cursor-pointer justify-center gap-2 py-2 text-sm font-bold rounded-lg transition-all ${tipe === "kuis" ? "bg-white text-[#3498db] shadow-sm" : "text-neutral-500 hover:text-neutral-700"}`}
+                  className={`flex-1 flex items-center cursor-pointer justify-center gap-2 py-2 text-sm font-bold rounded-lg border-none transition-all ${tipe === "kuis" ? "bg-white text-[#3498db] shadow-sm" : "text-neutral-500 hover:text-neutral-700 bg-transparent"}`}
                 >
-                  Kuis (Pilihan Ganda)
+                  Kuis (PG)
                 </button>
               </div>
+            </div>
+
+            {/* Dropdown Target Kelas (Rombel) */}
+            <div>
+              <label className="block text-xs font-bold text-neutral-500 mb-2">
+                Target Kelas
+              </label>
+              <select
+                required
+                value={rombelId}
+                onChange={(e) => setRombelId(e.target.value)}
+                className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-sm font-bold text-neutral-700 outline-none focus:border-[#ff6b35] cursor-pointer appearance-none transition-colors"
+              >
+                <option value="" disabled>
+                  -- Pilih Kelas --
+                </option>
+                {rombelList.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.nama_kelas} (Kode: {r.kode_unik})
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Tenggat Waktu */}
             <div>
               <label className="block text-xs font-bold text-neutral-500 mb-2">
-                Tenggat Waktu Pengumpulan
+                Tenggat Waktu
               </label>
               <input
                 type="datetime-local"
                 required
-                className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-sm font-bold text-neutral-700 outline-none focus:border-[#ff6b35]"
+                className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-sm font-bold text-neutral-700 outline-none focus:border-[#ff6b35] transition-colors"
                 value={tenggat}
                 onChange={(e) => setTenggat(e.target.value)}
               />
@@ -186,12 +226,7 @@ export default function FormTugas() {
           </div>
         </div>
 
-        {/* ========================================= */}
-        {/* AREA RENDER DINAMIS BERDASARKAN TIPE */}
-        {/* ========================================= */}
-
         {tipe === "tugas" ? (
-          /* TAMPILAN JIKA PILIH "TUGAS" */
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-neutral-100">
             <label className="block text-sm font-black text-neutral-900 mb-4">
               Instruksi & Deskripsi Tugas
@@ -207,7 +242,6 @@ export default function FormTugas() {
             </div>
           </div>
         ) : (
-          /* TAMPILAN JIKA PILIH "KUIS" */
           <div className="flex flex-col gap-6">
             {soalKuis.map((soal, index) => (
               <div
@@ -221,31 +255,28 @@ export default function FormTugas() {
                   <button
                     type="button"
                     onClick={() => hapusSoal(soal.id)}
-                    className="text-neutral-400 hover:text-[#e74c3c] bg-neutral-50 hover:bg-red-50 p-2 rounded-xl transition-colors"
+                    className="text-neutral-400 hover:text-[#e74c3c] bg-neutral-50 hover:bg-red-50 p-2 rounded-xl transition-colors border-none cursor-pointer"
                   >
                     <Trash weight="bold" size={20} />
                   </button>
                 </div>
 
-                {/* Input Pertanyaan */}
                 <textarea
                   placeholder="Ketik pertanyaan kuis di sini..."
                   required
-                  className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-4 text-sm font-bold text-neutral-800 outline-none focus:border-[#3498db] resize-none h-24 mb-6"
+                  className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-4 text-sm font-bold text-neutral-800 outline-none focus:border-[#3498db] resize-none h-24 mb-6 transition-colors"
                   value={soal.pertanyaan}
                   onChange={(e) =>
                     updateSoal(soal.id, "pertanyaan", e.target.value)
                   }
                 ></textarea>
 
-                {/* Grid Opsi A, B, C, D */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {["a", "b", "c", "d"].map((opsi) => (
                     <div
                       key={opsi}
                       className={`flex items-center gap-3 p-2 rounded-xl border-2 transition-colors ${soal.kunci === opsi ? "border-[#2ecc71] bg-[#eafaf1]" : "border-neutral-100 bg-white"}`}
                     >
-                      {/* Radio Button untuk Kunci Jawaban */}
                       <input
                         type="radio"
                         name={`kunci-${soal.id}`}
@@ -271,7 +302,6 @@ export default function FormTugas() {
                     </div>
                   ))}
                 </div>
-                {/* Indikator Tips Kunci Jawaban */}
                 <p className="text-[11px] font-bold text-neutral-400 mt-4 text-center">
                   💡 Klik bulatan (radio button) di sebelah kiri opsi untuk
                   memilih{" "}
@@ -283,11 +313,10 @@ export default function FormTugas() {
               </div>
             ))}
 
-            {/* Tombol Tambah Soal */}
             <button
               type="button"
               onClick={tambahSoal}
-              className="w-full py-4 cursor-pointer border-2 border-dashed border-[#3498db] text-[#3498db] font-black text-sm rounded-3xl hover:bg-[#ebf5fb] transition-colors flex items-center justify-center gap-2"
+              className="w-full py-4 cursor-pointer border-2 border-dashed border-[#3498db] text-[#3498db] font-black text-sm rounded-3xl hover:bg-[#ebf5fb] transition-colors flex items-center justify-center gap-2 bg-transparent"
             >
               <Plus weight="bold" size={20} /> Tambah Soal Berikutnya
             </button>
