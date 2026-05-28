@@ -3,220 +3,227 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import {
   Plus,
-  MagnifyingGlass,
-  Funnel,
-  Trash,
   PencilSimple,
+  Trash,
   Eye,
-  BookOpen,
+  Copy,
+  UsersThree,
 } from "@phosphor-icons/react";
 
 export default function ManajemenMateri() {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
   const [materiList, setMateriList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const user = JSON.parse(localStorage.getItem("user")) || {};
+
   const fetchMateri = async () => {
-    if (!user.id) return;
-    setIsLoading(true);
     try {
       const response = await fetch(
         `http://localhost/lms_sdn101752/literasi-backend/api/materi/read.php?guru_id=${user.id}`,
       );
       const data = await response.json();
-      if (data.status === "success") {
-        setMateriList(data.data);
-      } else {
-        console.error(data.message);
-      }
+      if (data.status === "success") setMateriList(data.data);
     } catch (error) {
-      console.error("Gagal memuat data dari server:", error);
+      console.error("Gagal memuat materi", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchMateri();
-  }, []);
-  const handleDelete = async (id, judul) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: `Apakah Anda yakin ingin menghapus materi "${judul}"?`,
+    if (user.id) fetchMateri();
+  }, [user.id]);
+
+  const handleDuplicate = async (id, judul) => {
+    Swal.fire({
+      title: "Gandakan Materi?",
+      text: `Anda akan membuat salinan dari materi "${judul}".`,
       icon: "question",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, hapus!",
-    });
-    if (!result.isConfirmed) return;
-    try {
-      const response = await fetch(
-        "http://localhost/lms_sdn101752/literasi-backend/api/materi/delete.php",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ id }),
-        },
-      );
-      const data = await response.json();
-
-      if (data.status === "success") {
-        await Swal.fire({
-          title: "Deleted!",
-          text: data.message,
-          icon: "success",
-        });
-        setMateriList(materiList.filter((materi) => materi.id !== id));
-      } else {
-        await Swal.fire({
-          title: "Gagal menghapus",
-          text: data.message,
-          icon: "error",
-        });
+      confirmButtonColor: "#ff6b35",
+      confirmButtonText: "Ya, Gandakan!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch(
+            "http://localhost/lms_sdn101752/literasi-backend/api/materi/duplicate.php",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id }),
+            },
+          );
+          const data = await response.json();
+          if (data.status === "success") {
+            Swal.fire({
+              toast: true,
+              position: "top-end",
+              icon: "success",
+              title: data.message,
+              showConfirmButton: false,
+              timer: 2000,
+            });
+            fetchMateri();
+          } else {
+            Swal.fire("Gagal", data.message, "error");
+          }
+        } catch (error) {
+          Swal.fire("Error", "Gagal menghubungi server.", "error");
+        }
       }
-    } catch (error) {
-      await Swal.fire({
-        title: "Terjadi kesalahan jaringan.",
-        icon: "error",
-      });
-    }
+    });
   };
-  const filteredMateri = materiList.filter((materi) =>
-    materi.judul.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-  const getMapelColor = (mapel) => {
-    if (mapel.includes("IPA")) return "#2ecc71";
-    if (mapel.includes("Matematika")) return "#4ecdc4";
-    if (mapel.includes("IPS")) return "#e67e22";
-    return "#ff6b9d";
+
+  const handleDelete = async (id, judul) => {
+    Swal.fire({
+      title: "Hapus Materi?",
+      text: `Materi "${judul}" akan dihapus permanen.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e74c3c",
+      confirmButtonText: "Ya, Hapus!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch(
+            "http://localhost/lms_sdn101752/literasi-backend/api/materi/delete.php",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id }),
+            },
+          );
+          const data = await response.json();
+          if (data.status === "success") {
+            setMateriList(materiList.filter((m) => m.id !== id));
+            Swal.fire("Terhapus!", "Materi berhasil dihapus.", "success");
+          }
+        } catch (error) {
+          Swal.fire("Error", "Gagal menghapus materi.", "error");
+        }
+      }
+    });
   };
 
   return (
-    <DashboardLayout role="guru" title="Manajemen Materi">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <h2 className="text-3xl font-black text-neutral-900 mb-2">
-            Pustaka Materi
+    <DashboardLayout role="guru" title="Pusat Materi">
+      <div className="max-w-6xl mx-auto pb-12 flex flex-col gap-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-black text-neutral-900">
+            Materi Pembelajaran
           </h2>
-          <p className="text-neutral-500 font-medium">
-            Kelola bahan ajar, modul AR, dan video pembelajaran untuk kelasmu.
-          </p>
+          <button
+            onClick={() => navigate("/guru/materi/baru")}
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#ff6b35] hover:bg-[#e0531f] text-white font-bold rounded-xl shadow-[0_4px_0_#b83f12] active:translate-y-1 active:shadow-none transition-all cursor-pointer"
+          >
+            <Plus weight="bold" size={20} /> Buat Materi
+          </button>
         </div>
-        <button
-          onClick={() => navigate("/guru/materi/tambah")}
-          className="btn-primary py-3 px-6 rounded-2xl flex items-center justify-center gap-2 text-sm whitespace-nowrap cursor-pointer"
-        >
-          <Plus weight="bold" size={20} />
-          Buat Materi Baru
-        </button>
-      </div>
 
-      {/* Toolbar Pencarian */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-neutral-100 flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <MagnifyingGlass
-            size={20}
-            weight="bold"
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"
-          />
-          <input
-            type="text"
-            placeholder="Cari judul materi dari database..."
-            className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-neutral-200 focus:border-[#ff6b35] focus:ring-0 outline-none transition-colors font-medium text-sm"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <button className="px-6 py-3 bg-neutral-50 border-2 border-neutral-200 text-neutral-600 font-bold text-sm rounded-xl hover:bg-neutral-100 transition-colors flex items-center justify-center gap-2">
-          <Funnel weight="bold" size={20} />
-          Filter
-        </button>
-      </div>
-
-      {/* Kondisi Loading */}
-      {isLoading && (
-        <div className="text-center py-12 font-bold text-neutral-500 animate-pulse">
-          Sedang mengambil data materi dari database...
-        </div>
-      )}
-
-      {/* Kondisi Data Kosong */}
-      {!isLoading && filteredMateri.length === 0 && (
-        <div className="bg-white rounded-3xl p-12 text-center border border-neutral-100 shadow-sm flex flex-col items-center justify-center text-neutral-400">
-          <BookOpen size={48} weight="thin" className="mb-3 opacity-60" />
-          <p className="font-bold">Belum ada materi yang sesuai ditemukan.</p>
-        </div>
-      )}
-
-      {/* Render Grid Cards dari Database */}
-      {!isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredMateri.map((materi) => (
-            <div
-              key={materi.id}
-              className="bg-white rounded-3xl p-6 border-2 border-neutral-100 shadow-[0_2px_12px_rgba(26,26,46,0.04)] hover:border-neutral-200 group flex flex-col"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <span
-                  className="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider text-white"
-                  style={{
-                    backgroundColor: getMapelColor(materi.mata_pelajaran),
-                  }}
-                >
-                  {materi.mata_pelajaran}
-                </span>
-                <div
-                  className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase ${materi.visibilitas === "publik" ? "bg-[#eafaf1] text-[#2ecc71]" : "bg-neutral-100 text-neutral-500"}`}
-                >
-                  {materi.visibilitas === "publik" ? "Aktif" : "Draft"}
-                </div>
-              </div>
-
-              <h3 className="text-xl font-black text-neutral-900 mb-2 Logikading-tight group-hover:text-[#ff6b35] transition-colors line-clamp-2">
-                {materi.judul}
-              </h3>
-
-              <div className="flex flex-col gap-2 mt-auto mb-6 pt-4 border-t border-neutral-100">
-                <div className="flex items-center gap-2 text-sm font-bold text-neutral-500">
-                  <span className="w-2 h-2 rounded-full bg-neutral-300"></span>{" "}
-                  {materi.kelas}
-                </div>
-                <div className="flex items-center gap-2 text-xs font-semibold text-neutral-400 mt-2">
-                  Dibuat pada:{" "}
-                  {new Date(materi.created_at).toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </div>
-              </div>
-
-              {/* Tombol Operasional Lengkap */}
-              <div className="flex gap-2 mt-auto">
-                <button
-                  onClick={() => navigate(`/guru/materi/edit/${materi.id}`)}
-                  className="flex-1 py-2 bg-neutral-50 hover:bg-[#ff6b35] hover:text-white text-neutral-600 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 border border-neutral-200 hover:border-[#ff6b35] cursor-pointer"
-                >
-                  <PencilSimple weight="bold" size={16} /> Edit
-                </button>
-                <button className="p-2 bg-neutral-50 hover:bg-[#3498db] hover:text-white text-neutral-600 rounded-xl transition-colors border border-neutral-200 hover:border-[#3498db] cursor-pointer">
-                  <Eye weight="bold" size={18} />
-                </button>
-                <button
-                  onClick={() => handleDelete(materi.id, materi.judul)}
-                  className="p-2 bg-neutral-50 hover:bg-[#e74c3c] hover:text-white text-neutral-600 rounded-xl transition-colors border border-neutral-200 hover:border-[#e74c3c] cursor-pointer"
-                >
-                  <Trash weight="bold" size={18} />
-                </button>
-              </div>
+        <div className="bg-white rounded-3xl border border-neutral-100 shadow-sm overflow-hidden">
+          {isLoading ? (
+            <div className="text-center py-20 font-bold text-neutral-400">
+              Memuat data materi...
             </div>
-          ))}
+          ) : materiList.length === 0 ? (
+            <div className="text-center py-20 text-neutral-400 font-medium">
+              Belum ada materi. Mulai dengan membuat materi baru.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-neutral-50 border-b border-neutral-100 text-xs font-black text-neutral-400 uppercase tracking-wider">
+                    <th className="p-5 w-1/3">Judul Materi</th>
+                    <th className="p-5">Target Kelas</th>
+                    <th className="p-5 text-center">Status</th>
+                    <th className="p-5 text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-100 text-sm font-semibold">
+                  {materiList.map((materi) => (
+                    <tr
+                      key={materi.id}
+                      className="hover:bg-neutral-50 transition-colors"
+                    >
+                      <td className="p-5">
+                        <div
+                          className="font-black text-neutral-800 text-base mb-1 truncate w-64"
+                          title={materi.judul}
+                        >
+                          {materi.judul}
+                        </div>
+                        <div className="text-xs font-bold text-neutral-400">
+                          {materi.mata_pelajaran}
+                        </div>
+                      </td>
+
+                      {/* KOLOM BADGE ROMBEL BARU */}
+                      <td className="p-5">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-[#ebf5fb] text-[#3498db] p-2 rounded-xl">
+                            <UsersThree weight="fill" size={20} />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-bold text-neutral-700">
+                              {materi.nama_kelas || "Belum Diatur"}
+                            </span>
+                            {materi.kode_unik && (
+                              <span className="text-[10px] text-neutral-400 uppercase tracking-widest">
+                                KODE: {materi.kode_unik}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="p-5 text-center">
+                        <span
+                          className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider ${materi.visibilitas === "publik" ? "bg-[#eafaf1] text-[#2ecc71]" : "bg-[#fff3ee] text-[#ff6b35]"}`}
+                        >
+                          {materi.visibilitas}
+                        </span>
+                      </td>
+                      <td className="p-5">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() =>
+                              navigate(`/guru/materi/edit/${materi.id}`)
+                            }
+                            className="p-2 bg-neutral-100 hover:bg-[#3498db] hover:text-white text-neutral-600 rounded-xl transition-colors cursor-pointer"
+                            title="Edit Materi"
+                          >
+                            <PencilSimple size={18} weight="bold" />
+                          </button>
+                          {/* TOMBOL DUPLIKAT BARU */}
+                          <button
+                            onClick={() =>
+                              handleDuplicate(materi.id, materi.judul)
+                            }
+                            className="p-2 bg-neutral-100 hover:bg-[#9b59b6] hover:text-white text-neutral-600 rounded-xl transition-colors cursor-pointer"
+                            title="Duplikat Materi"
+                          >
+                            <Copy size={18} weight="bold" />
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleDelete(materi.id, materi.judul)
+                            }
+                            className="p-2 bg-red-50 hover:bg-red-500 hover:text-white text-red-500 rounded-xl transition-colors cursor-pointer"
+                            title="Hapus Permanen"
+                          >
+                            <Trash size={18} weight="bold" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </DashboardLayout>
   );
 }
