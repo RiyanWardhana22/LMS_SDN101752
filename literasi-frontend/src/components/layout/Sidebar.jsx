@@ -89,7 +89,7 @@ export default function Sidebar({ role, isOpen, onClose }) {
         <div className="mb-8 px-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h2 className="text-2xl font-black text-white tracking-wider">
-              Litera<span className="text-[#ff6b35]">SI</span>
+              <span className="text-[#ff6b35]">LMS</span> SDN 101752
             </h2>
           </div>
           <button

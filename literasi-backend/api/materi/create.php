@@ -42,13 +42,13 @@ try {
             $stmt->execute();
             $materi_id = $db->lastInsertId();
             if (isset($data->media) && is_array($data->media) && count($data->media) > 0) {
-                  $query_media = "INSERT INTO materi_media (materi_id, type, url) VALUES (:materi_id, :type, :url)";
+                  $query_media = "INSERT INTO materi_media (materi_id, tipe_media, url_atau_path) VALUES (:materi_id, :tipe_media, :url_atau_path)";
                   $stmt_media = $db->prepare($query_media);
                   foreach ($data->media as $med) {
                         if (!empty($med->url)) {
                               $stmt_media->bindValue(':materi_id', $materi_id);
-                              $stmt_media->bindValue(':type', $med->type);
-                              $stmt_media->bindValue(':url', $med->url);
+                              $stmt_media->bindValue(':tipe_media', $med->type);
+                              $stmt_media->bindValue(':url_atau_path', $med->url);
                               $stmt_media->execute();
                         }
                   }
