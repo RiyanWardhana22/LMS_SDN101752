@@ -113,7 +113,7 @@ export default function ManajemenMateri() {
             Materi Pembelajaran
           </h2>
           <button
-            onClick={() => navigate("/guru/materi/baru")}
+            onClick={() => navigate("/guru/materi/tambah")}
             className="flex items-center gap-2 px-5 py-2.5 bg-[#ff6b35] hover:bg-[#e0531f] text-white font-bold rounded-xl shadow-[0_4px_0_#b83f12] active:translate-y-1 active:shadow-none transition-all cursor-pointer"
           >
             <Plus weight="bold" size={20} /> Buat Materi

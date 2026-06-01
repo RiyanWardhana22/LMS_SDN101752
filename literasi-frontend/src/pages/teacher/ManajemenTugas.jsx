@@ -110,7 +110,7 @@ export default function ManajemenTugas() {
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-black text-neutral-900">Tugas & Kuis</h2>
           <button
-            onClick={() => navigate("/guru/tugas/baru")}
+            onClick={() => navigate("/guru/tugas/tambah")}
             className="flex items-center gap-2 px-5 py-2.5 bg-[#2ecc71] hover:bg-[#27ae60] text-white font-bold rounded-xl shadow-[0_4px_0_#1e8449] active:translate-y-1 active:shadow-none transition-all cursor-pointer"
           >
             <Plus weight="bold" size={20} /> Buat Baru

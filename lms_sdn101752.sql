@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 28, 2026 at 03:52 AM
+-- Generation Time: Jun 01, 2026 at 04:14 PM
 -- Server version: 8.0.42
 -- PHP Version: 8.3.22
 
@@ -44,7 +44,9 @@ CREATE TABLE `materi` (
 --
 
 INSERT INTO `materi` (`id`, `guru_id`, `rombel_id`, `mata_pelajaran`, `kelas`, `judul`, `konten`, `visibilitas`, `created_at`) VALUES
-(1, 3, NULL, 'IPA (Sains)', 'Kelas 4', 'Halo ini malam RABU', '<p>halo&nbsp;saya&nbsp;adalah&nbsp;malam&nbsp;<strong>Selasa&nbsp;</strong>silahkan&nbsp;buka&nbsp;link&nbsp;berikut&nbsp;<a href=\"https://gemini.google.com/\" rel=\"noopener noreferrer\" target=\"_blank\">https://gemini.google.com/</a></p>', 'publik', '2026-05-18 16:30:33');
+(1, 3, NULL, 'IPA (Sains)', 'Kelas 4', 'Halo ini malam RABU', '<p>halo&nbsp;saya&nbsp;adalah&nbsp;malam&nbsp;<strong>Selasa&nbsp;</strong>silahkan&nbsp;buka&nbsp;link&nbsp;berikut&nbsp;<a href=\"https://gemini.google.com/\" rel=\"noopener noreferrer\" target=\"_blank\">https://gemini.google.com/</a></p>', 'publik', '2026-05-18 16:30:33'),
+(9, 3, 1, 'Sejarah', 'Kelas 4A', 'Raditya Dika', '', 'publik', '2026-05-28 04:44:19'),
+(19, 3, 2, 'Sejarah', 'Kelas 4B', 'Raditya Dika (Salinan)', '', 'draft', '2026-06-01 16:13:57');
 
 -- --------------------------------------------------------
 
@@ -64,7 +66,9 @@ CREATE TABLE `materi_media` (
 --
 
 INSERT INTO `materi_media` (`id`, `materi_id`, `tipe_media`, `url_atau_path`) VALUES
-(2, 1, 'video_link', 'https://youtu.be/sbT4shi1Xqk?si=sjs1-lzIrODwaZrl');
+(2, 1, 'video_link', 'https://youtu.be/sbT4shi1Xqk?si=sjs1-lzIrODwaZrl'),
+(3, 9, 'video_link', 'https://www.youtube.com/watch?v=xj3xEisC7D4'),
+(10, 19, 'video_link', 'https://www.youtube.com/watch?v=xj3xEisC7D4');
 
 -- --------------------------------------------------------
 
@@ -99,7 +103,8 @@ CREATE TABLE `rombel` (
 --
 
 INSERT INTO `rombel` (`id`, `nama_kelas`, `kode_unik`, `created_at`) VALUES
-(1, 'Kelas 4A', 'ABC123', '2026-05-27 17:39:51');
+(1, 'Kelas 4A', 'ABC123', '2026-05-27 17:39:51'),
+(2, 'Kelas 4B', 'ABC1234', '2026-06-01 15:32:51');
 
 -- --------------------------------------------------------
 
@@ -156,7 +161,7 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `nama`, `role`, `rombel_id`, `xp`, `username`, `email`, `foto_profile`, `password_hash`, `pin`, `kode_unik`, `verification_token`, `token_expires_at`, `created_at`, `updated_at`) VALUES
 (1, 'Admin Utama', 'admin', NULL, 0, 'admin', 'riyanwardhana2@gmail.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, NULL, NULL, NULL, '2026-05-17 11:35:44', '2026-05-27 14:26:49'),
 (2, 'Budi', 'siswa', 1, 122, NULL, NULL, NULL, NULL, '1234', 'ABC123', NULL, NULL, '2026-05-17 11:35:44', '2026-05-28 03:45:34'),
-(3, 'Riyan Wardhana', 'guru', NULL, 0, 'riyan22', 'riyanwardhana55@gmail.com', 'https://res.cloudinary.com/dbteh8sbe/image/upload/v1779897441/zwisbpk3n6nxnmrnwpda.jpg', '$2y$10$uD//dYpN70LzHzmgjGmC8u63aJIyJOywCeN9P2OlAh28PhU/JKpgK', NULL, NULL, NULL, NULL, '2026-05-17 16:01:19', '2026-05-27 16:23:11'),
+(3, 'Riyan Wardhana', 'guru', NULL, 0, 'riyan22', 'riyanwardhana55@gmail.com', 'https://res.cloudinary.com/dbteh8sbe/image/upload/v1779897441/zwisbpk3n6nxnmrnwpda.jpg', '$2y$10$uD//dYpN70LzHzmgjGmC8u63aJIyJOywCeN9P2OlAh28PhU/JKpgK', NULL, NULL, NULL, NULL, '2026-05-17 16:01:19', '2026-06-01 15:08:36'),
 (4, 'Riyan', 'siswa', 1, 0, 'riyan607', NULL, NULL, NULL, '2206', NULL, NULL, NULL, '2026-05-28 03:49:49', '2026-05-28 03:49:49');
 
 --
@@ -218,13 +223,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `materi`
 --
 ALTER TABLE `materi`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `materi_media`
 --
 ALTER TABLE `materi_media`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `pengumpulan_tugas`
@@ -236,13 +241,13 @@ ALTER TABLE `pengumpulan_tugas`
 -- AUTO_INCREMENT for table `rombel`
 --
 ALTER TABLE `rombel`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tugas_kuis`
 --
 ALTER TABLE `tugas_kuis`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `users`

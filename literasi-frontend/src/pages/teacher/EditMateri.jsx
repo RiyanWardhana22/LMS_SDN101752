@@ -24,6 +24,8 @@ export default function EditMateri() {
   const [kelas, setKelas] = useState("Kelas 4");
   const [visibilitas, setVisibilitas] = useState("publik");
   const [mediaList, setMediaList] = useState([]);
+  const [rombelId, setRombelId] = useState("");
+  const [rombelList, setRombelList] = useState([]);
 
   const [isUploadingCloud, setIsUploadingCloud] = useState(false);
   const fileInputRef = useRef(null);
@@ -31,6 +33,24 @@ export default function EditMateri() {
 
   const CLOUD_NAME = "dbteh8sbe";
   const UPLOAD_PRESET = "literasi_preset";
+
+  useEffect(() => {
+    const fetchRombel = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost/lms_sdn101752/literasi-backend/api/kelas/read_rombel.php",
+        );
+        const data = await res.json();
+        if (data.status === "success") {
+          setRombelList(data.data);
+        }
+      } catch (error) {
+        console.error("Gagal memuat daftar rombel:", error);
+      }
+    };
+    fetchRombel();
+  }, []);
+
   useEffect(() => {
     const loadMateriDetails = async () => {
       try {
@@ -46,6 +66,7 @@ export default function EditMateri() {
           setKelas(data.data.kelas);
           setVisibilitas(data.data.visibilitas);
           setMediaList(data.data.media || []);
+          setRombelId(data.data.rombel_id || "");
         } else {
           Swal.fire({ icon: "error", title: "Gagal", text: data.message });
           navigate("/guru/materi");
@@ -180,6 +201,7 @@ export default function EditMateri() {
       id,
       judul,
       konten,
+      rombel_id: rombelId,
       mata_pelajaran: mataPelajaran,
       kelas,
       visibilitas,
@@ -395,13 +417,25 @@ export default function EditMateri() {
                     Target Kelas
                   </label>
                   <select
-                    value={kelas}
-                    onChange={(e) => setKelas(e.target.value)}
-                    className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-sm font-bold text-neutral-700"
+                    required
+                    value={rombelId}
+                    onChange={(e) => {
+                      setRombelId(e.target.value);
+                      const selected = rombelList.find(
+                        (r) => r.id == e.target.value,
+                      );
+                      if (selected) setKelas(selected.nama_kelas);
+                    }}
+                    className="w-full bg-neutral-50 border-2 border-neutral-100 rounded-xl p-3 text-sm font-bold text-neutral-700 outline-none focus:border-[#ff6b35] focus:bg-white transition-all cursor-pointer appearance-none"
                   >
-                    <option value="Kelas 4">Kelas 4</option>
-                    <option value="Kelas 5">Kelas 5</option>
-                    <option value="Kelas 6">Kelas 6</option>
+                    <option value="" disabled>
+                      -- Pilih Kelas --
+                    </option>
+                    {rombelList.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.nama_kelas} (Kode: {r.kode_unik})
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>

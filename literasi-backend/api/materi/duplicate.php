@@ -34,7 +34,7 @@ try {
                                     $mediaList = $media->fetchAll(PDO::FETCH_ASSOC);
                                     foreach ($mediaList as $med) {
                                                 $insMed = $db->prepare("INSERT INTO materi_media (materi_id, tipe_media, url_atau_path) VALUES (?, ?, ?)");
-                                                $insMed->execute([$new_id, $med['tipe'], $med['url']]);
+                                                $insMed->execute([$new_id, $med['tipe_media'], $med['url_atau_path']]);
                                     }
                                     echo json_encode(["status" => "success", "message" => "Materi berhasil diduplikat ke Draft!"]);
                         } else {
