@@ -188,7 +188,6 @@ export default function ManajemenMateri() {
     });
   };
 
-  // --- RENDER TABEL DETAIL (MATERI & TUGAS) ---
   const renderDetailView = () => {
     const folderData = albumList.find(
       (a) => a.id_kunci === selectedFolder.id_kunci,
@@ -198,7 +197,6 @@ export default function ManajemenMateri() {
 
     return (
       <div className="animate-fade-in flex flex-col gap-6">
-        {/* Header Folder */}
         <div className="flex items-center justify-between bg-white p-6 rounded-3xl shadow-sm border border-neutral-100">
           <div className="flex items-center gap-4">
             <button
@@ -450,7 +448,7 @@ export default function ManajemenMateri() {
                   {album.mata_pelajaran}
                 </h3>
                 <div className="flex items-center gap-1.5 text-sm font-bold text-neutral-500">
-                  <UsersThree weight="fill" /> {album.nama_kelas}
+                  {album.nama_kelas}
                 </div>
               </div>
             </button>

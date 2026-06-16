@@ -10,47 +10,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 include_once '../../config/database.php';
 try {
             $db = $conn;
-            $guru_id = isset($_GET['guru_id']) ? $_GET['guru_id'] : null;
-            if (!$guru_id) {
-                        echo json_encode(["status" => "error", "message" => "ID Guru diperlukan."]);
-                        exit();
+            $rombel_id = isset($_GET['rombel_id']) ? $_GET['rombel_id'] : null;
+            if (!$rombel_id) {
+                        echo json_encode(["status" => "error", "message" => "Pilih kelas (Rombel) terlebih dahulu."]);
+                        exit;
             }
-            $stmtTasks = $db->prepare("SELECT id, judul, tipe FROM tugas_kuis WHERE guru_id = :guru_id ORDER BY created_at ASC");
-            $stmtTasks->execute([':guru_id' => $guru_id]);
+            $stmtSiswa = $db->prepare("SELECT id, nama, username FROM users WHERE role = 'siswa' AND rombel_id = :r ORDER BY nama ASC");
+            $stmtSiswa->execute([':r' => $rombel_id]);
+            $siswa = $stmtSiswa->fetchAll(PDO::FETCH_ASSOC);
+            $stmtTasks = $db->prepare("SELECT id, judul, mata_pelajaran, tipe FROM tugas_kuis WHERE rombel_id = :r ORDER BY created_at ASC");
+            $stmtTasks->execute([':r' => $rombel_id]);
             $tasks = $stmtTasks->fetchAll(PDO::FETCH_ASSOC);
-            $stmtStudents = $db->prepare("SELECT id, nama FROM users WHERE role = 'siswa' ORDER BY nama ASC");
-            $stmtStudents->execute();
-            $students = $stmtStudents->fetchAll(PDO::FETCH_ASSOC);
-            $grades = [];
+
+            $scores = [];
             if (count($tasks) > 0) {
                         $taskIds = array_column($tasks, 'id');
                         $inQuery = implode(',', array_fill(0, count($taskIds), '?'));
-                        $stmtGrades = $db->prepare("SELECT tugas_id, siswa_id, nilai FROM pengumpulan_tugas WHERE tugas_id IN ($inQuery)");
-                        $stmtGrades->execute($taskIds);
-                        $gradesData = $stmtGrades->fetchAll(PDO::FETCH_ASSOC);
-                        foreach ($gradesData as $g) {
-                                    $grades[$g['siswa_id']][$g['tugas_id']] = $g['nilai'];
+                        $stmtScores = $db->prepare("SELECT siswa_id, tugas_id, nilai FROM pengumpulan_tugas WHERE tugas_id IN ($inQuery) AND status_koreksi = 'sudah'");
+                        $stmtScores->execute($taskIds);
+                        $scoresData = $stmtScores->fetchAll(PDO::FETCH_ASSOC);
+                        foreach ($scoresData as $row) {
+                                    $scores[$row['siswa_id']][$row['tugas_id']] = $row['nilai'];
                         }
-            }
-            $report = [];
-            foreach ($students as $student) {
-                        $studentGrades = [];
-                        foreach ($tasks as $task) {
-                                    $val = isset($grades[$student['id']][$task['id']]) ? $grades[$student['id']][$task['id']] : null;
-                                    $studentGrades[$task['id']] = $val;
-                        }
-                        $report[] = [
-                                    'siswa_id' => $student['id'],
-                                    'nama_siswa' => $student['nama'],
-                                    'grades' => $studentGrades
-                        ];
             }
 
             echo json_encode([
                         "status" => "success",
+                        "siswa" => $siswa,
                         "tasks" => $tasks,
-                        "report" => $report
+                        "scores" => $scores
             ]);
 } catch (Throwable $e) {
-            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+            echo json_encode(["status" => "error", "message" => "Terjadi kesalahan sistem: " . $e->getMessage()]);
 }

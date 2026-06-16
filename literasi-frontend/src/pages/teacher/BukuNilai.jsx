@@ -1,223 +1,285 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import {
-  ChartLineUp,
-  Student,
-  ClipboardText,
-  Calculator,
+  DownloadSimple,
+  Table,
+  Funnel,
+  UsersThree,
+  BookBookmark,
 } from "@phosphor-icons/react";
 
 export default function BukuNilai() {
-  const [tasks, setTasks] = useState([]);
-  const [report, setReport] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [rombelList, setRombelList] = useState([]);
+  const [selectedRombel, setSelectedRombel] = useState("");
+  const [selectedMapel, setSelectedMapel] = useState("Semua");
 
-  const localUser = JSON.parse(localStorage.getItem("user")) || {};
+  const [siswaList, setSiswaList] = useState([]);
+  const [tasksList, setTasksList] = useState([]);
+  const [scoresMap, setScoresMap] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const fetchGradebook = async () => {
+    const fetchRombel = async () => {
       try {
-        const response = await fetch(
-          `http://localhost/lms_sdn101752/literasi-backend/api/tugas/gradebook.php?guru_id=${localUser.id}`,
+        const res = await fetch(
+          "http://localhost/lms_sdn101752/literasi-backend/api/kelas/read_rombel.php",
         );
-        const data = await response.json();
+        const data = await res.json();
+        if (data.status === "success") setRombelList(data.data);
+      } catch (error) {
+        console.error("Gagal memuat rombel", error);
+      }
+    };
+    fetchRombel();
+  }, []);
 
+  useEffect(() => {
+    if (!selectedRombel) return;
+
+    const fetchGradebook = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch(
+          `http://localhost/lms_sdn101752/literasi-backend/api/tugas/gradebook.php?rombel_id=${selectedRombel}`,
+        );
+        const data = await res.json();
         if (data.status === "success") {
-          setTasks(data.tasks);
-          setReport(data.report);
+          setSiswaList(data.siswa);
+          setTasksList(data.tasks);
+          setScoresMap(data.scores || {});
+          setSelectedMapel("Semua");
         } else {
-          Swal.fire({ icon: "error", title: "Gagal", text: data.message });
+          Swal.fire("Gagal", data.message, "error");
         }
       } catch (error) {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Gagal terhubung ke server.",
-        });
+        console.error("Gagal memuat gradebook", error);
       } finally {
         setIsLoading(false);
       }
     };
-    if (localUser.id) fetchGradebook();
-  }, [localUser.id]);
+    fetchGradebook();
+  }, [selectedRombel]);
 
-  const calculateAverage = (gradesObj) => {
-    let total = 0;
-    let count = 0;
-    Object.values(gradesObj).forEach((val) => {
-      if (val !== null && val !== "") {
-        total += parseFloat(val);
-        count++;
+  const uniqueMapel = [
+    "Semua",
+    ...new Set(tasksList.map((t) => t.mata_pelajaran || "Umum")),
+  ];
+
+  const filteredTasks =
+    selectedMapel === "Semua"
+      ? tasksList
+      : tasksList.filter((t) => (t.mata_pelajaran || "Umum") === selectedMapel);
+
+  const hitungRataRataSiswa = (siswaId) => {
+    if (filteredTasks.length === 0) return 0;
+    let totalNilai = 0;
+    let tugasDikerjakan = 0;
+
+    filteredTasks.forEach((task) => {
+      const nilai = scoresMap[siswaId]?.[task.id];
+      if (nilai !== undefined && nilai !== null) {
+        totalNilai += parseFloat(nilai);
+        tugasDikerjakan++;
       }
     });
-    return count === 0 ? 0 : Math.round(total / count);
+
+    return tugasDikerjakan === 0 ? 0 : Math.round(totalNilai / tugasDikerjakan);
   };
 
-  const getTaskAverage = (taskId) => {
-    let total = 0;
-    let count = 0;
-    report.forEach((student) => {
-      const val = student.grades[taskId];
-      if (val !== null && val !== "") {
-        total += parseFloat(val);
-        count++;
-      }
+  const exportToCSV = () => {
+    if (siswaList.length === 0)
+      return Swal.fire("Kosong", "Tidak ada data untuk diekspor", "warning");
+
+    let csvContent = "Nama Siswa,Username/NISN,";
+    filteredTasks.forEach((task) => {
+      csvContent += `"${task.judul} (${task.tipe})",`;
     });
-    return count === 0 ? 0 : Math.round(total / count);
-  };
+    csvContent += "Rata-Rata\n";
 
-  const classOverallAverage =
-    report.length === 0
-      ? 0
-      : Math.round(
-          report.reduce(
-            (sum, student) => sum + calculateAverage(student.grades),
-            0,
-          ) / report.length,
-        );
+    siswaList.forEach((siswa) => {
+      let row = `"${siswa.nama}","${siswa.username}",`;
+      filteredTasks.forEach((task) => {
+        const nilai = scoresMap[siswa.id]?.[task.id];
+        row += `"${nilai !== undefined ? nilai : "-"}",`;
+      });
+      row += `"${hitungRataRataSiswa(siswa.id)}"\n`;
+      csvContent += row;
+    });
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Buku_Nilai_Kelas_${selectedRombel}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <DashboardLayout role="guru" title="Buku Nilai & Analitik">
-      <div className="max-w-7xl mx-auto pb-12 flex flex-col gap-8">
-        <div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white border-2 border-green-500 rounded-sm p-6 shadow-sm flex items-center justify-between">
-              <div>
-                <p className="font-bold text-neutral-400 text-sm mb-1">
-                  Rata-Rata Kelas
-                </p>
-                <h3 className="text-4xl font-black">{classOverallAverage}</h3>
-              </div>
-              <ChartLineUp weight="duotone" size={56} className="opacity-50" />
+      <div className="max-w-6xl mx-auto pb-12 flex flex-col gap-6">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-center">
+          <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+            <div className="flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm focus-within:border-[#3498db] focus-within:ring-2 focus-within:ring-[#3498db]/10 transition-all">
+              <UsersThree weight="fill" className="text-slate-400" size={18} />
+              <select
+                value={selectedRombel}
+                onChange={(e) => setSelectedRombel(e.target.value)}
+                className="bg-transparent border-none outline-none font-bold text-slate-700 cursor-pointer text-sm w-full pr-4"
+              >
+                <option value="" disabled>
+                  -- Pilih Kelas --
+                </option>
+                {rombelList.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.nama_kelas}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            <div className="bg-white border-2 border-indigo-500 rounded-sm p-6 shadow-sm flex items-center justify-between">
-              <div>
-                <p className="font-bold text-neutral-400 text-sm mb-1">
-                  Total Siswa Aktif
-                </p>
-                <h3 className="text-4xl font-black text-neutral-800">
-                  {report.length}
-                </h3>
+            {tasksList.length > 0 && (
+              <div className="flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm focus-within:border-[#3498db] focus-within:ring-2 focus-within:ring-[#3498db]/10 transition-all">
+                <Funnel weight="fill" className="text-slate-400" size={18} />
+                <select
+                  value={selectedMapel}
+                  onChange={(e) => setSelectedMapel(e.target.value)}
+                  className="bg-transparent border-none outline-none font-bold text-slate-700 cursor-pointer text-sm w-full pr-4"
+                >
+                  {uniqueMapel.map((mapel) => (
+                    <option key={mapel} value={mapel}>
+                      {mapel}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <div className="p-3 bg-neutral-50 rounded-2xl text-neutral-300">
-                <Student weight="fill" size={32} />
-              </div>
-            </div>
-
-            <div className="bg-white border-2 border-cyan-500 rounded-sm p-6 shadow-sm flex items-center justify-between">
-              <div>
-                <p className="font-bold text-neutral-400 text-sm mb-1">
-                  Evaluasi Diterbitkan
-                </p>
-                <h3 className="text-4xl font-black text-neutral-800">
-                  {tasks.length}
-                </h3>
-              </div>
-              <div className="p-3 bg-neutral-50 rounded-2xl text-neutral-300">
-                <ClipboardText weight="fill" size={32} />
-              </div>
-            </div>
+            )}
           </div>
+
+          <button
+            onClick={exportToCSV}
+            disabled={siswaList.length === 0}
+            className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          >
+            <DownloadSimple weight="bold" size={18} /> Ekspor Excel
+          </button>
         </div>
 
-        {/* Tabel Matriks Buku Nilai */}
-        <div className="bg-white rounded-sm border border-neutral-100 shadow-sm overflow-hidden">
-          {isLoading ? (
-            <div className="text-center py-20 font-bold text-neutral-400 animate-pulse">
-              Menghitung kalkulasi nilai...
+        {!selectedRombel ? (
+          <div className="bg-white rounded-2xl p-16 text-center border border-slate-200 shadow-sm flex flex-col items-center">
+            <div className="p-4 bg-slate-50 rounded-full mb-4">
+              <Table size={48} weight="duotone" className="text-slate-400" />
             </div>
-          ) : tasks.length === 0 ? (
-            <div className="text-center py-20 text-neutral-400 font-medium">
-              Belum ada tugas atau kuis yang diterbitkan.
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
+            <h3 className="text-lg font-bold text-slate-800 mb-1">
+              Buku Nilai Otomatis
+            </h3>
+            <p className="text-sm font-medium text-slate-500">
+              Silakan pilih kelas di atas untuk melihat rekapitulasi nilai
+              siswa.
+            </p>
+          </div>
+        ) : isLoading ? (
+          <div className="text-center py-20 font-bold text-slate-400 animate-pulse">
+            Menyusun matriks nilai...
+          </div>
+        ) : siswaList.length === 0 ? (
+          <div className="bg-white rounded-2xl p-16 text-center border border-slate-200 shadow-sm flex flex-col items-center">
+            <h3 className="text-lg font-bold text-slate-800 mb-1">
+              Kelas Kosong
+            </h3>
+            <p className="text-sm font-medium text-slate-500">
+              Belum ada siswa yang tergabung di kelas ini.
+            </p>
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-fade-in">
+            <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-left border-collapse whitespace-nowrap">
-                <thead>
-                  <tr className="bg-neutral-50 border-b-2 border-neutral-100">
-                    <th className="p-5 text-sm font-black text-neutral-500 uppercase tracking-wider sticky left-0 bg-neutral-50 z-10 border-r border-neutral-100 shadow-[4px_0_12px_rgba(0,0,0,0.02)]">
-                      Nama Siswa
+                <thead className="bg-slate-50">
+                  <tr className="border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th className="p-4 sticky left-0 bg-slate-50 z-10 border-r border-slate-200 w-72 shadow-[4px_0_15px_-3px_rgba(0,0,0,0.05)]">
+                      Siswa & Identitas
                     </th>
-                    {tasks.map((task) => (
-                      <th
-                        key={task.id}
-                        className="p-5 text-center min-w-[140px] border-r border-neutral-100"
-                      >
-                        <div className="flex flex-col items-center gap-1">
-                          <span
-                            className={`text-[10px] px-2 py-0.5 rounded-md font-black uppercase ${task.tipe === "kuis" ? "bg-[#ebf5fb] text-[#3498db]" : "bg-[#fff3ee] text-[#ff6b35]"}`}
-                          >
-                            {task.tipe}
-                          </span>
-                          <span
-                            className="text-sm font-bold text-neutral-700 truncate w-32"
+
+                    {filteredTasks.length === 0 ? (
+                      <th className="p-4 text-slate-400 font-medium italic normal-case text-center">
+                        Belum ada evaluasi
+                      </th>
+                    ) : (
+                      filteredTasks.map((task) => (
+                        <th
+                          key={task.id}
+                          className="p-4 text-center border-r border-slate-200 min-w-[140px] max-w-[200px]"
+                        >
+                          <div
+                            className="truncate text-slate-700 font-bold text-xs mb-2"
                             title={task.judul}
                           >
                             {task.judul}
-                          </span>
-                        </div>
-                      </th>
-                    ))}
-                    <th className="p-5 text-center text-sm font-black text-[#2ecc71] uppercase tracking-wider bg-[#eafaf1]/50">
-                      Rata-Rata Siswa
+                          </div>
+                          <div
+                            className={`text-[9px] px-2.5 py-0.5 rounded-full inline-block border ${task.tipe === "kuis" ? "bg-blue-50 text-blue-600 border-blue-200" : "bg-orange-50 text-orange-600 border-orange-200"}`}
+                          >
+                            {task.tipe}
+                          </div>
+                        </th>
+                      ))
+                    )}
+
+                    <th className="p-4 text-center bg-slate-100/50 text-slate-600 border-l border-slate-200">
+                      Rata-Rata
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-100 text-sm font-semibold">
-                  <tr className="bg-[#f8f9fa] border-b-2 border-neutral-200">
-                    <td className="p-4 font-black text-neutral-600 sticky left-0 bg-[#f8f9fa] z-10 border-r border-neutral-100 flex items-center gap-2">
-                      Rata-Rata Tugas
-                    </td>
-                    {tasks.map((task) => (
-                      <td
-                        key={`avg-${task.id}`}
-                        className="p-4 text-center font-black text-neutral-700 border-r border-neutral-100"
-                      >
-                        {getTaskAverage(task.id)}
-                      </td>
-                    ))}
-                    <td className="p-4 text-center font-black text-[#2ecc71] bg-[#eafaf1]/50">
-                      {classOverallAverage}
-                    </td>
-                  </tr>
-
-                  {/* Render Baris Nilai per Siswa */}
-                  {report.map((student) => {
-                    const studentAvg = calculateAverage(student.grades);
+                <tbody className="divide-y divide-slate-100 text-sm font-medium">
+                  {siswaList.map((siswa, index) => {
+                    const rataRata = hitungRataRataSiswa(siswa.id);
                     return (
                       <tr
-                        key={student.siswa_id}
-                        className="hover:bg-neutral-50/50 transition-colors"
+                        key={siswa.id}
+                        className="hover:bg-slate-50/80 transition-colors group"
                       >
-                        <td className="p-4 font-bold text-neutral-900 sticky left-0 bg-white z-10 border-r border-neutral-100 shadow-[4px_0_12px_rgba(0,0,0,0.01)]">
-                          {student.nama_siswa}
+                        <td className="p-4 sticky left-0 bg-white z-10 border-r border-slate-200 shadow-[4px_0_15px_-3px_rgba(0,0,0,0.05)] flex items-center gap-4 group-hover:bg-slate-50/80 transition-colors">
+                          <div className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 font-bold text-[10px] shrink-0">
+                            {index + 1}
+                          </div>
+                          <div className="truncate w-52">
+                            <div
+                              className="font-bold text-slate-800 truncate text-sm"
+                              title={siswa.nama}
+                            >
+                              {siswa.nama}
+                            </div>
+                            <div className="text-[11px] font-semibold text-slate-400 truncate mt-0.5">
+                              {siswa.username}
+                            </div>
+                          </div>
                         </td>
-
-                        {tasks.map((task) => {
-                          const nilai = student.grades[task.id];
+                        {filteredTasks.map((task) => {
+                          const nilai = scoresMap[siswa.id]?.[task.id];
+                          const hasNilai =
+                            nilai !== undefined && nilai !== null;
                           return (
                             <td
-                              key={`${student.siswa_id}-${task.id}`}
-                              className="p-4 text-center border-r border-neutral-100"
+                              key={task.id}
+                              className="p-4 text-center border-r border-slate-100"
                             >
-                              {nilai === null ? (
-                                <span className="text-neutral-300 text-xs font-bold">
-                                  -
-                                </span>
-                              ) : (
+                              {hasNilai ? (
                                 <span
-                                  className={`inline-block px-3 py-1 rounded-lg font-black text-sm ${nilai < 60 ? "bg-red-50 text-red-500" : "bg-green-50 text-green-600"}`}
+                                  className={`font-bold ${nilai < 70 ? "text-rose-500" : "text-emerald-600"}`}
                                 >
                                   {nilai}
                                 </span>
+                              ) : (
+                                <span className="text-slate-300">-</span>
                               )}
                             </td>
                           );
                         })}
 
-                        <td className="p-4 text-center font-black text-neutral-800 bg-[#eafaf1]/20">
-                          {studentAvg}
+                        <td className="p-4 text-center bg-slate-50 font-bold text-slate-800 border-l border-slate-200 text-base group-hover:bg-slate-100/50 transition-colors">
+                          {rataRata}
                         </td>
                       </tr>
                     );
@@ -225,8 +287,8 @@ export default function BukuNilai() {
                 </tbody>
               </table>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
