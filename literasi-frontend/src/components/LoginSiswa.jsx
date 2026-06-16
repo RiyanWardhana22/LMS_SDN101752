@@ -207,7 +207,7 @@ export default function LoginSiswa() {
               disabled={isLoading}
               className="w-full bg-[#ff6b35] cursor-pointer text-white font-black text-xl py-4 rounded-2xl shadow-[0_6px_0_#e54e1b] hover:bg-[#ff8c5a] active:translate-y-[6px] active:shadow-none transition-all disabled:opacity-50"
             >
-              {isLoading ? "Mencari Kelas..." : "Cari Kelasku 🔍"}
+              {isLoading ? "Mencari Kelas..." : "Cari Kelasku"}
             </button>
           </form>
 
@@ -239,7 +239,7 @@ export default function LoginSiswa() {
 
           <div className="text-center mb-8 shrink-0">
             <h2 className="text-3xl md:text-4xl font-black text-neutral-900 mb-2">
-              Pilih Namamu! 👆
+              Pilih Namamu!
             </h2>
             <p className="font-bold text-neutral-500">
               Klik avatarmu dan masukkan PIN rahasiamu.

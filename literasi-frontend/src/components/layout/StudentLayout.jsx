@@ -27,7 +27,6 @@ export default function StudentLayout({ children }) {
 
         {/* XP Bar & Level */}
         <div className="flex items-center gap-3 bg-[#fff3ee] px-3 py-1.5 rounded-2xl border-2 border-[#ff8c5a]">
-          <span className="text-[#ff6b35] text-xl animate-pulse">⚡</span>
           <div>
             <p className="text-xs font-black text-[#ff6b35]">245 XP</p>
             <div className="w-16 h-2 bg-white rounded-full overflow-hidden mt-0.5">

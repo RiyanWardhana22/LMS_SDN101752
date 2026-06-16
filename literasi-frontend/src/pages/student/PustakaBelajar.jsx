@@ -78,23 +78,6 @@ export default function PustakaBelajar() {
 
   return (
     <StudentLayout title="Pustaka Belajar">
-      <div className="bg-gradient-to-r from-[#4ecdc4] to-[#3498db] rounded-3xl p-8 mb-8 text-white flex items-center justify-between shadow-lg relative overflow-hidden">
-        <div className="relative z-10">
-          <h2 className="text-3xl font-black mb-2 flex items-center gap-3">
-            Ayo Belajar!{" "}
-          </h2>
-          <p className="font-medium opacity-90 max-w-lg leading-relaxed">
-            Pilih materi pelajaran di bawah ini. Tonton videonya, baca
-            materinya, dan temukan keajaiban Augmented Reality di dalamnya!
-          </p>
-        </div>
-        <BookOpen
-          weight="duotone"
-          size={120}
-          className="absolute -right-4 -bottom-8 opacity-20 transform -rotate-12"
-        />
-      </div>
-
       {/* Kotak Pencarian */}
       <div className="relative mb-8 max-w-xl mx-auto">
         <MagnifyingGlass

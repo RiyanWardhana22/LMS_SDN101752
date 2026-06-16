@@ -45,12 +45,8 @@ export default function Sidebar({ role, isOpen, onClose }) {
       path: "/guru/dashboard",
     },
     {
-      name: "Manajemen Materi",
+      name: "Pusat Pembelajaran",
       path: "/guru/materi",
-    },
-    {
-      name: "Tugas & Kuis",
-      path: "/guru/tugas",
     },
     {
       name: "Buku Nilai & Analitik",

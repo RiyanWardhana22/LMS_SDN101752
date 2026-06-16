@@ -35,13 +35,10 @@ export default function WorkshopAI() {
       <div className="bg-[#0D1117] min-h-[calc(100vh-140px)] rounded-3xl p-6 shadow-2xl border border-neutral-800 text-neutral-200 flex flex-col md:flex-row gap-6">
         <div className="w-full md:w-5/12 flex flex-col gap-4">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-[#2ECC71]/20 rounded-xl text-[#2ECC71]">
-              <Sparkle weight="fill" size={28} />
-            </div>
             <div>
               <h2 className="text-xl font-black text-white">Studio Prompt</h2>
               <p className="text-xs text-[#2ECC71] font-bold">
-                Asisten AI Guru (Gemini)
+                Asisten AI Guru
               </p>
             </div>
           </div>
@@ -106,13 +103,7 @@ export default function WorkshopAI() {
                   : "bg-[#2ECC71] text-[#0D1117] hover:bg-[#27AE60] shadow-[0_4px_0_#1e8449] active:translate-y-1 active:shadow-none"
               }`}
             >
-              {isLoading ? (
-                "AI Sedang Berpikir..."
-              ) : (
-                <>
-                  Jalankan AI <PaperPlaneRight weight="fill" />
-                </>
-              )}
+              {isLoading ? "AI Sedang Berpikir..." : <>Jalankan AI</>}
             </button>
           </form>
         </div>
@@ -122,7 +113,6 @@ export default function WorkshopAI() {
           <div className="flex justify-between items-center mb-6 pb-4 border-b border-neutral-800">
             <h3 className="font-bold text-neutral-300">Hasil Generate</h3>
             <button className="flex items-center gap-2 px-3 py-1.5 bg-neutral-800 hover:bg-[#ff6b35] hover:text-white text-neutral-400 text-xs font-bold rounded-lg transition-colors">
-              <FloppyDisk weight="fill" size={16} />
               Simpan ke Bank Soal
             </button>
           </div>

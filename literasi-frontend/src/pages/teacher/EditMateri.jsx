@@ -274,7 +274,6 @@ export default function EditMateri() {
             disabled={isSaving}
             className="flex items-center gap-2 px-6 py-2 bg-[#2ecc71] hover:bg-[#27ae60] text-white font-bold rounded-xl shadow-[0_4px_0_#1e8449]"
           >
-            <FloppyDisk weight="bold" size={20} />{" "}
             {isSaving ? "Memperbarui..." : "Simpan Perubahan"}
           </button>
         </div>

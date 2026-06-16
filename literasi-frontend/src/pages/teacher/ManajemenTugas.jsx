@@ -162,9 +162,6 @@ export default function ManajemenTugas() {
                       {/* KOLOM BADGE ROMBEL BARU */}
                       <td className="p-5">
                         <div className="flex items-center gap-3">
-                          <div className="bg-[#ebf5fb] text-[#3498db] p-2 rounded-xl">
-                            <UsersThree weight="fill" size={20} />
-                          </div>
                           <div className="flex flex-col">
                             <span className="font-bold text-neutral-700">
                               {tugas.nama_kelas || "Belum Diatur"}

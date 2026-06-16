@@ -21,9 +21,12 @@ export default function FormTugas() {
   const [deskripsiTugas, setDeskripsiTugas] = useState("");
   const [rombelId, setRombelId] = useState("");
   const [rombelList, setRombelList] = useState([]);
+  const [mataPelajaran, setMataPelajaran] = useState("");
+
   const [soalKuis, setSoalKuis] = useState([
     { id: Date.now(), pertanyaan: "", a: "", b: "", c: "", d: "", kunci: "a" },
   ]);
+
   useEffect(() => {
     const fetchRombel = async () => {
       try {
@@ -76,20 +79,20 @@ export default function FormTugas() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!judul || !tenggat || !rombelId) {
+    if (!judul || !tenggat || !rombelId || !mataPelajaran) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
-        text: "Pastikan Judul, Target Kelas, dan Tenggat Waktu sudah terisi!",
+        text: "Pastikan Judul, Mata Pelajaran, Target Kelas, dan Tenggat Waktu sudah terisi!",
       });
       return;
     }
-
     setIsSaving(true);
     const user = JSON.parse(localStorage.getItem("user"));
     const payload = {
       guru_id: user.id,
       rombel_id: rombelId,
+      mata_pelajaran: mataPelajaran,
       judul,
       tipe,
       tenggat,
@@ -105,16 +108,14 @@ export default function FormTugas() {
           body: JSON.stringify(payload),
         },
       );
-
       const data = await response.json();
-
       if (data.status === "success") {
         Swal.fire({
           icon: "success",
           title: "Berhasil Diterbitkan!",
           text: data.message,
           confirmButtonColor: "#2ecc71",
-        }).then(() => navigate("/guru/tugas"));
+        }).then(() => navigate("/guru/materi"));
       } else {
         Swal.fire({ icon: "error", title: "Gagal", text: data.message });
       }
@@ -139,7 +140,7 @@ export default function FormTugas() {
         <div className="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-neutral-100">
           <button
             type="button"
-            onClick={() => navigate("/guru/tugas")}
+            onClick={() => navigate("/guru/materi")}
             className="flex items-center gap-2 text-neutral-500 hover:text-[#ff6b35] font-bold text-sm bg-transparent border-none cursor-pointer"
           >
             <CaretLeft weight="bold" size={20} /> Batal
@@ -164,8 +165,45 @@ export default function FormTugas() {
             onChange={(e) => setJudul(e.target.value)}
           />
 
-          {/* PERBAIKAN: Ubah menjadi 3 kolom untuk menyisipkan Dropdown Rombel */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-neutral-100">
+          {/* PERBAIKAN: Ubah menjadi 2 kolom agar 4 elemen tersusun rapi */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-neutral-100">
+            {/* Input Mata Pelajaran Baru */}
+            <div>
+              <label className="block text-xs font-bold text-neutral-500 mb-2">
+                Mata Pelajaran
+              </label>
+              <input
+                type="text"
+                required
+                value={mataPelajaran}
+                onChange={(e) => setMataPelajaran(e.target.value)}
+                placeholder=""
+                className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-sm font-bold text-neutral-700 outline-none focus:border-[#3498db] transition-colors"
+              />
+            </div>
+
+            {/* Dropdown Target Kelas (Rombel) */}
+            <div>
+              <label className="block text-xs font-bold text-neutral-500 mb-2">
+                Target Kelas
+              </label>
+              <select
+                required
+                value={rombelId}
+                onChange={(e) => setRombelId(e.target.value)}
+                className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-sm font-bold text-neutral-700 outline-none focus:border-[#3498db] cursor-pointer appearance-none transition-colors"
+              >
+                <option value="" disabled>
+                  -- Pilih Kelas --
+                </option>
+                {rombelList.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.nama_kelas} (Kode: {r.kode_unik})
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div>
               <label className="block text-xs font-bold text-neutral-500 mb-2">
                 Tipe Evaluasi
@@ -188,28 +226,6 @@ export default function FormTugas() {
               </div>
             </div>
 
-            {/* Dropdown Target Kelas (Rombel) */}
-            <div>
-              <label className="block text-xs font-bold text-neutral-500 mb-2">
-                Target Kelas
-              </label>
-              <select
-                required
-                value={rombelId}
-                onChange={(e) => setRombelId(e.target.value)}
-                className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-sm font-bold text-neutral-700 outline-none focus:border-[#ff6b35] cursor-pointer appearance-none transition-colors"
-              >
-                <option value="" disabled>
-                  -- Pilih Kelas --
-                </option>
-                {rombelList.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.nama_kelas} (Kode: {r.kode_unik})
-                  </option>
-                ))}
-              </select>
-            </div>
-
             {/* Tenggat Waktu */}
             <div>
               <label className="block text-xs font-bold text-neutral-500 mb-2">
@@ -218,7 +234,7 @@ export default function FormTugas() {
               <input
                 type="datetime-local"
                 required
-                className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-sm font-bold text-neutral-700 outline-none focus:border-[#ff6b35] transition-colors"
+                className="w-full bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-sm font-bold text-neutral-700 outline-none focus:border-[#3498db] transition-colors"
                 value={tenggat}
                 onChange={(e) => setTenggat(e.target.value)}
               />
@@ -260,7 +276,6 @@ export default function FormTugas() {
                     <Trash weight="bold" size={20} />
                   </button>
                 </div>
-
                 <textarea
                   placeholder="Ketik pertanyaan kuis di sini..."
                   required
@@ -303,8 +318,7 @@ export default function FormTugas() {
                   ))}
                 </div>
                 <p className="text-[11px] font-bold text-neutral-400 mt-4 text-center">
-                  💡 Klik bulatan (radio button) di sebelah kiri opsi untuk
-                  memilih{" "}
+                  Klik bulatan (radio button) di sebelah kiri opsi untuk memilih{" "}
                   <span className="text-[#2ecc71]">
                     Kunci Jawaban yang Benar
                   </span>
