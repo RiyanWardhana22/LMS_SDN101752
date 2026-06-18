@@ -16,19 +16,11 @@ export default function WorkshopAI() {
   const [isLoading, setIsLoading] = useState(false);
   const [resultText, setResultText] = useState("");
   const [isCopied, setIsCopied] = useState(false);
-
-  // --- STATE INPUT: TAB ANIMASI ---
   const [ideCerita, setIdeCerita] = useState("");
   const [gayaVisual, setGayaVisual] = useState("3D Animation (Pixar Style)");
-
-  // --- STATE INPUT: TAB SOAL LITERASI ---
   const [teksBacaan, setTeksBacaan] = useState("");
-
-  // --- STATE INPUT: TAB TEKS CERITA ---
   const [temaCerita, setTemaCerita] = useState("");
   const [kelasTarget, setKelasTarget] = useState("Kelas 4");
-
-  // FUNGSI DEBUGGER UNTUK MENCARI ERROR ASLI
   const generateAI = async (prompt, systemInstruction) => {
     setIsLoading(true);
     setResultText("");
@@ -47,14 +39,10 @@ export default function WorkshopAI() {
         },
       );
 
-      // 🔴 TRICK DEBUGGING: Jangan langsung di .json(), kita baca teks mentahnya dulu!
       const rawText = await response.text();
       console.log("RAW RESPONSE DARI PHP:", rawText);
-
       try {
-        // Coba ubah teks mentah tadi menjadi JSON
         const data = JSON.parse(rawText);
-
         if (data.status === "success") {
           setResultText(data.data);
         } else {
@@ -65,7 +53,6 @@ export default function WorkshopAI() {
           );
         }
       } catch (parseError) {
-        // 🔴 JIKA MASUK KESINI: Artinya PHP mengeluarkan Error/Warning, bukan JSON!
         Swal.fire({
           title: "Terdeteksi Error di PHP!",
           html: `<p style="font-size:14px; text-align:left; color:#e74c3c; font-weight:bold;">PHP tidak menghasilkan JSON. Ini output aslinya:</p>
@@ -75,7 +62,6 @@ export default function WorkshopAI() {
         });
       }
     } catch (error) {
-      // Jika masuk ke sini, artinya Fetch API benar-benar gagal (contoh: URL salah, CORS, server mati)
       Swal.fire(
         "Fetch Error",
         `Gagal melakukan request: ${error.message}`,
@@ -86,12 +72,10 @@ export default function WorkshopAI() {
     }
   };
 
-  // --- LOGIKA MAGIC ENHANCER (Di Balik Layar) ---
   const handleGenerateAnimasi = () => {
     if (!ideCerita)
       return Swal.fire("Oops", "Tuliskan ide ceritamu dulu ya!", "warning");
-
-    // Ini adalah MAGIC PROMPT yang disembunyikan dari guru.
+    
     const sysInstruction = `Kamu adalah Sutradara Film Profesional dan ahli Prompt Engineer untuk AI Text-to-Video (seperti Sora, Luma Dream Machine, Kling, Veo). Tugasmu adalah mengubah ide cerita pengguna yang sederhana menjadi prompt Bahasa Inggris yang SANGAT DETAIL dan menakjubkan. 
     Aturan wajib:
     1. Output HANYA berupa prompt Bahasa Inggrisnya saja (jangan ada kalimat pengantar seperti 'Here is your prompt').
