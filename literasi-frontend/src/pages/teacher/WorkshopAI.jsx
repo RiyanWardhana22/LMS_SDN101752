@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import {
   Robot,
@@ -14,16 +14,81 @@ import {
 export default function WorkshopAI() {
   const [activeTab, setActiveTab] = useState("animasi");
   const [isLoading, setIsLoading] = useState(false);
-  const [resultText, setResultText] = useState("");
   const [isCopied, setIsCopied] = useState(false);
-  const [ideCerita, setIdeCerita] = useState("");
-  const [gayaVisual, setGayaVisual] = useState("3D Animation (Pixar Style)");
-  const [teksBacaan, setTeksBacaan] = useState("");
-  const [temaCerita, setTemaCerita] = useState("");
-  const [kelasTarget, setKelasTarget] = useState("Kelas 4");
-  const generateAI = async (prompt, systemInstruction) => {
+
+  // --- STATE 1: PENYIMPANAN INPUT (Persisten) ---
+  const [inputs, setInputs] = useState(() => {
+    const savedInputs = localStorage.getItem("ai_workshop_inputs");
+    return savedInputs
+      ? JSON.parse(savedInputs)
+      : {
+          ideCerita: "",
+          gayaVisual: "3D Animation (Pixar Style)",
+          teksBacaan: "",
+          temaCerita: "",
+          kelasTarget: "Kelas 4",
+        };
+  });
+
+  // --- STATE 2: PENYIMPANAN HASIL AI UNTUK TIAP TAB (Persisten) ---
+  const [results, setResults] = useState(() => {
+    const savedResults = localStorage.getItem("ai_workshop_results");
+    return savedResults
+      ? JSON.parse(savedResults)
+      : {
+          animasi: "",
+          soal: "",
+          teks: "",
+        };
+  });
+
+  // Efek Otomatis: Simpan ke memori browser setiap kali Guru mengetik/mendapat hasil
+  useEffect(() => {
+    localStorage.setItem("ai_workshop_inputs", JSON.stringify(inputs));
+  }, [inputs]);
+
+  useEffect(() => {
+    localStorage.setItem("ai_workshop_results", JSON.stringify(results));
+  }, [results]);
+
+  const ubahInput = (field, value) => {
+    setInputs((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // --- FUNGSI PARSING MARKDOWN (Agar Enak Dibaca) ---
+  const formatTeksAI = (text) => {
+    if (!text) return "";
+    let html = text;
+    // Format Heading 3 (### Judul)
+    html = html.replace(
+      /^### (.*$)/gim,
+      '<h3 class="text-lg font-black mt-5 mb-2 text-indigo-900">$1</h3>',
+    );
+    // Format Heading 2 (## Judul)
+    html = html.replace(
+      /^## (.*$)/gim,
+      '<h2 class="text-xl font-black mt-6 mb-3 text-indigo-900">$1</h2>',
+    );
+    // Format Bold (**teks**)
+    html = html.replace(
+      /\*\*(.*?)\*\*/g,
+      '<strong class="text-slate-900 font-black">$1</strong>',
+    );
+    // Format Italic (*teks*)
+    html = html.replace(
+      /\*(.*?)\*/g,
+      '<em class="text-slate-600 italic">$1</em>',
+    );
+    // Format baris baru (Enter)
+    html = html.replace(/\n/g, "<br/>");
+    return html;
+  };
+
+  // --- LOGIKA PEMANGGILAN AI ---
+  const generateAI = async (prompt, systemInstruction, tabKey) => {
     setIsLoading(true);
-    setResultText("");
+    // Kosongkan HANYA hasil pada tab yang sedang aktif saat loading dimulai
+    setResults((prev) => ({ ...prev, [tabKey]: "" }));
     setIsCopied(false);
 
     try {
@@ -40,84 +105,70 @@ export default function WorkshopAI() {
       );
 
       const rawText = await response.text();
-      console.log("RAW RESPONSE DARI PHP:", rawText);
+
       try {
         const data = JSON.parse(rawText);
         if (data.status === "success") {
-          setResultText(data.data);
+          // Simpan hasil HANYA ke ruangan tab tersebut
+          setResults((prev) => ({ ...prev, [tabKey]: data.data }));
         } else {
-          Swal.fire(
-            "Gagal (Dari API)",
-            data.message + (data.debug ? `\n\nDebug: ${data.debug}` : ""),
-            "error",
-          );
+          Swal.fire("Gagal", data.message, "error");
         }
       } catch (parseError) {
-        Swal.fire({
-          title: "Terdeteksi Error di PHP!",
-          html: `<p style="font-size:14px; text-align:left; color:#e74c3c; font-weight:bold;">PHP tidak menghasilkan JSON. Ini output aslinya:</p>
-                 <pre style="text-align:left; background:#f4f6f9; padding:10px; border-radius:8px; font-size:12px; overflow-x:auto; border: 1px solid #e2e8f0; color:#333;">${rawText || "Teks Kosong (Empty Response)"}</pre>`,
-          icon: "error",
-          width: 600,
-        });
+        Swal.fire(
+          "Error Server",
+          "Sistem AI mengalami gangguan saat membaca respons.",
+          "error",
+        );
       }
     } catch (error) {
-      Swal.fire(
-        "Fetch Error",
-        `Gagal melakukan request: ${error.message}`,
-        "error",
-      );
+      Swal.fire("Fetch Error", "Gagal menghubungi backend.", "error");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleGenerateAnimasi = () => {
-    if (!ideCerita)
+    if (!inputs.ideCerita)
       return Swal.fire("Oops", "Tuliskan ide ceritamu dulu ya!", "warning");
-    
-    const sysInstruction = `Kamu adalah Sutradara Film Profesional dan ahli Prompt Engineer untuk AI Text-to-Video (seperti Sora, Luma Dream Machine, Kling, Veo). Tugasmu adalah mengubah ide cerita pengguna yang sederhana menjadi prompt Bahasa Inggris yang SANGAT DETAIL dan menakjubkan. 
-    Aturan wajib:
-    1. Output HANYA berupa prompt Bahasa Inggrisnya saja (jangan ada kalimat pengantar seperti 'Here is your prompt').
-    2. Sertakan detail pergerakan kamera (camera motion, panning, tracking).
-    3. Sertakan detail pencahayaan (cinematic lighting, volumetric light).
-    4. Sertakan detail resolusi (8k, hyper-detailed, photorealistic).
-    5. Gunakan gaya visual berikut ini secara spesifik: ${gayaVisual}.`;
-
-    const userPrompt = `Tolong buatkan prompt video untuk ide cerita ini: ${ideCerita}`;
-    generateAI(userPrompt, sysInstruction);
+    const sysInstruction = `Kamu adalah Sutradara Film Profesional dan ahli Prompt Engineer untuk AI Text-to-Video... (Output hanya prompt bahasa Inggris). Gunakan gaya visual: ${inputs.gayaVisual}.`;
+    const userPrompt = `Buatkan prompt video untuk: ${inputs.ideCerita}`;
+    generateAI(userPrompt, sysInstruction, "animasi"); // Kirim kode tab 'animasi'
   };
 
   const handleGenerateSoal = () => {
-    if (!teksBacaan)
+    if (!inputs.teksBacaan)
       return Swal.fire(
         "Oops",
         "Masukkan teks bacaan terlebih dahulu!",
         "warning",
       );
     const sysInstruction =
-      "Kamu adalah Guru SD ahli pembuat soal Evaluasi Literasi berstandar HOTS. Buatlah 5 soal pilihan ganda (A, B, C, D) yang menguji pemahaman makna, bukan sekadar hafalan. Berikan kunci jawabannya di bagian paling bawah.";
-    const userPrompt = `Buatkan 5 soal pilihan ganda dari teks ini:\n\n${teksBacaan}`;
-    generateAI(userPrompt, sysInstruction);
+      "Kamu adalah Guru SD ahli pembuat soal Evaluasi Literasi berstandar HOTS. Buatlah 5 soal pilihan ganda (A, B, C, D) yang menguji pemahaman makna. Berikan kunci jawabannya di bagian paling bawah. Gunakan format yang rapi.";
+    const userPrompt = `Buatkan 5 soal pilihan ganda dari teks ini:\n\n${inputs.teksBacaan}`;
+    generateAI(userPrompt, sysInstruction, "soal"); // Kirim kode tab 'soal'
   };
 
   const handleGenerateCerita = () => {
-    if (!temaCerita)
+    if (!inputs.temaCerita)
       return Swal.fire(
         "Oops",
         "Tuliskan tema cerita terlebih dahulu!",
         "warning",
       );
-    const sysInstruction = `Kamu adalah Penulis Buku Anak Terkenal. Buatlah cerita pendek yang sangat menarik, mendidik, dan mudah dipahami untuk anak SD ${kelasTarget}. Ceritanya tidak boleh terlalu panjang, cukup 3-4 paragraf. Sisipkan pesan moral yang baik di akhir cerita.`;
-    const userPrompt = `Buatkan cerita anak bertema: ${temaCerita}`;
-    generateAI(userPrompt, sysInstruction);
+    const sysInstruction = `Kamu adalah Penulis Buku Anak Terkenal. Buatlah cerita pendek yang sangat menarik, mendidik, dan mudah dipahami untuk anak SD ${inputs.kelasTarget}. Ceritanya tidak boleh terlalu panjang, cukup 3-4 paragraf. Sisipkan pesan moral yang baik di akhir cerita.`;
+    const userPrompt = `Buatkan cerita anak bertema: ${inputs.temaCerita}`;
+    generateAI(userPrompt, sysInstruction, "teks"); // Kirim kode tab 'teks'
   };
 
-  // UX Bantuan: Copy ke Clipboard
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(resultText);
+    navigator.clipboard.writeText(results[activeTab]); // Kopi hanya dari tab aktif
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 3000);
+  };
+
+  const bersihkanHasil = () => {
+    setResults((prev) => ({ ...prev, [activeTab]: "" }));
   };
 
   return (
@@ -125,13 +176,9 @@ export default function WorkshopAI() {
       <div className="max-w-5xl mx-auto pb-12 flex flex-col lg:flex-row gap-8 items-start">
         {/* PANEL KIRI: Menu & Form Input */}
         <div className="w-full lg:w-5/12 flex flex-col gap-6">
-          {/* TAB SWITCHER */}
           <div className="flex bg-white border border-slate-200 p-1.5 rounded-2xl shadow-sm">
             <button
-              onClick={() => {
-                setActiveTab("animasi");
-                setResultText("");
-              }}
+              onClick={() => setActiveTab("animasi")}
               className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all ${activeTab === "animasi" ? "bg-indigo-50 text-indigo-600" : "text-slate-400 hover:text-slate-600"}`}
             >
               <FilmStrip
@@ -141,10 +188,7 @@ export default function WorkshopAI() {
               Prompt Video
             </button>
             <button
-              onClick={() => {
-                setActiveTab("soal");
-                setResultText("");
-              }}
+              onClick={() => setActiveTab("soal")}
               className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all ${activeTab === "soal" ? "bg-indigo-50 text-indigo-600" : "text-slate-400 hover:text-slate-600"}`}
             >
               <PenNib
@@ -154,10 +198,7 @@ export default function WorkshopAI() {
               Buat Soal
             </button>
             <button
-              onClick={() => {
-                setActiveTab("teks");
-                setResultText("");
-              }}
+              onClick={() => setActiveTab("teks")}
               className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all ${activeTab === "teks" ? "bg-indigo-50 text-indigo-600" : "text-slate-400 hover:text-slate-600"}`}
             >
               <Books
@@ -177,23 +218,19 @@ export default function WorkshopAI() {
                     Ide Cerita Sederhana
                   </label>
                   <textarea
-                    value={ideCerita}
-                    onChange={(e) => setIdeCerita(e.target.value)}
-                    placeholder="Contoh: Seekor kucing orange sedang belajar matematika di perpustakaan sihir..."
+                    value={inputs.ideCerita}
+                    onChange={(e) => ubahInput("ideCerita", e.target.value)}
+                    placeholder="Contoh: Kucing orange sedang belajar..."
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm font-medium text-slate-700 outline-none focus:border-indigo-500 h-32 resize-none"
                   ></textarea>
-                  <p className="text-[11px] font-semibold text-slate-400 mt-2 flex items-center gap-1">
-                     AI
-                    akan otomatis menyulapnya jadi prompt bahasa Inggris
-                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-2">
                     Pilih Gaya Visual
                   </label>
                   <select
-                    value={gayaVisual}
-                    onChange={(e) => setGayaVisual(e.target.value)}
+                    value={inputs.gayaVisual}
+                    onChange={(e) => ubahInput("gayaVisual", e.target.value)}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold text-slate-700 outline-none focus:border-indigo-500 cursor-pointer appearance-none"
                   >
                     <option value="3D Animation (Pixar Style)">
@@ -202,14 +239,14 @@ export default function WorkshopAI() {
                     <option value="Stop Motion Claymation (Aardman style)">
                       Claymation (Tanah Liat)
                     </option>
-                    <option value="Cinematic Photorealistic, 8k resolution">
+                    <option value="Cinematic Photorealistic">
                       Realistis Sinematik (Asli)
                     </option>
                     <option value="Studio Ghibli 2D Anime style">
                       Anime (Studio Ghibli)
                     </option>
                     <option value="Watercolor Illustration style">
-                      Ilustrasi Cat Air (Buku Cerita)
+                      Ilustrasi Cat Air
                     </option>
                   </select>
                 </div>
@@ -230,10 +267,10 @@ export default function WorkshopAI() {
                     Masukkan Teks Bacaan
                   </label>
                   <textarea
-                    value={teksBacaan}
-                    onChange={(e) => setTeksBacaan(e.target.value)}
-                    placeholder="Paste teks cerita atau artikel di sini..."
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm font-medium text-slate-700 outline-none focus:border-indigo-500 h-56 resize-none custom-scrollbar"
+                    value={inputs.teksBacaan}
+                    onChange={(e) => ubahInput("teksBacaan", e.target.value)}
+                    placeholder="Paste teks cerita di sini..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm font-medium text-slate-700 outline-none focus:border-indigo-500 h-56 resize-none"
                   ></textarea>
                 </div>
                 <button
@@ -241,8 +278,7 @@ export default function WorkshopAI() {
                   disabled={isLoading}
                   className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors cursor-pointer disabled:opacity-50"
                 >
-                  {isLoading ? "Berpikir..." : "Buat 5 Soal HOTS"}{" "}
-                  <PenNib weight="fill" size={18} />
+                  {isLoading ? "Loading..." : "Buat Soal"}
                 </button>
               </div>
             )}
@@ -255,9 +291,9 @@ export default function WorkshopAI() {
                   </label>
                   <input
                     type="text"
-                    value={temaCerita}
-                    onChange={(e) => setTemaCerita(e.target.value)}
-                    placeholder="Contoh: Pentingnya membuang sampah pada tempatnya"
+                    value={inputs.temaCerita}
+                    onChange={(e) => ubahInput("temaCerita", e.target.value)}
+                    placeholder="Contoh: Belajar Berbagi"
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm font-medium text-slate-700 outline-none focus:border-indigo-500"
                   />
                 </div>
@@ -266,8 +302,8 @@ export default function WorkshopAI() {
                     Target Anak
                   </label>
                   <select
-                    value={kelasTarget}
-                    onChange={(e) => setKelasTarget(e.target.value)}
+                    value={inputs.kelasTarget}
+                    onChange={(e) => ubahInput("kelasTarget", e.target.value)}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold text-slate-700 outline-none focus:border-indigo-500 cursor-pointer appearance-none"
                   >
                     <option value="Kelas 1-2">Kelas Bawah (1 & 2)</option>
@@ -280,8 +316,7 @@ export default function WorkshopAI() {
                   disabled={isLoading}
                   className="w-full mt-2 flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors cursor-pointer disabled:opacity-50"
                 >
-                  {isLoading ? "Menulis..." : "Mulai Menulis Cerita"}{" "}
-                  <Books weight="fill" size={18} />
+                  {isLoading ? "Menulis..." : "Kirim"}
                 </button>
               </div>
             )}
@@ -293,17 +328,17 @@ export default function WorkshopAI() {
           <div className="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50 shrink-0">
             <div className="flex items-center gap-2">
               <div
-                className={`w-3 h-3 rounded-full ${isLoading ? "bg-yellow-400 animate-pulse" : resultText ? "bg-emerald-400" : "bg-slate-300"}`}
+                className={`w-3 h-3 rounded-full ${isLoading ? "bg-yellow-400 animate-pulse" : results[activeTab] ? "bg-emerald-400" : "bg-slate-300"}`}
               ></div>
               <h3 className="font-bold text-slate-700 text-sm">
-                Papan Hasil (Output)
+                Papan Hasil ({activeTab})
               </h3>
             </div>
 
-            {resultText && (
+            {results[activeTab] && (
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setResultText("")}
+                  onClick={bersihkanHasil}
                   className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
                   title="Bersihkan"
                 >
@@ -333,10 +368,13 @@ export default function WorkshopAI() {
                 <Robot size={48} weight="duotone" className="animate-bounce" />
                 <p className="font-bold text-sm">Gemini sedang bekerja...</p>
               </div>
-            ) : resultText ? (
-              <div className="whitespace-pre-wrap font-medium text-slate-700 text-[15px] leading-relaxed">
-                {resultText}
-              </div>
+            ) : results[activeTab] ? (
+              <div
+                className="whitespace-pre-wrap font-medium text-slate-700 text-[15px] leading-relaxed"
+                dangerouslySetInnerHTML={{
+                  __html: formatTeksAI(results[activeTab]),
+                }}
+              />
             ) : (
               <div className="h-full flex flex-col items-center justify-center gap-3 text-slate-300">
                 <Sparkle size={48} weight="thin" />
