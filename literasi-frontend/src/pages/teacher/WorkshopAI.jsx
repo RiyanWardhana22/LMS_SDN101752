@@ -1,23 +1,23 @@
 import { useState, useEffect, useRef } from "react";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import {
-  Robot,
   PaperPlaneRight,
   Paperclip,
   X,
-  FilmStrip,
-  Books,
-  PenNib,
   Sparkle,
-  ChatCircleText,
-  User,
+  Trash,
 } from "@phosphor-icons/react";
 
 export default function WorkshopAI() {
   const [isLoading, setIsLoading] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [selectedMode, setSelectedMode] = useState("chat");
+  const [gayaVisual, setGayaVisual] = useState("3D Animation (Pixar Style)");
   const [attachedFiles, setAttachedFiles] = useState([]);
+  const [systemInfo, setSystemInfo] = useState({
+    model: "gemini-3.5-flash",
+    apiIndex: 1,
+  });
 
   const messagesEndRef = useRef(null);
 
@@ -29,9 +29,8 @@ export default function WorkshopAI() {
           {
             id: "welcome-1",
             role: "ai",
-            mode: "chat",
             content:
-              "Halo! Saya Asisten Gemini. Anda bisa melampirkan Gambar atau dokumen PDF menggunakan ikon klip kertas di bawah. Ada yang bisa saya bantu hari ini?",
+              "Halo. Saya asisten AI Anda. Silakan ketik instruksi, lampirkan dokumen, atau pilih mode khusus di bawah untuk mulai bekerja.",
             timestamp: new Date().toISOString(),
           },
         ];
@@ -46,10 +45,8 @@ export default function WorkshopAI() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // --- HANDLER FILE UPLOAD & KONVERSI BASE64 ---
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
-
     if (attachedFiles.length + files.length > 3) {
       return Swal.fire(
         "Batas File",
@@ -58,7 +55,6 @@ export default function WorkshopAI() {
       );
     }
 
-    // Mengubah file fisik menjadi string Base64
     const filePromises = files.map((file) => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -67,7 +63,6 @@ export default function WorkshopAI() {
           resolve({
             name: file.name,
             type: file.type,
-            // Pisahkan "data:image/png;base64," dan ambil string Base64-nya saja
             data: reader.result.split(",")[1],
           });
         reader.onerror = (error) => reject(error);
@@ -80,7 +75,6 @@ export default function WorkshopAI() {
     } catch (error) {
       Swal.fire("Error", "Gagal membaca file.", "error");
     }
-
     e.target.value = null;
   };
 
@@ -95,19 +89,19 @@ export default function WorkshopAI() {
     let html = text;
     html = html.replace(
       /^### (.*$)/gim,
-      '<h3 class="text-lg font-black mt-4 mb-2 text-slate-800">$1</h3>',
+      '<h3 class="text-lg font-bold mt-6 mb-2 text-slate-900">$1</h3>',
     );
     html = html.replace(
       /^## (.*$)/gim,
-      '<h2 class="text-xl font-black mt-5 mb-3 text-slate-800">$1</h2>',
+      '<h2 class="text-xl font-bold mt-8 mb-3 text-slate-900">$1</h2>',
     );
     html = html.replace(
       /\*\*(.*?)\*\*/g,
-      '<strong class="text-slate-900 font-black">$1</strong>',
+      '<strong class="text-slate-900 font-bold">$1</strong>',
     );
     html = html.replace(
       /\*(.*?)\*/g,
-      '<em class="text-slate-600 italic">$1</em>',
+      '<em class="text-slate-700 italic">$1</em>',
     );
     html = html.replace(/\n/g, "<br/>");
     return html;
@@ -119,17 +113,13 @@ export default function WorkshopAI() {
     const userMessage = {
       id: Date.now().toString(),
       role: "user",
-      mode: selectedMode,
       content: inputValue,
-      files: attachedFiles.map((f) => ({ name: f.name, type: f.type })), // Simpan metadata saja untuk histori UI
+      files: attachedFiles.map((f) => ({ name: f.name, type: f.type })),
       timestamp: new Date().toISOString(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
-
-    // Simpan payload file yang asli (Base64) untuk dikirim ke API
     const filesToUpload = [...attachedFiles];
-
     setInputValue("");
     setAttachedFiles([]);
     setIsLoading(true);
@@ -138,17 +128,16 @@ export default function WorkshopAI() {
     let finalPrompt = inputValue || "Tolong analisis file yang saya lampirkan.";
 
     if (selectedMode === "animasi") {
-      sysInstruction =
-        "Kamu adalah Sutradara Film. Ubah ide pengguna menjadi prompt Bahasa Inggris yang sangat detail. Langsung output prompt Inggrisnya saja.";
-      finalPrompt = `Buatkan prompt video animasi untuk ide ini: ${inputValue}`;
+      sysInstruction = `Kamu adalah Sutradara Film Profesional dan ahli Prompt Engineer... (Output hanya prompt bahasa Inggris). Gunakan gaya visual: ${gayaVisual}.`;
+      finalPrompt = `Buatkan prompt video untuk: ${inputValue}`;
     } else if (selectedMode === "soal") {
       sysInstruction =
-        "Kamu adalah Guru SD ahli pembuat soal HOTS. Buatlah 5 soal pilihan ganda berdasarkan teks/file yang diberikan beserta kuncinya.";
+        "Kamu adalah Guru SD. Buatlah 5 soal pilihan ganda berstandar HOTS berdasarkan teks/file yang diberikan. Jangan berikan pengantar, langsung berikan soal dan kuncinya di akhir.";
       finalPrompt = `Buatkan soal literasi dari topik/file ini: ${inputValue}`;
     } else if (selectedMode === "cerita") {
       sysInstruction =
-        "Kamu adalah Penulis Buku Anak. Buatlah cerita pendek yang mendidik untuk anak SD.";
-      finalPrompt = `Tulis cerita anak dengan tema: ${inputValue}`;
+        "Kamu adalah Penulis Buku Anak. Buat cerita pendek yang mendidik untuk anak SD (3-4 paragraf) dengan pesan moral di akhir.";
+      finalPrompt = `Tema cerita: ${inputValue}`;
     }
 
     try {
@@ -157,7 +146,6 @@ export default function WorkshopAI() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          // PERBAIKAN: Mengirim file Base64 ke PHP
           body: JSON.stringify({
             prompt: finalPrompt,
             system_instruction: sysInstruction,
@@ -169,12 +157,15 @@ export default function WorkshopAI() {
       const data = JSON.parse(rawText);
 
       if (data.status === "success") {
+        if (data.model_used && data.api_used) {
+          setSystemInfo({ model: data.model_used, apiIndex: data.api_used });
+        }
+
         setMessages((prev) => [
           ...prev,
           {
             id: (Date.now() + 1).toString(),
             role: "ai",
-            mode: selectedMode,
             content: data.data,
             timestamp: new Date().toISOString(),
           },
@@ -186,7 +177,6 @@ export default function WorkshopAI() {
           {
             id: Date.now().toString(),
             role: "ai",
-            mode: "error",
             content: "Error: " + data.message,
           },
         ]);
@@ -197,7 +187,6 @@ export default function WorkshopAI() {
         {
           id: Date.now().toString(),
           role: "ai",
-          mode: "error",
           content: "Gagal menghubungi server AI.",
         },
       ]);
@@ -215,162 +204,122 @@ export default function WorkshopAI() {
 
   const clearChat = () => {
     Swal.fire({
-      title: "Hapus Obrolan?",
-      text: "Riwayat ini akan hilang permanen.",
+      title: "Bersihkan Ruang Kerja?",
+      text: "Riwayat percakapan ini akan dihapus.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#e74c3c",
+      confirmButtonColor: "#0f172a",
+      confirmButtonText: "Ya, Bersihkan",
+      cancelButtonText: "Batal",
     }).then((res) => {
       if (res.isConfirmed)
         setMessages([
           {
             id: "reset-1",
             role: "ai",
-            mode: "chat",
-            content: "Ruang kerja dibersihkan. Mari mulai yang baru!",
+            content: "Ruang kerja telah dibersihkan.",
+            timestamp: new Date().toISOString(),
           },
         ]);
     });
   };
 
-  const getModeIcon = (mode) => {
-    if (mode === "animasi")
-      return <FilmStrip weight="fill" className="text-purple-500" />;
-    if (mode === "soal")
-      return <PenNib weight="fill" className="text-orange-500" />;
-    if (mode === "cerita")
-      return <Books weight="fill" className="text-emerald-500" />;
-    return <ChatCircleText weight="fill" className="text-blue-500" />;
-  };
-
-  const getModeLabel = (mode) => {
-    if (mode === "animasi") return "Prompt Animasi";
-    if (mode === "soal") return "Pembuat Soal";
-    if (mode === "cerita") return "Tulis Cerita";
-    return "Chat Asisten";
-  };
-
   return (
-    <DashboardLayout role="guru" title="Workshop AI">
-      <div className="max-w-5xl mx-auto h-[85vh] flex flex-col bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-        {/* HEADER CHAT */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50/50 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-              <Robot size={24} weight="duotone" />
-            </div>
-            <div>
-              <h2 className="font-black text-slate-800 text-lg leading-tight">
-                Gemini 3.5 Flash (Vision)
-              </h2>
-              <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-500">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>{" "}
-                Sistem Aktif
-              </div>
-            </div>
+    <DashboardLayout role="guru" title="Workshop AI" isFullScreenChat={true}>
+      <div className="flex-1 flex flex-col w-full h-full bg-white overflow-hidden">
+        <div className="flex items-center justify-between px-8 py-4 border-b border-slate-200/80 bg-white shrink-0">
+          <div>
+            <h2 className="font-extrabold text-slate-800 text-lg tracking-wide uppercase font-mono">
+              {systemInfo.model}
+            </h2>
+            <p className="text-xs font-bold text-emerald-600 flex items-center gap-1.5 mt-0.5">
+              API Key {systemInfo.apiIndex} 
+            </p>
           </div>
           <button
             onClick={clearChat}
-            className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-rose-500 bg-white border border-slate-200 hover:border-rose-200 hover:bg-rose-50 rounded-xl transition-all"
+            className="p-2.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+            title="Bersihkan Obrolan"
           >
-            Bersihkan Chat
+            <Trash size={20} />
           </button>
         </div>
 
-        {/* AREA OBROLAN */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar bg-white flex flex-col gap-6">
+        <div className="flex-1 overflow-y-auto px-6 py-8 md:px-16 custom-scrollbar bg-white flex flex-col gap-8">
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex gap-4 w-full max-w-3xl ${msg.role === "user" ? "ml-auto flex-row-reverse" : "mr-auto"}`}
+              className={`flex gap-4 w-full ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
-              <div className="shrink-0 pt-2">
-                {msg.role === "user" ? (
-                  <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500">
-                    <User weight="fill" size={16} />
-                  </div>
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-sm flex items-center justify-center text-white">
-                    <Sparkle weight="fill" size={16} />
-                  </div>
-                )}
-              </div>
-              <div
-                className={`flex flex-col gap-1.5 ${msg.role === "user" ? "items-end" : "items-start"}`}
-              >
-                {msg.role === "ai" && msg.mode !== "error" && (
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 text-[10px] font-black uppercase tracking-wider text-slate-500 border border-slate-200">
-                    {getModeIcon(msg.mode)} {getModeLabel(msg.mode)}
-                  </div>
-                )}
-                <div
-                  className={`p-4 rounded-2xl text-[15px] leading-relaxed shadow-sm ${msg.role === "user" ? "bg-indigo-600 text-white rounded-tr-sm" : msg.mode === "error" ? "bg-rose-50 text-rose-700 border border-rose-200" : "bg-slate-50 text-slate-700 border border-slate-100 rounded-tl-sm"}`}
-                >
-                  {msg.files && msg.files.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {msg.files.map((f, i) => (
-                        <div
-                          key={i}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border ${msg.role === "user" ? "bg-white/20 border-white/10" : "bg-slate-200 border-slate-300"}`}
-                        >
-                          <Paperclip size={14} /> {f.name}
-                        </div>
-                      ))}
+              {msg.role === "ai" ? (
+                <div className="flex gap-4 max-w-[90%] md:max-w-[85%]">
+                  <div className="shrink-0 pt-1">
+                    <div className="w-7 h-7 rounded-full bg-slate-900 flex items-center justify-center text-white">
+                      <Sparkle weight="fill" size={14} />
                     </div>
-                  )}
-                  {msg.role === "user" ? (
-                    <div className="whitespace-pre-wrap">{msg.content}</div>
-                  ) : (
+                  </div>
+                  <div className="flex flex-col gap-2">
                     <div
+                      className="text-[15px] leading-relaxed text-slate-800 font-medium"
                       dangerouslySetInnerHTML={{
                         __html: formatTeksAI(msg.content),
                       }}
                     />
-                  )}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex flex-col items-end gap-2 max-w-[80%] md:max-w-[70%]">
+                  <div className="bg-slate-100 text-slate-800 px-5 py-3.5 rounded-2xl rounded-tr-sm text-[15px] leading-relaxed shadow-sm font-medium">
+                    {msg.files && msg.files.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {msg.files.map((f, i) => (
+                          <div
+                            key={i}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-md text-xs font-semibold text-slate-600 border border-slate-200"
+                          >
+                            <Paperclip size={14} /> {f.name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
+
           {isLoading && (
-            <div className="flex gap-4 w-full max-w-3xl mr-auto">
-              <div className="shrink-0 pt-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white">
-                  <Sparkle weight="fill" size={16} />
+            <div className="flex gap-4 max-w-[90%] md:max-w-[85%]">
+              <div className="shrink-0 pt-1">
+                <div className="w-7 h-7 rounded-full bg-slate-900 flex items-center justify-center text-white">
+                  <Sparkle weight="fill" size={14} className="animate-spin" />
                 </div>
               </div>
-              <div className="flex items-start">
-                <div className="p-4 rounded-2xl rounded-tl-sm bg-slate-50 border border-slate-100 flex gap-1.5 items-center">
-                  <div className="w-2 h-2 rounded-full bg-slate-300 animate-bounce"></div>
-                  <div
-                    className="w-2 h-2 rounded-full bg-slate-300 animate-bounce"
-                    style={{ animationDelay: "0.1s" }}
-                  ></div>
-                  <div
-                    className="w-2 h-2 rounded-full bg-slate-300 animate-bounce"
-                    style={{ animationDelay: "0.2s" }}
-                  ></div>
+              <div className="flex items-center">
+                <div className="text-slate-400 text-sm font-medium animate-pulse">
+                  Menghasilkan respons...
                 </div>
               </div>
             </div>
           )}
-          <div ref={messagesEndRef} />
+          <div ref={messagesEndRef} className="pb-2" />
         </div>
 
-        {/* INPUT AREA TERPADU */}
-        <div className="p-4 md:p-6 bg-white border-t border-slate-100 shrink-0">
-          <div className="max-w-4xl mx-auto flex flex-col gap-3">
+        <div className="p-4 md:px-16 pb-6 bg-white shrink-0 border-t border-slate-100">
+          <div className="max-w-4xl mx-auto flex flex-col gap-2">
             {attachedFiles.length > 0 && (
               <div className="flex flex-wrap gap-2 px-1">
                 {attachedFiles.map((file, i) => (
                   <div
                     key={i}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold border border-slate-200"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium border border-slate-200"
                   >
-                    <Paperclip size={14} className="text-indigo-500" />
+                    <Paperclip size={14} />{" "}
                     <span className="truncate max-w-[150px]">{file.name}</span>
                     <button
                       onClick={() => removeFile(i)}
-                      className="text-slate-400 hover:text-rose-500 transition-colors"
+                      className="text-slate-400 hover:text-slate-700 cursor-pointer"
                     >
                       <X size={14} weight="bold" />
                     </button>
@@ -378,22 +327,23 @@ export default function WorkshopAI() {
                 ))}
               </div>
             )}
-            <div className="flex flex-col bg-slate-50 border border-slate-200 rounded-2xl shadow-sm focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all overflow-hidden">
+
+            <div className="flex flex-col bg-white border-2 border-slate-200 rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.04)] focus-within:border-slate-900 focus-within:shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all overflow-hidden">
               <textarea
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ketik pesan atau instruksi di sini..."
-                className="w-full bg-transparent p-4 text-sm font-medium text-slate-700 outline-none resize-none max-h-40 overflow-y-auto"
-                rows="2"
+                placeholder="Ketik instruksi, materi, atau skenario di sini..."
+                className="w-full bg-transparent px-5 py-4 text-[15px] font-medium text-slate-800 outline-none resize-none max-h-48 overflow-y-auto"
+                rows="1"
               ></textarea>
-              <div className="flex items-center justify-between px-3 py-2 bg-white border-t border-slate-100">
-                <div className="flex items-center gap-1 md:gap-3">
+              <div className="flex items-center justify-between px-3 py-2.5 bg-slate-50/50 border-t border-slate-100">
+                <div className="flex items-center gap-2">
                   <label
-                    className="p-2 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 rounded-xl cursor-pointer transition-colors"
-                    title="Lampirkan Gambar / PDF"
+                    className="p-2 text-slate-500 hover:text-slate-900 hover:bg-white rounded-xl cursor-pointer transition-colors shadow-sm border border-slate-200/60"
+                    title="Lampirkan File"
                   >
-                    <Paperclip size={20} weight="bold" />
+                    <Paperclip size={18} weight="bold" />
                     <input
                       type="file"
                       accept="image/*,application/pdf"
@@ -402,34 +352,53 @@ export default function WorkshopAI() {
                       onChange={handleFileChange}
                     />
                   </label>
-                  <div className="h-6 w-[1px] bg-slate-200 mx-1"></div>
+
                   <select
                     value={selectedMode}
                     onChange={(e) => setSelectedMode(e.target.value)}
-                    className="bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:bg-slate-200 transition-colors"
+                    className="bg-white border border-slate-200/80 text-slate-700 text-xs font-bold rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-slate-400 transition-colors shadow-sm"
                   >
-                    <option value="chat">💬 Chat Bebas</option>
-                    <option value="animasi">🎬 Pembuat Prompt Video</option>
-                    <option value="soal">📝 Penyusun Soal HOTS</option>
-                    <option value="cerita">📚 Penulis Cerita Anak</option>
+                    <option value="chat">Chat Umum</option>
+                    <option value="animasi">Prompt Animasi</option>
+                    <option value="soal">Penyusun Soal</option>
+                    <option value="cerita">Penulis Cerita</option>
                   </select>
+
+                  {selectedMode === "animasi" && (
+                    <select
+                      value={gayaVisual}
+                      onChange={(e) => setGayaVisual(e.target.value)}
+                      className="bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold rounded-xl px-3 py-2 outline-none cursor-pointer hover:bg-indigo-100 transition-colors shadow-sm"
+                    >
+                      <option value="3D Animation (Pixar Style)">
+                        Pixar / 3D
+                      </option>
+                      <option value="Stop Motion Claymation">
+                        Claymation (Tanah Liat)
+                      </option>
+                      <option value="Cinematic Photorealistic, 8k">
+                        Realistis Sinematik
+                      </option>
+                      <option value="Studio Ghibli 2D Anime style">
+                        Anime (Ghibli)
+                      </option>
+                      <option value="Watercolor Illustration">Cat Air</option>
+                    </select>
+                  )}
                 </div>
+
                 <button
                   onClick={handleSendMessage}
                   disabled={
                     isLoading ||
                     (!inputValue.trim() && attachedFiles.length === 0)
                   }
-                  className="p-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_3px_0_#4f46e5] active:translate-y-1 active:shadow-none"
+                  className="px-5 py-2 bg-slate-900 hover:bg-indigo-600 text-white font-bold text-xs rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-sm cursor-pointer"
                 >
-                  <PaperPlaneRight weight="fill" size={18} />
+                  <PaperPlaneRight weight="fill" size={16} />
                 </button>
               </div>
             </div>
-            <p className="text-center text-[10px] font-bold text-slate-400 mt-1">
-              AI dapat melakukan kesalahan. Harap periksa kembali informasi
-              penting yang dihasilkan.
-            </p>
           </div>
         </div>
       </div>

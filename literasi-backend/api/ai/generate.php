@@ -104,6 +104,8 @@ foreach ($models as $model_name) {
             if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
                 $response_text = $result['candidates'][0]['content']['parts'][0]['text'];
                 $success = true;
+                $model_yang_berhasil = $model_name;
+                $api_yang_berhasil = $index + 1;
                 break 2;
             }
         } else {
@@ -120,7 +122,12 @@ foreach ($models as $model_name) {
 }
 
 if ($success) {
-    echo json_encode(["status" => "success", "data" => $response_text]);
+    echo json_encode([
+        "status" => "success", 
+        "data" => $response_text,
+        "model_used" => $model_yang_berhasil, 
+        "api_used" => $api_yang_berhasil
+        ]);
 } else {
     echo json_encode(["status" => "error", "message" => "Layanan AI sedang mengalami gangguan massal atau limit kuota.", "debug" => $error_msg]);
 }
