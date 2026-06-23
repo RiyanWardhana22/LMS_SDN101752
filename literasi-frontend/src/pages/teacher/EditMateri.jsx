@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
+import { apiEndpoint } from "../../config/api";
 import {
   CaretLeft,
   FloppyDisk,
@@ -37,9 +38,7 @@ export default function EditMateri() {
   useEffect(() => {
     const fetchRombel = async () => {
       try {
-        const res = await fetch(
-          "http://localhost/lms_sdn101752/literasi-backend/api/kelas/read_rombel.php",
-        );
+        const res = await fetch(apiEndpoint("api/kelas/read_rombel.php"));
         const data = await res.json();
         if (data.status === "success") {
           setRombelList(data.data);
@@ -55,7 +54,7 @@ export default function EditMateri() {
     const loadMateriDetails = async () => {
       try {
         const response = await fetch(
-          `http://localhost/lms_sdn101752/literasi-backend/api/materi/detail.php?id=${id}`,
+          apiEndpoint(`api/materi/detail.php?id=${id}`),
         );
         const data = await response.json();
 
@@ -152,13 +151,10 @@ export default function EditMateri() {
     formData.append("file", file);
 
     try {
-      const res = await fetch(
-        "http://localhost/lms_sdn101752/literasi-backend/upload_ar.php",
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
+      const res = await fetch(apiEndpoint("/upload_ar.php"), {
+        method: "POST",
+        body: formData,
+      });
       const data = await res.json();
       if (data.status === "success") {
         setMediaList([
@@ -209,14 +205,11 @@ export default function EditMateri() {
     };
 
     try {
-      const response = await fetch(
-        "http://localhost/lms_sdn101752/literasi-backend/api/materi/update.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
-      );
+      const response = await fetch(apiEndpoint("api/materi/update.php"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
       const textResponse = await response.text();
       const data = JSON.parse(textResponse);
@@ -260,7 +253,6 @@ export default function EditMateri() {
         onSubmit={handleSave}
         className="max-w-5xl mx-auto flex flex-col gap-6"
       >
-        {/* Top Navbar */}
         <div className="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-neutral-100">
           <button
             type="button"

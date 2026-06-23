@@ -8,6 +8,7 @@ import {
   UsersThree,
   Copy,
 } from "@phosphor-icons/react";
+import { apiEndpoint } from "../../config/api";
 
 export default function ManajemenTugas() {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ export default function ManajemenTugas() {
   const fetchTugas = async () => {
     try {
       const response = await fetch(
-        `http://localhost/lms_sdn101752/literasi-backend/api/tugas/read.php?guru_id=${user.id}`,
+        apiEndpoint(`api/tugas/read.php?guru_id=${user.id}`),
       );
       const data = await response.json();
       if (data.status === "success") setTugasList(data.data);
@@ -44,14 +45,11 @@ export default function ManajemenTugas() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await fetch(
-            "http://localhost/lms_sdn101752/literasi-backend/api/tugas/duplicate.php",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id }),
-            },
-          );
+          const response = await fetch(apiEndpoint("api/tugas/duplicate.php"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id }),
+          });
           const data = await response.json();
           if (data.status === "success") {
             Swal.fire({
@@ -84,14 +82,11 @@ export default function ManajemenTugas() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await fetch(
-            "http://localhost/lms_sdn101752/literasi-backend/api/tugas/delete.php",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id }),
-            },
-          );
+          const response = await fetch(apiEndpoint("api/tugas/delete.php"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id }),
+          });
           const data = await response.json();
           if (data.status === "success") {
             setTugasList(tugasList.filter((t) => t.id !== id));
@@ -159,7 +154,6 @@ export default function ManajemenTugas() {
                         </div>
                       </td>
 
-                      {/* KOLOM BADGE ROMBEL BARU */}
                       <td className="p-5">
                         <div className="flex items-center gap-3">
                           <div className="flex flex-col">
@@ -196,7 +190,6 @@ export default function ManajemenTugas() {
                             Lihat Hasil
                           </button>
 
-                          {/* TOMBOL DUPLIKAT BARU */}
                           <button
                             onClick={() =>
                               handleDuplicate(tugas.id, tugas.judul)

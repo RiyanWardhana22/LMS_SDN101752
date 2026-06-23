@@ -7,6 +7,7 @@ import {
   CaretRight,
   RocketLaunch,
 } from "@phosphor-icons/react";
+import { apiEndpoint } from "../../config/api";
 
 export default function PustakaBelajar() {
   const navigate = useNavigate();
@@ -17,9 +18,7 @@ export default function PustakaBelajar() {
   useEffect(() => {
     const fetchMateri = async () => {
       try {
-        const response = await fetch(
-          "http://localhost/lms_sdn101752/literasi-backend/api/materi/read_public.php",
-        );
+        const response = await fetch(apiEndpoint("api/materi/read_public.php"));
         const data = await response.json();
         if (data.status === "success") {
           setMateriList(data.data);
@@ -78,7 +77,6 @@ export default function PustakaBelajar() {
 
   return (
     <StudentLayout title="Pustaka Belajar">
-      {/* Kotak Pencarian */}
       <div className="relative mb-8 max-w-xl mx-auto">
         <MagnifyingGlass
           size={24}

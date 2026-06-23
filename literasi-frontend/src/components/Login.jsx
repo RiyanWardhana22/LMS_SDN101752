@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiEndpoint } from "../config/api";
+
 export default function Login() {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -7,16 +9,15 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [token, setToken] = useState("");
-  const API_URL = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
+
   const handleCekKredensial = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMsg("");
-
     try {
       const response = await fetch(
-        `${API_URL}/api/auth/verify_credentials.php`,
+        apiEndpoint("api/auth/verify_credentials.php"),
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -39,28 +40,30 @@ export default function Login() {
     }
   };
 
-  const handleVerifikasiToken = async (e) => {
+  const handleVerifyToken = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMsg("");
-
     try {
-      const response = await fetch(`${API_URL}/api/auth/verify_token`, {
+      const response = await fetch(apiEndpoint("api/auth/verify_token.php"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, token }),
       });
 
       const data = await response.json();
+
       if (response.ok) {
         localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("token", data.token);
+
         if (data.user.role === "admin") {
           navigate("/admin/dashboard");
         } else if (data.user.role === "guru") {
           navigate("/guru/dashboard");
         }
       } else {
-        setErrorMsg(data.message || "Token tidak valid.");
+        setErrorMsg(data.message || "Token salah atau kadaluarsa.");
       }
     } catch (err) {
       setErrorMsg("Tidak dapat terhubung ke server.");
@@ -70,115 +73,96 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-[0_8px_32px_rgba(255,107,53,0.12)] w-full max-w-md overflow-hidden relative border border-neutral-100">
+    <div className="min-h-screen bg-[#f5f5ff] flex items-center justify-center p-4 sm:p-6">
+      <div className="w-full max-w-md bg-white rounded-3xl border border-neutral-200 shadow-sm p-6 sm:p-8 animate-fade-in">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-black text-neutral-900">
+            Portal Guru & Admin
+          </h2>
+          <p className="text-sm font-bold text-neutral-500 mt-1">
+            Silakan masuk ke akun Anda
+          </p>
+        </div>
+
         {errorMsg && (
-          <div className="absolute top-4 left-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-xl text-sm z-10 text-center">
+          <div className="bg-rose-50 border border-rose-200 text-rose-600 px-4 py-3 rounded-xl text-sm font-bold mb-4 text-center">
             {errorMsg}
           </div>
         )}
 
-        {/* Slider Kontainer untuk Multi-Langkah */}
-        <div
-          className="flex w-[200%] transition-transform duration-500 ease-in-out z-10 relative pt-20"
-          style={{
-            transform: step === 1 ? "translateX(0)" : "translateX(-50%)",
-          }}
-        >
-          {/* --- LANGKAH 1: FORM KREDENSIAL --- */}
-          <div className="w-1/2 p-8">
-            <h2 className="text-2xl font-extrabold text-neutral-900 mb-2">
-              Portal Guru & Admin
-            </h2>
-            <p className="text-neutral-500 mb-6">
-              Masukkan data diri untuk melanjutkan ke LiteraSI.
-            </p>
+        {step === 1 ? (
+          <form onSubmit={handleCekKredensial} className="flex flex-col gap-4">
+            <div>
+              <label className="block text-sm font-bold text-neutral-700 mb-1">
+                Username
+              </label>
+              <input
+                type="text"
+                className="w-full px-4 py-3 rounded-xl border-2 border-neutral-200 focus:border-[#ff6b35] focus:ring-0 outline-none transition-colors font-bold text-slate-700"
+                placeholder="Masukkan username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-neutral-700 mb-1">
+                Password
+              </label>
+              <input
+                type="password"
+                className="w-full px-4 py-3 rounded-xl border-2 border-neutral-200 focus:border-[#ff6b35] focus:ring-0 outline-none transition-colors font-bold text-slate-700"
+                placeholder="Masukkan password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-[#ff6b35] hover:bg-[#e85f2b] text-white font-bold text-base py-3 rounded-xl shadow-[0_4px_0_#cc521d] active:translate-y-1 active:shadow-none transition-all cursor-pointer mt-2 disabled:opacity-50"
+            >
+              {isLoading ? "Memproses..." : "Lanjutkan"}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleVerifyToken} className="flex flex-col gap-4">
+            <div>
+              <label className="block text-sm font-bold text-neutral-700 mb-1">
+                Token 6 Digit
+              </label>
+              <input
+                type="text"
+                maxLength="6"
+                className="w-full px-4 py-3 rounded-xl border-2 border-neutral-200 focus:border-[#ff6b35] focus:ring-0 outline-none transition-colors font-bold text-center tracking-widest text-2xl text-slate-700"
+                placeholder="------"
+                value={token}
+                onChange={(e) => setToken(e.target.value.replace(/\D/g, ""))}
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-[#ff6b35] hover:bg-[#e85f2b] text-white font-bold text-base py-3 rounded-xl shadow-[0_4px_0_#cc521d] active:translate-y-1 active:shadow-none transition-all cursor-pointer mt-2 disabled:opacity-50"
+            >
+              {isLoading ? "Memverifikasi..." : "Masuk ke Dashboard"}
+            </button>
 
-            <form onSubmit={handleCekKredensial} className="space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-neutral-700 mb-1">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-neutral-200 focus:border-[#ff6b35] focus:ring-0 outline-none transition-colors font-medium text-lg"
-                  placeholder="Ketik username Anda"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-neutral-700 mb-1">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-neutral-200 focus:border-[#ff6b35] focus:ring-0 outline-none transition-colors font-medium text-lg"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full btn-primary cursor-pointer font-bold text-lg py-3 rounded-2xl mt-4"
-              >
-                {isLoading ? "Memeriksa..." : "Lanjutkan"}
-              </button>
-            </form>
-          </div>
-
-          {/* --- LANGKAH 2: FORM TOKEN VERIFIKASI --- */}
-          <div className="w-1/2 p-8 flex flex-col justify-center">
-            <h2 className="text-2xl font-extrabold text-neutral-900 mb-2">
-              Verifikasi Keamanan
-            </h2>
-            <p className="text-neutral-500 mb-6">
-              Kami telah mengirimkan{" "}
-              <span className="font-bold text-[#ff6b35]">Kode 6-Digit</span> ke
-              alamat email Anda. Silakan periksa Kotak Masuk atau folder Spam.
-            </p>
-
-            <form onSubmit={handleVerifikasiToken} className="space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-neutral-700 mb-1">
-                  Token 6 Digit
-                </label>
-                <input
-                  type="text"
-                  maxLength="6"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-neutral-200 focus:border-[#ff6b35] focus:ring-0 outline-none transition-colors font-bold text-center tracking-widest text-2xl"
-                  placeholder="------"
-                  value={token}
-                  onChange={(e) => setToken(e.target.value.replace(/\D/g, ""))}
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full btn-primary cursor-pointer font-bold text-lg py-3 rounded-2xl mt-4"
-              >
-                {isLoading ? "Memverifikasi..." : "Masuk ke Dashboard"}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setStep(1);
-                  setToken("");
-                  setErrorMsg("");
-                }}
-                className="w-full text-neutral-500 cursor-pointer font-bold text-sm py-2 mt-2 hover:text-[#ff6b35] transition-colors"
-              >
-                ← Kembali ke awal
-              </button>
-            </form>
-          </div>
-        </div>
+            <button
+              type="button"
+              onClick={() => {
+                setStep(1);
+                setToken("");
+                setErrorMsg("");
+              }}
+              className="w-full text-neutral-500 cursor-pointer font-bold text-sm py-2 mt-1 hover:text-[#ff6b35] transition-colors"
+            >
+              ← Kembali ke awal
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

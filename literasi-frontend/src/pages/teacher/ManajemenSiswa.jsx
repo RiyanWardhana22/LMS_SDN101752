@@ -12,6 +12,7 @@ import {
   UserMinus,
   UserPlus,
 } from "@phosphor-icons/react";
+import { apiEndpoint } from "../../config/api";
 
 export default function ManajemenSiswa() {
   const [rombelList, setRombelList] = useState([]);
@@ -22,9 +23,7 @@ export default function ManajemenSiswa() {
   useEffect(() => {
     const fetchRombel = async () => {
       try {
-        const res = await fetch(
-          "http://localhost/lms_sdn101752/literasi-backend/api/kelas/read_rombel.php",
-        );
+        const res = await fetch(apiEndpoint("api/kelas/read_rombel.php"));
         const data = await res.json();
         if (data.status === "success") setRombelList(data.data);
       } catch (error) {
@@ -39,7 +38,7 @@ export default function ManajemenSiswa() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `http://localhost/lms_sdn101752/literasi-backend/api/kelas/students.php?rombel_id=${selectedRombel}`,
+        apiEndpoint(`api/kelas/students.php?rombel_id=${selectedRombel}`),
       );
       const data = await response.json();
       if (data.status === "success") setStudents(data.data);
@@ -77,18 +76,15 @@ export default function ManajemenSiswa() {
         return Swal.fire("Error", "Nama dan PIN 4 Angka wajib diisi!", "error");
 
       try {
-        const res = await fetch(
-          "http://localhost/lms_sdn101752/literasi-backend/api/kelas/create_siswa.php",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              nama: formValues.nama,
-              pin: formValues.pin,
-              rombel_id: selectedRombel,
-            }),
-          },
-        );
+        const res = await fetch(apiEndpoint("api/kelas/create_siswa.php"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nama: formValues.nama,
+            pin: formValues.pin,
+            rombel_id: selectedRombel,
+          }),
+        });
         const data = await res.json();
         if (data.status === "success") {
           Swal.fire({
@@ -119,14 +115,11 @@ export default function ManajemenSiswa() {
 
     if (namaBaru && namaBaru !== siswa.nama) {
       try {
-        const res = await fetch(
-          "http://localhost/lms_sdn101752/literasi-backend/api/kelas/update_siswa.php",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: siswa.id, nama: namaBaru }),
-          },
-        );
+        const res = await fetch(apiEndpoint("api/kelas/update_siswa.php"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: siswa.id, nama: namaBaru }),
+        });
         const data = await res.json();
         if (data.status === "success") fetchStudents();
       } catch (err) {
@@ -148,14 +141,11 @@ export default function ManajemenSiswa() {
 
     if (pinBaru && pinBaru.length === 4) {
       try {
-        const res = await fetch(
-          "http://localhost/lms_sdn101752/literasi-backend/api/kelas/update_siswa.php",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: siswa.id, pin: pinBaru }),
-          },
-        );
+        const res = await fetch(apiEndpoint("api/kelas/update_siswa.php"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: siswa.id, pin: pinBaru }),
+        });
         const data = await res.json();
         if (data.status === "success") {
           Swal.fire("Berhasil", `PIN baru adalah: ${pinBaru}`, "success");
@@ -178,14 +168,11 @@ export default function ManajemenSiswa() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const res = await fetch(
-            "http://localhost/lms_sdn101752/literasi-backend/api/kelas/delete_siswa.php",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id: siswa.id }),
-            },
-          );
+          const res = await fetch(apiEndpoint("api/kelas/delete_siswa.php"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: siswa.id }),
+          });
           const data = await res.json();
           if (data.status === "success") {
             Swal.fire("Dikeluarkan!", "Siswa telah dihapus.", "success");
@@ -391,9 +378,6 @@ export default function ManajemenSiswa() {
                         {index + 1}
                       </td>
                       <td className="p-4 flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">
-                          {siswa.nama.charAt(0).toUpperCase()}
-                        </div>
                         <div className="font-bold text-slate-800 text-sm truncate w-48">
                           {siswa.nama}
                         </div>

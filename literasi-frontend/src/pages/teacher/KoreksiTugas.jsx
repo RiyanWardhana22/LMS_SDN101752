@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import DashboardLayout from "../../components/layout/DashboardLayout";
+import { apiEndpoint } from "../../config/api";
 import {
   CaretLeft,
   UsersThree,
@@ -19,7 +20,7 @@ export default function KoreksiTugas() {
     const fetchSubmissions = async () => {
       try {
         const response = await fetch(
-          `http://localhost/lms_sdn101752/literasi-backend/api/tugas/submissions.php?tugas_id=${id}`,
+          apiEndpoint(`api/tugas/submissions.php?tugas_id=${id}`),
         );
         const data = await response.json();
         if (data.status === "success") {
@@ -64,17 +65,14 @@ export default function KoreksiTugas() {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost/lms_sdn101752/literasi-backend/api/tugas/grade.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            pengumpulan_id: pengumpulanId,
-            nilai: parseInt(nilai),
-          }),
-        },
-      );
+      const response = await fetch(apiEndpoint("api/tugas/grade.php"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pengumpulan_id: pengumpulanId,
+          nilai: parseInt(nilai),
+        }),
+      });
       const data = await response.json();
 
       if (data.status === "success") {
@@ -106,7 +104,6 @@ export default function KoreksiTugas() {
   return (
     <DashboardLayout role="guru" title="Koreksi Tugas">
       <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-12">
-        {/* Header Navigasi */}
         <div className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-neutral-100">
           <button
             onClick={() => navigate("/guru/tugas")}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../components/layout/DashboardLayout";
+import { apiEndpoint } from "../../config/api";
 import {
   Plus,
   PencilSimple,
@@ -19,23 +20,20 @@ export default function ManajemenMateri() {
   const [materiList, setMateriList] = useState([]);
   const [tugasList, setTugasList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
   const [selectedFolder, setSelectedFolder] = useState(null);
-  const [activeTab, setActiveTab] = useState("materi"); // 'materi' atau 'tugas'
-
+  const [activeTab, setActiveTab] = useState("materi");
   const user = JSON.parse(localStorage.getItem("user")) || {};
-
   const fetchSemuaData = async () => {
     setIsLoading(true);
     try {
       const resMateri = await fetch(
-        `http://localhost/lms_sdn101752/literasi-backend/api/materi/read.php?guru_id=${user.id}`,
+        apiEndpoint(`api/materi/read.php?guru_id=${user.id}`),
       );
       const dataMateri = await resMateri.json();
       if (dataMateri.status === "success") setMateriList(dataMateri.data);
 
       const resTugas = await fetch(
-        `http://localhost/lms_sdn101752/literasi-backend/api/tugas/read.php?guru_id=${user.id}`,
+        apiEndpoint(`api/tugas/read.php?guru_id=${user.id}`),
       );
       const dataTugas = await resTugas.json();
       if (dataTugas.status === "success") setTugasList(dataTugas.data);
@@ -49,8 +47,6 @@ export default function ManajemenMateri() {
   useEffect(() => {
     if (user.id) fetchSemuaData();
   }, [user.id]);
-
-  // --- LOGIKA GROUPING TERPADU (Materi + Tugas) ---
   const albumMap = {};
 
   materiList.forEach((m) => {
@@ -82,8 +78,6 @@ export default function ManajemenMateri() {
   });
 
   const albumList = Object.values(albumMap);
-
-  // --- FUNGSI AKSI MATERI ---
   const handleDuplicateMateri = async (id, judul) => {
     Swal.fire({
       title: "Gandakan Materi?",
@@ -93,10 +87,10 @@ export default function ManajemenMateri() {
       confirmButtonText: "Ya!",
     }).then(async (res) => {
       if (res.isConfirmed) {
-        const response = await fetch(
-          "http://localhost/lms_sdn101752/literasi-backend/api/materi/duplicate.php",
-          { method: "POST", body: JSON.stringify({ id }) },
-        );
+        const response = await fetch(apiEndpoint("api/materi/duplicate.php"), {
+          method: "POST",
+          body: JSON.stringify({ id }),
+        });
         const data = await response.json();
         if (data.status === "success") {
           Swal.fire({
@@ -122,10 +116,10 @@ export default function ManajemenMateri() {
       confirmButtonText: "Hapus!",
     }).then(async (res) => {
       if (res.isConfirmed) {
-        const response = await fetch(
-          "http://localhost/lms_sdn101752/literasi-backend/api/materi/delete.php",
-          { method: "POST", body: JSON.stringify({ id }) },
-        );
+        const response = await fetch(apiEndpoint("api/materi/delete.php"), {
+          method: "POST",
+          body: JSON.stringify({ id }),
+        });
         const data = await response.json();
         if (data.status === "success") {
           setMateriList(materiList.filter((m) => m.id !== id));
@@ -135,7 +129,6 @@ export default function ManajemenMateri() {
     });
   };
 
-  // --- FUNGSI AKSI TUGAS ---
   const handleDuplicateTugas = async (id, judul) => {
     Swal.fire({
       title: "Gandakan Evaluasi?",
@@ -145,10 +138,10 @@ export default function ManajemenMateri() {
       confirmButtonText: "Ya!",
     }).then(async (res) => {
       if (res.isConfirmed) {
-        const response = await fetch(
-          "http://localhost/lms_sdn101752/literasi-backend/api/tugas/duplicate.php",
-          { method: "POST", body: JSON.stringify({ id }) },
-        );
+        const response = await fetch(apiEndpoint("api/tugas/duplicate.php"), {
+          method: "POST",
+          body: JSON.stringify({ id }),
+        });
         const data = await response.json();
         if (data.status === "success") {
           Swal.fire({
@@ -175,10 +168,10 @@ export default function ManajemenMateri() {
       confirmButtonText: "Hapus!",
     }).then(async (res) => {
       if (res.isConfirmed) {
-        const response = await fetch(
-          "http://localhost/lms_sdn101752/literasi-backend/api/tugas/delete.php",
-          { method: "POST", body: JSON.stringify({ id }) },
-        );
+        const response = await fetch(apiEndpoint("api/tugas/delete.php"), {
+          method: "POST",
+          body: JSON.stringify({ id }),
+        });
         const data = await response.json();
         if (data.status === "success") {
           setTugasList(tugasList.filter((t) => t.id !== id));
@@ -227,8 +220,6 @@ export default function ManajemenMateri() {
             {activeTab === "materi" ? "Materi" : "Tugas"}
           </button>
         </div>
-
-        {/* Tab Switcher UX */}
         <div className="flex bg-white border border-neutral-200 p-1.5 rounded-2xl w-fit shadow-sm">
           <button
             onClick={() => setActiveTab("materi")}
@@ -244,7 +235,6 @@ export default function ManajemenMateri() {
           </button>
         </div>
 
-        {/* Render Tabel Sesuai Tab Aktif */}
         <div className="bg-white rounded-3xl border border-neutral-100 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             {activeTab === "materi" ? (
@@ -385,7 +375,6 @@ export default function ManajemenMateri() {
     );
   };
 
-  // --- RENDER ALBUM ---
   const renderAlbumView = () => (
     <div className="animate-fade-in flex flex-col gap-6">
       <div className="flex items-center justify-between">

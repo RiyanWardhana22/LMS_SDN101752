@@ -7,6 +7,7 @@ import {
   UsersThree,
   BookBookmark,
 } from "@phosphor-icons/react";
+import { apiEndpoint } from "../../config/api";
 
 export default function BukuNilai() {
   const [rombelList, setRombelList] = useState([]);
@@ -21,9 +22,7 @@ export default function BukuNilai() {
   useEffect(() => {
     const fetchRombel = async () => {
       try {
-        const res = await fetch(
-          "http://localhost/lms_sdn101752/literasi-backend/api/kelas/read_rombel.php",
-        );
+        const res = await fetch(apiEndpoint("api/kelas/read_rombel.php"));
         const data = await res.json();
         if (data.status === "success") setRombelList(data.data);
       } catch (error) {
@@ -40,7 +39,7 @@ export default function BukuNilai() {
       setIsLoading(true);
       try {
         const res = await fetch(
-          `http://localhost/lms_sdn101752/literasi-backend/api/tugas/gradebook.php?rombel_id=${selectedRombel}`,
+          apiEndpoint(`api/tugas/gradebook.php?rombel_id=${selectedRombel}`),
         );
         const data = await res.json();
         if (data.status === "success") {

@@ -8,6 +8,7 @@ import {
   Camera,
   FloppyDisk,
 } from "@phosphor-icons/react";
+import { apiEndpoint } from "../../config/api";
 
 export default function KelolaProfil() {
   const localUser = JSON.parse(localStorage.getItem("user")) || {};
@@ -19,8 +20,6 @@ export default function KelolaProfil() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
-
-  // KONFIGURASI CLOUDINARY
   const CLOUD_NAME = "dbteh8sbe";
   const UPLOAD_PRESET = "literasi_preset";
 
@@ -87,14 +86,11 @@ export default function KelolaProfil() {
     };
 
     try {
-      const response = await fetch(
-        "http://localhost/lms_sdn101752/literasi-backend/api/profile/update.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
-      );
+      const response = await fetch(apiEndpoint("api/profile/update.php"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
       const data = await response.json();
       if (data.status === "success") {

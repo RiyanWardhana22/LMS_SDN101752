@@ -7,6 +7,7 @@ import {
   VideoCamera,
   CalendarBlank,
 } from "@phosphor-icons/react";
+import { apiEndpoint } from "../../config/api";
 
 export default function RuangBaca() {
   const { id } = useParams();
@@ -17,7 +18,7 @@ export default function RuangBaca() {
     const fetchDetail = async () => {
       try {
         const response = await fetch(
-          `http://localhost/lms_sdn101752/literasi-backend/api/materi/detail.php?id=${id}`,
+          apiEndpoint(`api/materi/detail.php?id=${id}`),
         );
         const data = await response.json();
         if (data.status === "success") {
@@ -91,8 +92,6 @@ export default function RuangBaca() {
         <div className="bg-white p-8 lg:px-12 border-x-2 border-neutral-100 shadow-sm prose prose-lg prose-neutral max-w-none prose-headings:font-black prose-a:text-[#3498db] prose-img:rounded-2xl leading-relaxed">
           <div dangerouslySetInnerHTML={{ __html: materi.konten }}></div>
         </div>
-
-        {/* Area Media Pendukung (Video & Modul AR) */}
         {materi.media && materi.media.length > 0 && (
           <div className="bg-neutral-50 p-8 lg:p-12 border-2 border-neutral-100 rounded-b-3xl shadow-sm flex flex-col gap-8">
             <h3 className="font-black text-neutral-900 text-2xl border-b-2 border-neutral-200 pb-4">
@@ -101,7 +100,6 @@ export default function RuangBaca() {
             <div className="flex flex-col gap-8">
               {materi.media.map((med, index) => (
                 <div key={index} className="w-full">
-                  {/* Tampilan 1: Video YouTube */}
                   {med.type === "video_link" && (
                     <div className="aspect-video w-full rounded-3xl overflow-hidden shadow-lg border-4 border-white bg-black">
                       <iframe

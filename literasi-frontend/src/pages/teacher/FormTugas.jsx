@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
+import { apiEndpoint } from "../../config/api";
 import {
   CaretLeft,
   FloppyDisk,
@@ -30,9 +31,7 @@ export default function FormTugas() {
   useEffect(() => {
     const fetchRombel = async () => {
       try {
-        const res = await fetch(
-          "http://localhost/lms_sdn101752/literasi-backend/api/kelas/read_rombel.php",
-        );
+        const res = await fetch(apiEndpoint("api/kelas/read_rombel.php"));
         const data = await res.json();
         if (data.status === "success") setRombelList(data.data);
       } catch (error) {
@@ -100,14 +99,11 @@ export default function FormTugas() {
     };
 
     try {
-      const response = await fetch(
-        "http://localhost/lms_sdn101752/literasi-backend/api/tugas/create.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
-      );
+      const response = await fetch(apiEndpoint("api/tugas/create.php"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
       const data = await response.json();
       if (data.status === "success") {
         Swal.fire({
@@ -136,7 +132,6 @@ export default function FormTugas() {
         onSubmit={handleSave}
         className="max-w-4xl mx-auto flex flex-col gap-6 pb-12"
       >
-        {/* Header Actions */}
         <div className="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-neutral-100">
           <button
             type="button"
@@ -165,9 +160,7 @@ export default function FormTugas() {
             onChange={(e) => setJudul(e.target.value)}
           />
 
-          {/* PERBAIKAN: Ubah menjadi 2 kolom agar 4 elemen tersusun rapi */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-neutral-100">
-            {/* Input Mata Pelajaran Baru */}
             <div>
               <label className="block text-xs font-bold text-neutral-500 mb-2">
                 Mata Pelajaran

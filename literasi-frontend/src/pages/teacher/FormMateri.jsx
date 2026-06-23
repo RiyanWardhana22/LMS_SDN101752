@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
+import { apiEndpoint } from "../../config/api";
 import {
   CaretLeft,
   FloppyDisk,
@@ -35,9 +36,7 @@ export default function FormMateri() {
   useEffect(() => {
     const fetchRombel = async () => {
       try {
-        const res = await fetch(
-          "http://localhost/lms_sdn101752/literasi-backend/api/kelas/read_rombel.php",
-        );
+        const res = await fetch(apiEndpoint("api/kelas/read_rombel.php"));
         const data = await res.json();
         if (data.status === "success") {
           setRombelList(data.data);
@@ -84,14 +83,11 @@ export default function FormMateri() {
     };
 
     try {
-      const response = await fetch(
-        "http://localhost/lms_sdn101752/literasi-backend/api/materi/create.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
-      );
+      const response = await fetch(apiEndpoint("api/materi/create.php"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
       const data = await response.json();
 
@@ -232,7 +228,6 @@ export default function FormMateri() {
           />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-neutral-100">
-            {/* Input Mata Pelajaran */}
             <div>
               <label className="block text-xs font-black text-neutral-400 uppercase tracking-wider mb-2">
                 Mata Pelajaran
@@ -420,7 +415,6 @@ export default function FormMateri() {
                               if (media.type === "video_cloud")
                                 fileInputRef.current.click();
                               else {
-                                // Trigger upload target custom file .mind
                                 const tempInput =
                                   document.createElement("input");
                                 tempInput.type = "file";

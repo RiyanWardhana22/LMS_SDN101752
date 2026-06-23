@@ -1,11 +1,11 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { CaretLeft, UsersThree, Plus } from "@phosphor-icons/react";
+import { apiEndpoint } from "../config/api";
 
 export default function LoginSiswa() {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
-
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -34,14 +34,11 @@ export default function LoginSiswa() {
     setIsLoading(true);
     setErrorMsg("");
     try {
-      const response = await fetch(
-        "http://localhost/lms_sdn101752/literasi-backend/api/auth/verify_rombel.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kode_unik: fullCode }),
-        },
-      );
+      const response = await fetch(apiEndpoint("api/auth/verify_rombel.php"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kode_unik: fullCode }),
+      });
       const data = await response.json();
       if (data.status === "success") {
         setKelasInfo(data.kelas);
@@ -75,18 +72,15 @@ export default function LoginSiswa() {
     if (pin) {
       setIsLoading(true);
       try {
-        const response = await fetch(
-          "http://localhost/lms_sdn101752/literasi-backend/api/auth/login_siswa.php",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              id: siswa.id,
-              rombel_id: kelasInfo.id,
-              pin: pin,
-            }),
-          },
-        );
+        const response = await fetch(apiEndpoint("api/auth/login_siswa.php"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: siswa.id,
+            rombel_id: kelasInfo.id,
+            pin: pin,
+          }),
+        });
         const data = await response.json();
 
         if (data.status === "success") {
@@ -136,7 +130,7 @@ export default function LoginSiswa() {
       setIsLoading(true);
       try {
         const response = await fetch(
-          "http://localhost/lms_sdn101752/literasi-backend/api/auth/register_siswa.php",
+          apiEndpoint("api/auth/register_siswa.php"),
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -272,7 +266,6 @@ export default function LoginSiswa() {
                 </button>
               ))}
 
-              {/* Tombol Pendaftaran Siswa Baru (Self-Registration) */}
               <button
                 disabled={isLoading}
                 onClick={handleDaftarBaru}

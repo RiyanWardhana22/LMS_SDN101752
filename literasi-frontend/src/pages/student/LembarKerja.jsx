@@ -9,6 +9,7 @@ import {
   Check,
   Circle,
 } from "@phosphor-icons/react";
+import { apiEndpoint } from "../../config/api";
 
 export default function LembarKerja() {
   const { id } = useParams();
@@ -25,7 +26,7 @@ export default function LembarKerja() {
     const fetchDetail = async () => {
       try {
         const response = await fetch(
-          `http://localhost/lms_sdn101752/literasi-backend/api/tugas/detail.php?id=${id}`,
+          apiEndpoint(`api/tugas/detail.php?id=${id}`),
         );
         const data = await response.json();
         if (data.status === "success") {
@@ -101,19 +102,16 @@ export default function LembarKerja() {
       payloadJawaban = JSON.stringify(jawabanKuis);
     }
     try {
-      const response = await fetch(
-        "http://localhost/lms_sdn101752/literasi-backend/api/tugas/submit.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            tugas_id: tugas.id,
-            siswa_id: user.id,
-            jawaban: payloadJawaban,
-            nilai: nilaiAkhir,
-          }),
-        },
-      );
+      const response = await fetch(apiEndpoint("api/tugas/submit.php"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tugas_id: tugas.id,
+          siswa_id: user.id,
+          jawaban: payloadJawaban,
+          nilai: nilaiAkhir,
+        }),
+      });
 
       const data = await response.json();
       if (data.status === "success") {
@@ -160,7 +158,6 @@ export default function LembarKerja() {
           <CaretLeft weight="bold" size={20} /> Kembali ke Ruang Evaluasi
         </button>
 
-        {/* Header Lembar Kerja */}
         <div className="bg-white rounded-3xl p-8 mb-6 shadow-sm border border-neutral-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex gap-2 mb-3">

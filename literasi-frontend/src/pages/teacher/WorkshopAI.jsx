@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import DashboardLayout from "../../components/layout/DashboardLayout";
+import { apiEndpoint } from "../../config/api";
 import {
   PaperPlaneRight,
   Paperclip,
@@ -141,18 +142,15 @@ export default function WorkshopAI() {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost/lms_sdn101752/literasi-backend/api/ai/generate.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            prompt: finalPrompt,
-            system_instruction: sysInstruction,
-            files: filesToUpload,
-          }),
-        },
-      );
+      const response = await fetch(apiEndpoint("api/ai/generate.php"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: finalPrompt,
+          system_instruction: sysInstruction,
+          files: filesToUpload,
+        }),
+      });
       const rawText = await response.text();
       const data = JSON.parse(rawText);
 
@@ -204,7 +202,7 @@ export default function WorkshopAI() {
 
   const clearChat = () => {
     Swal.fire({
-      title: "Bersihkan Ruang Kerja?",
+      title: "Bersihkan History Chat?",
       text: "Riwayat percakapan ini akan dihapus.",
       icon: "warning",
       showCancelButton: true,
@@ -233,7 +231,7 @@ export default function WorkshopAI() {
               {systemInfo.model}
             </h2>
             <p className="text-xs font-bold text-emerald-600 flex items-center gap-1.5 mt-0.5">
-              API Key {systemInfo.apiIndex} 
+              API Key {systemInfo.apiIndex}
             </p>
           </div>
           <button
