@@ -129,7 +129,7 @@ export default function WorkshopAI() {
     let finalPrompt = inputValue || "Tolong analisis file yang saya lampirkan.";
 
     if (selectedMode === "animasi") {
-      sysInstruction = `Kamu adalah Sutradara Film Profesional dan ahli Prompt Engineer... (Output hanya prompt bahasa Inggris). Gunakan gaya visual: ${gayaVisual}.`;
+      sysInstruction = `Kamu adalah Sutradara Film Profesional dan ahli Prompt Engineer untuk AI Text-to-Video (seperti Sora, Luma Dream Machine, Kling, Veo). Tugasmu adalah mengubah ide cerita pengguna yang sederhana menjadi prompt Bahasa Inggris yang SANGAT DETAIL dan menakjubkan. Gunakan gaya visual: ${gayaVisual}. Secara default gunakan kultur indonesia. `;
       finalPrompt = `Buatkan prompt video untuk: ${inputValue}`;
     } else if (selectedMode === "soal") {
       sysInstruction =
