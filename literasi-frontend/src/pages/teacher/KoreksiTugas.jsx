@@ -7,6 +7,8 @@ import {
   UsersThree,
   FloppyDisk,
   CheckCircle,
+  Eye,
+  X,
 } from "@phosphor-icons/react";
 
 export default function KoreksiTugas() {
@@ -16,6 +18,8 @@ export default function KoreksiTugas() {
   const [infoTugas, setInfoTugas] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [inputNilai, setInputNilai] = useState({});
+  const [modalData, setModalData] = useState(null);
+
   useEffect(() => {
     const fetchSubmissions = async () => {
       try {
@@ -107,7 +111,7 @@ export default function KoreksiTugas() {
         <div className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-neutral-100">
           <button
             onClick={() => navigate("/guru/tugas")}
-            className="text-neutral-500 hover:text-[#ff6b35] font-bold p-2 transition-colors"
+            className="text-neutral-500 hover:text-[#ff6b35] font-bold p-2 transition-colors cursor-pointer"
           >
             <CaretLeft weight="bold" size={24} />
           </button>
@@ -151,7 +155,7 @@ export default function KoreksiTugas() {
                   <tr className="bg-neutral-50 border-b border-neutral-100 text-xs font-black text-neutral-400 uppercase tracking-wider">
                     <th className="p-5 w-1/4">Nama Siswa</th>
                     <th className="p-5 w-1/4">Dikumpulkan</th>
-                    <th className="p-5 w-1/3">Jawaban</th>
+                    <th className="p-5 w-1/3 text-center">Jawaban</th>
                     <th className="p-5 text-center w-1/6">Nilai Akhir</th>
                   </tr>
                 </thead>
@@ -175,18 +179,28 @@ export default function KoreksiTugas() {
                           },
                         )}
                       </td>
-                      <td className="p-5">
-                        {infoTugas.tipe === "kuis" ? (
-                          <span className="text-xs font-bold text-[#3498db] bg-[#ebf5fb] px-3 py-1 rounded-lg">
-                            Format Kuis (Sistem)
-                          </span>
-                        ) : (
-                          <div className="p-3 bg-neutral-50 rounded-xl text-neutral-700 max-h-32 overflow-y-auto whitespace-pre-wrap border border-neutral-200 text-xs font-medium">
-                            {sub.jawaban}
-                          </div>
-                        )}
-                      </td>
                       <td className="p-5 text-center">
+                        <div className="flex justify-center">
+                          {infoTugas.tipe === "kuis" ? (
+                            <span className="text-xs font-bold text-[#3498db] bg-[#ebf5fb] px-3 py-1 rounded-lg">
+                              Format Kuis (Sistem)
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() =>
+                                setModalData({
+                                  nama: sub.nama_siswa,
+                                  jawaban: sub.jawaban,
+                                })
+                              }
+                              className="flex items-center gap-2 px-4 py-2 bg-[#fff3ee] text-[#ff6b35] hover:bg-[#ff6b35] hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                            >
+                              Lihat Jawaban
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                      <td className="p-5 text-center bg-slate-50/50">
                         {infoTugas.tipe === "kuis" ? (
                           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#eafaf1] text-[#2ecc71] font-black text-lg shadow-sm border border-[#2ecc71]/20">
                             {sub.nilai}
@@ -215,13 +229,14 @@ export default function KoreksiTugas() {
                             inputNilai[sub.id] !== sub.nilai ? (
                               <button
                                 onClick={() => handleSimpanNilai(sub.id)}
-                                className="flex items-center gap-1 text-[10px] font-bold px-3 py-1 bg-[#ff6b35] text-white rounded-lg hover:bg-[#e55a2b] transition-colors"
+                                className="flex items-center gap-1 text-[10px] font-bold px-3 py-1.5 bg-[#ff6b35] text-white rounded-lg hover:bg-[#e55a2b] transition-colors cursor-pointer"
                               >
-                                <FloppyDisk weight="fill" /> Simpan
+                                Simpan
                               </button>
                             ) : (
                               <div className="flex items-center gap-1 text-[10px] font-bold text-[#2ecc71]">
-                                <CheckCircle weight="fill" /> Tersimpan
+                                <CheckCircle weight="fill" size={14} />{" "}
+                                Tersimpan
                               </div>
                             )}
                           </div>
@@ -235,6 +250,40 @@ export default function KoreksiTugas() {
           </div>
         )}
       </div>
+
+      {modalData && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh] animate-scale-up">
+            <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-slate-50 shrink-0">
+              <div>
+                <h3 className="text-lg font-black text-slate-800">
+                  Jawaban Esai Siswa
+                </h3>
+                <p className="text-sm font-bold text-slate-500 mt-1 flex items-center gap-2">
+                  {modalData.nama}
+                </p>
+              </div>
+              <button
+                onClick={() => setModalData(null)}
+                className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+              >
+                <X size={24} weight="bold" />
+              </button>
+            </div>
+            <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar text-slate-700 text-[15px] font-medium leading-relaxed whitespace-pre-wrap bg-white">
+              {modalData.jawaban}
+            </div>
+            <div className="p-4 border-t border-slate-100 bg-slate-50 shrink-0 flex justify-end">
+              <button
+                onClick={() => setModalData(null)}
+                className="px-6 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition-colors cursor-pointer"
+              >
+                Tutup Jawaban
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }
