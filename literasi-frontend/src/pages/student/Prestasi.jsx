@@ -21,19 +21,32 @@ const ALL_BADGES = [
     condition: (data) => data.nilai_terbaik === 100,
   },
   {
-    id: "streak-api",
-    icon: "🔥",
-    label: "Pantang Mundur",
-    desc: "Belajar 7 hari berturut-turut!",
-    condition: () => false, // Data belum tersedia
-    comingSoon: true,
+    id: "rajin-belajar",
+    icon: "📖",
+    label: "Rajin Belajar",
+    desc: "Kumpulkan 5 tugas!",
+    condition: (data) => data.total_tugas >= 5,
+  },
+  {
+    id: "pencari-ilmu",
+    icon: "🔍",
+    label: "Pencari Ilmu",
+    desc: "Kumpulkan 10 tugas!",
+    condition: (data) => data.total_tugas >= 10,
+  },
+  {
+    id: "juara-kelas",
+    icon: "🏆",
+    label: "Juara Kelas",
+    desc: "Dapatkan nilai rata-rata 90 atau lebih!",
+    condition: (data) => data.rata_rata_nilai >= 90,
   },
   {
     id: "penjelajah-ar",
     icon: "🚀",
     label: "Penjelajah AR",
     desc: "Selesaikan modul Augmented Reality!",
-    condition: () => false, // Data belum tersedia
+    condition: () => false,
     comingSoon: true,
   },
   {
@@ -41,7 +54,7 @@ const ALL_BADGES = [
     icon: "📚",
     label: "Pembaca Sejati",
     desc: "Baca 10 materi pembelajaran!",
-    condition: () => false, // Data belum tersedia
+    condition: () => false,
     comingSoon: true,
   },
 ];
@@ -59,30 +72,56 @@ function SkeletonCard() {
 }
 
 export default function Prestasi() {
-  const user = JSON.parse(localStorage.getItem("user")) || { xp: 0 };
+  const user = JSON.parse(localStorage.getItem("user")) || { xp: 0, id: null };
   const [prestasiData, setPrestasiData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchPrestasi = async () => {
       try {
+        if (!user.id) {
+          throw new Error("User ID tidak ditemukan");
+        }
+        
         const response = await fetch(apiEndpoint(`api/siswa/prestasi.php?siswa_id=${user.id}`));
         const data = await response.json();
+        
         if (data.status === "success") {
           setPrestasiData(data.data);
+          
+          // 🔥 SYNC XP dari database ke localStorage
+          if (data.data.xp !== undefined) {
+            const currentUser = JSON.parse(localStorage.getItem("user")) || {};
+            if (currentUser.xp !== data.data.xp) {
+              currentUser.xp = data.data.xp;
+              localStorage.setItem("user", JSON.stringify(currentUser));
+              console.log("[Prestasi] XP synced from database:", data.data.xp);
+            }
+          }
         } else {
-          Swal.fire({ icon: "error", title: "Oops", text: data.message || "Gagal memuat data prestasi." });
+          Swal.fire({ 
+            icon: "error", 
+            title: "Oops", 
+            text: data.message || "Gagal memuat data prestasi." 
+          });
         }
-      } catch {
-        Swal.fire({ icon: "error", title: "Koneksi Gagal", text: "Tidak dapat memuat data dari server." });
+      } catch (error) {
+        console.error("Error fetch prestasi:", error);
+        Swal.fire({ 
+          icon: "error", 
+          title: "Koneksi Gagal", 
+          text: "Tidak dapat memuat data dari server." 
+        });
       } finally {
         setIsLoading(false);
       }
     };
+    
     fetchPrestasi();
   }, [user.id]);
 
-  const totalXP = prestasiData?.xp || user.xp || 0;
+  // Gunakan data dari API, fallback ke localStorage jika belum ada
+  const totalXP = prestasiData?.xp ?? user.xp ?? 0;
   const level = getLevel(totalXP);
 
   if (isLoading) {
@@ -109,7 +148,6 @@ export default function Prestasi() {
           style={{
             fontFamily: "'Fredoka One', sans-serif",
             color: "var(--color-neutral-900)",
-            fontSize: "var(--text-student-hero, 2.25rem)",
           }}
         >
           🏆 Prestasiku
@@ -132,16 +170,16 @@ export default function Prestasi() {
           <div
             className="w-16 h-16 rounded-full flex items-center justify-center text-3xl flex-shrink-0"
             style={{
-              background: "var(--gradient-primary, linear-gradient(135deg, #FF6B35, #FF8C5A))",
+              background: "linear-gradient(135deg, #FF6B35, #FF8C5A)",
               boxShadow: "0 4px 16px rgba(255,107,53,0.30)",
               color: "white",
             }}
           >
-            {level.icon}
+            {level.icon || "🎯"}
           </div>
           <div>
             <p className="text-xs font-bold uppercase tracking-wide" style={{ color: "var(--color-neutral-500)" }}>
-              Level {level.level}
+              Level {level.level || 1}
             </p>
             <h2
               className="text-xl font-black"
@@ -150,7 +188,7 @@ export default function Prestasi() {
                 color: "var(--color-neutral-900)",
               }}
             >
-              {level.label}
+              {level.label || "Pembelajar"}
             </h2>
           </div>
         </div>
@@ -175,8 +213,8 @@ export default function Prestasi() {
             <div
               className="h-full rounded-full relative overflow-hidden transition-all duration-700"
               style={{
-                width: `${level.percent}%`,
-                background: "var(--gradient-primary, linear-gradient(90deg, #FF6B35, #FF8C5A))",
+                width: `${level.percent || 0}%`,
+                background: "linear-gradient(90deg, #FF6B35, #FF8C5A)",
               }}
             >
               {/* Shimmer effect */}
@@ -192,7 +230,7 @@ export default function Prestasi() {
           </div>
           <div className="flex justify-between mt-2">
             <span className="text-[10px] font-bold" style={{ color: "var(--color-neutral-500)" }}>
-              {level.currentMin} XP
+              {level.currentMin || 0} XP
             </span>
             {level.isMax ? (
               <span
@@ -203,7 +241,7 @@ export default function Prestasi() {
               </span>
             ) : (
               <span className="text-[10px] font-bold" style={{ color: "var(--color-neutral-500)" }}>
-                {level.nextThreshold} XP
+                {level.nextThreshold || 100} XP
               </span>
             )}
           </div>
@@ -242,6 +280,24 @@ export default function Prestasi() {
         </div>
       </div>
 
+      {/* === Statistik Tambahan === */}
+      {prestasiData?.rata_rata_nilai !== undefined && (
+        <div
+          className="bg-white rounded-2xl p-4 mb-6 text-center"
+          style={{
+            boxShadow: "var(--shadow-card)",
+            border: "2px solid var(--color-neutral-100)",
+          }}
+        >
+          <p className="text-sm font-bold" style={{ color: "var(--color-neutral-500)" }}>
+            Rata-rata Nilai
+          </p>
+          <p className="text-2xl font-black" style={{ color: "var(--color-primary)" }}>
+            {prestasiData.rata_rata_nilai}
+          </p>
+        </div>
+      )}
+
       {/* === Badge Pencapaian === */}
       <div>
         <h3
@@ -272,7 +328,7 @@ export default function Prestasi() {
                   className="w-20 h-20 rounded-full flex items-center justify-center text-3xl mb-3 relative"
                   style={{
                     background: isUnlocked
-                      ? "var(--gradient-celebration, linear-gradient(135deg, #FFD700, #FF6B35))"
+                      ? "linear-gradient(135deg, #FFD700, #FF6B35)"
                       : "var(--color-neutral-300)",
                     boxShadow: isUnlocked
                       ? "0 4px 16px rgba(255,215,0,0.40)"
@@ -280,7 +336,6 @@ export default function Prestasi() {
                   }}
                 >
                   <span>{badge.icon}</span>
-                  {/* Gembok kecil jika locked */}
                   {!isUnlocked && (
                     <LockKey
                       weight="fill"
@@ -304,6 +359,14 @@ export default function Prestasi() {
                 >
                   {badge.comingSoon ? "Segera hadir ✨" : badge.desc}
                 </p>
+                {isUnlocked && (
+                  <div
+                    className="mt-1 px-2 py-0.5 rounded-full text-[8px] font-black uppercase"
+                    style={{ backgroundColor: "var(--color-accent-green)", color: "white" }}
+                  >
+                    ✅ Terbuka
+                  </div>
+                )}
               </div>
             );
           })}

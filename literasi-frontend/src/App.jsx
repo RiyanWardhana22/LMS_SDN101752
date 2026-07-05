@@ -9,6 +9,7 @@ import DashboardAdmin from "./pages/admin/DashboardAdmin";
 import DashboardGuru from "./pages/teacher/DashboardGuru";
 import LoginSiswa from "./components/LoginSiswa";
 import BerandaSiswa from "./pages/student/BerandaSiswa";
+import DetailWilayah from "./pages/student/DetailWilayah";
 import ModulAR from "./pages/student/ModulAR";
 import ManajemenMateri from "./pages/teacher/ManajemenMateri";
 import WorkshopAI from "./pages/teacher/WorkshopAI";
@@ -53,6 +54,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["siswa"]}>
               <BerandaSiswa />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/wilayah/:mataPelajaran"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <DetailWilayah />
             </ProtectedRoute>
           }
         />

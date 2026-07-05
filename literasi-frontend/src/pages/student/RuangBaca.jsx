@@ -179,7 +179,7 @@ export default function RuangBaca() {
                       <button
                         onClick={() => {
                           localStorage.setItem("current_ar_marker", med.url);
-                          navigate("/siswa/modul-ar");
+                          navigate("/siswa/ar");
                         }}
                         className="relative z-10 w-full md:w-auto px-8 py-4 font-black text-lg rounded-2xl transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
                         style={{ backgroundColor: "white", color: "#3498DB", boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }}
