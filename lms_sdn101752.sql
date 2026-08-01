@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jul 28, 2026 at 07:21 AM
+-- Generation Time: Aug 01, 2026 at 03:37 PM
 -- Server version: 8.0.30
 -- PHP Version: 8.3.24
 
@@ -47,7 +47,7 @@ INSERT INTO `materi` (`id`, `guru_id`, `rombel_id`, `mata_pelajaran`, `kelas`, `
 (20, 3, 1, 'Matematika', 'Kelas 4A', 'Penjumlahan dan Pengurangan', '<p><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">Penjumlahan&nbsp;dan&nbsp;pengurangan&nbsp;adalah&nbsp;dua&nbsp;operasi&nbsp;aritmatika&nbsp;utama&nbsp;di&nbsp;mana&nbsp;kita&nbsp;belajar&nbsp;menambahkan&nbsp;dan&nbsp;mengurangi&nbsp;dua&nbsp;atau&nbsp;lebih&nbsp;angka&nbsp;atau&nbsp;nilai&nbsp;matematika&nbsp;apa&nbsp;pun.&nbsp;Dua&nbsp;operasi&nbsp;matematika&nbsp;dasar&nbsp;lainnya&nbsp;adalah&nbsp;perkalian&nbsp;dan&nbsp;pembagian.&nbsp;Simbol&nbsp;untuk&nbsp;penjumlahan&nbsp;adalah&nbsp;&#39;+&#39;&nbsp;(tanda&nbsp;tambah)&nbsp;dan&nbsp;pengurangan&nbsp;adalah&nbsp;&#39;-&#39;&nbsp;(tanda&nbsp;minus).</span></p><p></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">Penjumlahan&nbsp;dan&nbsp;pengurangan&nbsp;adalah&nbsp;operasi&nbsp;kebalikan&nbsp;satu&nbsp;sama&nbsp;lain.&nbsp;Misalnya,&nbsp;jika&nbsp;9&nbsp;+&nbsp;1&nbsp;=&nbsp;10,&nbsp;maka&nbsp;10&nbsp;–&nbsp;1&nbsp;=&nbsp;9.&nbsp;Itu&nbsp;menunjukkan&nbsp;bahwa&nbsp;jika&nbsp;1&nbsp;ditambahkan&nbsp;ke&nbsp;9&nbsp;maka&nbsp;hasilnya&nbsp;adalah&nbsp;10,&nbsp;sedangkan&nbsp;jika&nbsp;1&nbsp;dikurangi&nbsp;dari&nbsp;10,&nbsp;maka&nbsp;hasilnya&nbsp;adalah&nbsp;9.</span></p><p></p><h2><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">Apa&nbsp;itu&nbsp;Penjumlahan?</span></h2><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">Penjumlahan&nbsp;berarti&nbsp;menjumlahkan&nbsp;dua&nbsp;angka&nbsp;atau&nbsp;lebih&nbsp;untuk&nbsp;mendapatkan&nbsp;angka&nbsp;lain.&nbsp;Misalnya,&nbsp;jika&nbsp;kita&nbsp;menjumlahkan&nbsp;2&nbsp;dan&nbsp;3,&nbsp;kita&nbsp;mendapatkan&nbsp;5&nbsp;sebagai&nbsp;hasilnya.</span></p><p></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">2&nbsp;+&nbsp;3&nbsp;=&nbsp;5</span></p><p></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">Sekarang,&nbsp;mari&nbsp;kita&nbsp;pahami&nbsp;penjumlahan&nbsp;2&nbsp;dan&nbsp;3&nbsp;secara&nbsp;praktis.&nbsp;Misalkan,&nbsp;kita&nbsp;memiliki&nbsp;2&nbsp;apel&nbsp;dalam&nbsp;sebuah&nbsp;keranjang&nbsp;dan&nbsp;3&nbsp;apel&nbsp;lagi&nbsp;ditambahkan&nbsp;ke&nbsp;keranjang&nbsp;yang&nbsp;sama,&nbsp;jadi&nbsp;berapa&nbsp;jumlah&nbsp;apel&nbsp;semuanya?</span></p><p></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">2&nbsp;→&nbsp;1&nbsp;+&nbsp;1</span></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">3&nbsp;→&nbsp;1&nbsp;+&nbsp;1&nbsp;+&nbsp;1</span></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">2&nbsp;+&nbsp;3&nbsp;=&nbsp;1&nbsp;+&nbsp;1&nbsp;+&nbsp;1&nbsp;+&nbsp;1&nbsp;+&nbsp;1</span></p><p></p><h2><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">Apa&nbsp;itu&nbsp;pengurangan?</span></h2><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">Pengurangan&nbsp;berarti&nbsp;mengurangi&nbsp;suatu&nbsp;nilai&nbsp;dari&nbsp;nilai&nbsp;lain&nbsp;untuk&nbsp;mendapatkan&nbsp;nilai&nbsp;yang&nbsp;diinginkan.</span></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">Sebagai&nbsp;contoh,&nbsp;mengurangi&nbsp;3&nbsp;dari&nbsp;5&nbsp;menghasilkan&nbsp;2.</span></p><p></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">5&nbsp;–&nbsp;3&nbsp;=&nbsp;2</span></p><p></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">Sekarang,&nbsp;jika&nbsp;kita&nbsp;bayangkan&nbsp;ada&nbsp;5&nbsp;apel&nbsp;dalam&nbsp;sebuah&nbsp;keranjang&nbsp;dan&nbsp;kita&nbsp;mengambil&nbsp;3&nbsp;apel&nbsp;dari&nbsp;keranjang&nbsp;tersebut,&nbsp;maka&nbsp;berapa&nbsp;apel&nbsp;yang&nbsp;tersisa?</span></p><p></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">Jawabannya&nbsp;adalah&nbsp;2&nbsp;buah&nbsp;apel.</span></p><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">5&nbsp;–&nbsp;3&nbsp;=&nbsp;1&nbsp;+&nbsp;1&nbsp;+&nbsp;1&nbsp;+&nbsp;1&nbsp;+&nbsp;1&nbsp;–&nbsp;1&nbsp;–&nbsp;1&nbsp;–&nbsp;1&nbsp;=&nbsp;2</span></p><p></p>', 'publik', '2026-06-13 07:23:32'),
 (22, 3, 1, 'IPA', 'Kelas 4A', 'Tumbuhan', '<p>tes</p>', 'publik', '2026-06-16 07:32:34'),
 (23, 3, 1, 'IPA', 'Kelas 4A', 'Tata Surya', '<p>Ini&nbsp;tata&nbsp;surya&nbsp;ya</p>', 'publik', '2026-07-03 10:07:03'),
-(26, 3, 1, 'AWOKAWOK', 'Kelas 4A', 'AWOKAWOK', '<p>123</p>', 'publik', '2026-07-28 06:19:48');
+(28, 3, 1, 'IPA', 'Kelas 4A', 'Model 3D', '', 'publik', '2026-08-01 15:25:17');
 
 -- --------------------------------------------------------
 
@@ -58,21 +58,22 @@ INSERT INTO `materi` (`id`, `guru_id`, `rombel_id`, `mata_pelajaran`, `kelas`, `
 CREATE TABLE `materi_media` (
   `id` int NOT NULL,
   `materi_id` int NOT NULL,
-  `tipe_media` enum('video_link','video_cloud','ar_mind') NOT NULL,
+  `tipe_media` enum('video_link','video_cloud','ar_mind','image_cloud','model_3d','model_3d_animated') NOT NULL,
   `url_atau_path` varchar(500) NOT NULL,
   `nama_file` varchar(255) DEFAULT NULL,
-  `is_ar_output` tinyint(1) NOT NULL DEFAULT '0'
+  `is_ar_output` tinyint(1) NOT NULL DEFAULT '0',
+  `model_config` json DEFAULT NULL COMMENT 'Konfigurasi model 3D: scale, rotation, position, animation'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `materi_media`
 --
 
-INSERT INTO `materi_media` (`id`, `materi_id`, `tipe_media`, `url_atau_path`, `nama_file`, `is_ar_output`) VALUES
-(14, 22, 'video_link', 'https://youtu.be/Lamxt6IHoXI?si=529rJCPZf4vNSdMY', NULL, 0),
-(15, 23, 'ar_mind', 'https://res.cloudinary.com/dbteh8sbe/raw/upload/v1783073209/dljz0vtvuttgeuknzwzn.mind', NULL, 0),
-(20, 26, 'ar_mind', 'https://res.cloudinary.com/dbteh8sbe/raw/upload/v1785219491/pqvo0cei5xjlhnog4voe.mind', NULL, 0),
-(21, 26, 'video_cloud', 'https://res.cloudinary.com/dbteh8sbe/video/upload/v1785219578/sfbq6q8suzwrkm4zezvu.mp4', NULL, 1);
+INSERT INTO `materi_media` (`id`, `materi_id`, `tipe_media`, `url_atau_path`, `nama_file`, `is_ar_output`, `model_config`) VALUES
+(14, 22, 'video_link', 'https://youtu.be/Lamxt6IHoXI?si=529rJCPZf4vNSdMY', NULL, 0, NULL),
+(15, 23, 'ar_mind', 'https://res.cloudinary.com/dbteh8sbe/raw/upload/v1783073209/dljz0vtvuttgeuknzwzn.mind', NULL, 0, NULL),
+(24, 28, 'model_3d', 'https://res.cloudinary.com/dbteh8sbe/raw/upload/v1785597888/nz1okhad0ppe9vew0xdg.glb', 'solar_system_animation.glb', 0, '{\"scale\": \"0.5 0.5 0.5\", \"position\": \"0 0.1 0.1\", \"rotation\": \"0 0 0\", \"animation\": \"none\", \"animationSpeed\": 5000}'),
+(25, 28, 'ar_mind', 'https://res.cloudinary.com/dbteh8sbe/raw/upload/v1785597905/srj19tqf7ciiplxfx8jg.mind', NULL, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -177,7 +178,7 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `nama`, `role`, `rombel_id`, `xp`, `username`, `email`, `foto_profile`, `password_hash`, `pin`, `kode_unik`, `verification_token`, `token_expires_at`, `created_at`, `updated_at`) VALUES
 (1, 'Admin Utama', 'admin', NULL, 0, 'admin', 'riyanwardhana2@gmail.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, NULL, '907875', '2026-07-05 01:45:31', '2026-05-17 11:35:44', '2026-07-05 01:40:31'),
 (2, 'Budi', 'siswa', 1, 122, NULL, NULL, NULL, NULL, '1234', 'ABC123', NULL, NULL, '2026-05-17 11:35:44', '2026-05-28 03:45:34'),
-(3, 'Riyan Wardhana', 'guru', NULL, 0, 'riyan22', 'nur23aisyah11@gmail.com', 'https://res.cloudinary.com/dbteh8sbe/image/upload/v1779897441/zwisbpk3n6nxnmrnwpda.jpg', '$2y$10$uD//dYpN70LzHzmgjGmC8u63aJIyJOywCeN9P2OlAh28PhU/JKpgK', NULL, NULL, NULL, NULL, '2026-05-17 16:01:19', '2026-07-28 05:52:42'),
+(3, 'Riyan Wardhana', 'guru', NULL, 0, 'riyan22', 'nur23aisyah11@gmail.com', 'https://res.cloudinary.com/dbteh8sbe/image/upload/v1779897441/zwisbpk3n6nxnmrnwpda.jpg', '$2y$10$uD//dYpN70LzHzmgjGmC8u63aJIyJOywCeN9P2OlAh28PhU/JKpgK', NULL, NULL, NULL, NULL, '2026-05-17 16:01:19', '2026-08-01 15:18:38'),
 (4, 'Riyan Wardhana', 'siswa', 1, 0, 'riyan607', NULL, NULL, NULL, '2205', NULL, NULL, NULL, '2026-05-28 03:49:49', '2026-06-16 08:37:52'),
 (5, 'Riyan', 'siswa', 2, 0, 'riyan176', NULL, NULL, NULL, '2206', NULL, NULL, NULL, '2026-06-01 16:21:11', '2026-06-01 16:21:11'),
 (6, 'Burhan', 'siswa', 1, 250, 'burhan499', NULL, NULL, NULL, '1504', NULL, NULL, NULL, '2026-06-29 03:36:47', '2026-07-05 15:55:03');
@@ -241,13 +242,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `materi`
 --
 ALTER TABLE `materi`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `materi_media`
 --
 ALTER TABLE `materi_media`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `pengumpulan_tugas`
