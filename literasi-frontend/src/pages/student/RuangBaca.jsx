@@ -131,69 +131,72 @@ export default function RuangBaca() {
         </div>
 
         {/* Media Interaktif */}
-        {materi.media && materi.media.length > 0 && (
-          <div className="p-8 rounded-b-3xl flex flex-col gap-8" style={{ backgroundColor: "var(--color-neutral-50)", border: "2px solid var(--color-neutral-100)", borderTop: "none" }}>
-            <h3 className="font-black text-2xl pb-4" style={{ color: "var(--color-neutral-900)", borderBottom: "2px solid var(--color-neutral-200)", fontFamily: "'Fredoka One', sans-serif" }}>
-              🎬 Media Belajar Interaktif
-            </h3>
-            <div className="flex flex-col gap-8">
-              {materi.media.map((med, index) => (
-                <div key={index} className="w-full">
-                  {med.type === "video_link" && (
-                    <div className="aspect-video w-full rounded-3xl overflow-hidden" style={{ boxShadow: "0 8px 32px rgba(26,26,46,0.12)", border: "4px solid white", backgroundColor: "black" }}>
-                      <iframe
-                        src={getEmbedUrl(med.url)}
-                        title="Video Materi"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="w-full h-full"
-                      />
-                    </div>
-                  )}
+{materi.media && materi.media.length > 0 && (
+  <div className="p-8 rounded-b-3xl flex flex-col gap-8" style={{ backgroundColor: "var(--color-neutral-50)", border: "2px solid var(--color-neutral-100)", borderTop: "none" }}>
+    <h3 className="font-black text-2xl pb-4" style={{ color: "var(--color-neutral-900)", borderBottom: "2px solid var(--color-neutral-200)", fontFamily: "'Fredoka One', sans-serif" }}>
+      🎬 Media Belajar Interaktif
+    </h3>
+    <div className="flex flex-col gap-8">
+      {materi.media
+        .filter(med => Number(med.is_ar_output) !== 1 || med.type === 'ar_mind')
+        .map((med, index) => (
+          <div key={index} className="w-full">
+            {med.type === "video_link" && (
+              <div className="aspect-video w-full rounded-3xl overflow-hidden" style={{ boxShadow: "0 8px 32px rgba(26,26,46,0.12)", border: "4px solid white", backgroundColor: "black" }}>
+                <iframe
+                  src={getEmbedUrl(med.url)}
+                  title="Video Materi"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+            )}
 
-                  {med.type === "video_cloud" && (
-                    <div className="aspect-video w-full rounded-3xl overflow-hidden" style={{ boxShadow: "0 8px 32px rgba(26,26,46,0.12)", border: "4px solid white", backgroundColor: "black" }}>
-                      <video controls className="w-full h-full">
-                        <source src={med.url} type="video/mp4" />
-                        Browser kamu tidak mendukung pemutar video.
-                      </video>
-                    </div>
-                  )}
+            {med.type === "video_cloud" && med.is_ar_output != 1 && (
+              <div className="aspect-video w-full rounded-3xl overflow-hidden" style={{ boxShadow: "0 8px 32px rgba(26,26,46,0.12)", border: "4px solid white", backgroundColor: "black" }}>
+                <video controls className="w-full h-full">
+                  <source src={med.url} type="video/mp4" />
+                  Browser kamu tidak mendukung pemutar video.
+                </video>
+              </div>
+            )}
 
-                  {med.type === "ar_mind" && (
-                    <div className="p-8 rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden" style={{ background: "linear-gradient(135deg, #4ECDC4 0%, #3498DB 100%)", boxShadow: "0 8px 32px rgba(78,205,196,0.30)" }}>
-                      <div className="relative z-10 flex items-center gap-5 text-center md:text-left">
-                        <div className="p-4 rounded-2xl hidden sm:flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.20)" }}>
-                          <Cube weight="fill" size={48} />
-                        </div>
-                        <div>
-                          <h4 className="font-black text-2xl mb-1" style={{ fontFamily: "'Fredoka One', sans-serif" }}>
-                            Modul Augmented Reality ✨
-                          </h4>
-                          <p className="text-sm font-medium opacity-90">
-                            Arahkan kamera ke gambar marker yang diberikan gurumu untuk melihat objek 3D!
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          localStorage.setItem("current_ar_marker", med.url);
-                          navigate("/siswa/ar");
-                        }}
-                        className="relative z-10 w-full md:w-auto px-8 py-4 font-black text-lg rounded-2xl transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
-                        style={{ backgroundColor: "white", color: "#3498DB", boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }}
-                      >
-                        🚀 Mulai AR!
-                      </button>
-                      <Cube weight="duotone" size={160} className="absolute -right-8 -bottom-8 opacity-10 -rotate-12" />
-                    </div>
-                  )}
+            {med.type === "ar_mind" && (
+              <div className="p-8 rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden" style={{ background: "linear-gradient(135deg, #4ECDC4 0%, #3498DB 100%)", boxShadow: "0 8px 32px rgba(78,205,196,0.30)" }}>
+                <div className="relative z-10 flex items-center gap-5 text-center md:text-left">
+                  <div className="p-4 rounded-2xl hidden sm:flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.20)" }}>
+                    <Cube weight="fill" size={48} />
+                  </div>
+                  <div>
+                    <h4 className="font-black text-2xl mb-1" style={{ fontFamily: "'Fredoka One', sans-serif" }}>
+                      Modul Augmented Reality ✨
+                    </h4>
+                    <p className="text-sm font-medium opacity-90">
+                      Arahkan kamera ke gambar marker yang diberikan gurumu untuk melihat objek 3D!
+                    </p>
+                  </div>
                 </div>
-              ))}
-            </div>
+                <button
+                  onClick={() => {
+                    // Hapus localStorage.setItem, kirim ID via URL
+                    navigate(`/siswa/ar/${materi.id}`);
+                  }}
+                  className="relative z-10 w-full md:w-auto px-8 py-4 font-black text-lg rounded-2xl transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+                  style={{ backgroundColor: "white", color: "#3498DB", boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }}
+                >
+                  🚀 Mulai AR!
+                </button>
+                <Cube weight="duotone" size={160} className="absolute -right-8 -bottom-8 opacity-10 -rotate-12" />
+              </div>
+            )}
           </div>
-        )}
+        ))
+      }
+    </div>
+  </div>
+)}
 
         {/* Penutup bawah jika tidak ada media */}
         {(!materi.media || materi.media.length === 0) && (

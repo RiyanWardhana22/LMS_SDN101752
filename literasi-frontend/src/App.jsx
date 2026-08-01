@@ -66,7 +66,7 @@ function App() {
           }
         />
         <Route
-          path="/siswa/ar"
+          path="/siswa/ar/:id"
           element={
             <ProtectedRoute allowedRoles={["siswa"]}>
               <ModulAR />

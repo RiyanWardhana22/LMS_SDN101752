@@ -15,16 +15,17 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- ============================================= -->
-    <!-- PERBAIKIAN: A-Frame & MindAR versi kompatibel -->
+    <!-- PERBAIKIAN: HAPUS SCRIPT STATIS A-Frame & MindAR -->
+    <!-- Loading akan dilakukan dinamis di ModulAR.jsx  -->
     <!-- ============================================= -->
-    
-    <!-- A-Frame v1.4.0 (lebih stabil dan kompatibel dengan MindAR) -->
-    <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.0/dist/aframe.min.js"></script>
-    
-    <!-- MindAR Image Tracking v1.2.2 (kompatibel dengan A-Frame 1.4.0) -->
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
-    
-    <!-- WebRTC Adapter untuk kompatibilitas kamera di berbagai browser -->
+    <!-- 
+      Script A-Frame & MindAR dihapus dari sini untuk:
+      1. Menghindari race condition urutan loading
+      2. Mengurangi bundle size untuk halaman yang tidak membutuhkan AR
+      3. Memberikan kontrol penuh atas urutan loading di ModulAR.jsx
+    -->
+
+    <!-- WebRTC Adapter untuk kompatibilitas kamera -->
     <script src="https://cdn.jsdelivr.net/npm/webrtc-adapter@8.2.0/dist/adapter.min.js"></script>
 
     <!-- Error Handler untuk suppress error MindAR -->
