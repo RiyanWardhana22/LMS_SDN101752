@@ -6,13 +6,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LMS - SDN 101752</title>
 
-    <!-- Modul AR -->
-    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <!-- Google Fonts: Nunito + Fredoka One -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- ============================================= -->
+    <!-- PERBAIKIAN: HAPUS SCRIPT STATIS A-Frame & MindAR -->
+    <!-- Loading akan dilakukan dinamis di ModulAR.jsx  -->
+    <!-- ============================================= -->
+    <!-- 
+      Script A-Frame & MindAR dihapus dari sini untuk:
+      1. Menghindari race condition urutan loading
+      2. Mengurangi bundle size untuk halaman yang tidak membutuhkan AR
+      3. Memberikan kontrol penuh atas urutan loading di ModulAR.jsx
+    -->
+
+    <!-- WebRTC Adapter untuk kompatibilitas kamera -->
+    <script src="https://cdn.jsdelivr.net/npm/webrtc-adapter@8.2.0/dist/adapter.min.js"></script>
+
+    <!-- Error Handler untuk suppress error MindAR -->
+    <script>
+      // Suppress error "Cannot set properties of undefined (setting 'fov')"
+      window.addEventListener('error', function(e) {
+        if (e.message && (
+          e.message.includes('setting "fov"') ||
+          e.message.includes('Cannot set properties of undefined')
+        )) {
+          e.preventDefault();
+          e.stopPropagation();
+          return true;
+        }
+      }, true);
+
+      // Suppress console.error dari MindAR
+      const originalConsoleError = console.error;
+      console.error = function(message, ...args) {
+        if (typeof message === 'string' && (
+          message.includes('setting "fov"') ||
+          message.includes('Cannot set properties of undefined') ||
+          message.includes('mindar')
+        )) {
+          return; // Suppress error
+        }
+        if (originalConsoleError) {
+          return originalConsoleError.apply(this, [message, ...args]);
+        }
+      };
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </body>
 </html>

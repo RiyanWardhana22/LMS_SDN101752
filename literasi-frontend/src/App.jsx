@@ -9,6 +9,7 @@ import DashboardAdmin from "./pages/admin/DashboardAdmin";
 import DashboardGuru from "./pages/teacher/DashboardGuru";
 import LoginSiswa from "./components/LoginSiswa";
 import BerandaSiswa from "./pages/student/BerandaSiswa";
+import DetailWilayah from "./pages/student/DetailWilayah";
 import ModulAR from "./pages/student/ModulAR";
 import ManajemenMateri from "./pages/teacher/ManajemenMateri";
 import WorkshopAI from "./pages/teacher/WorkshopAI";
@@ -20,6 +21,8 @@ import PustakaBelajar from "./pages/student/PustakaBelajar";
 import RuangBaca from "./pages/student/RuangBaca";
 import RuangEvaluasi from "./pages/student/RuangEvaluasi";
 import LembarKerja from "./pages/student/LembarKerja";
+import Prestasi from "./pages/student/Prestasi";
+import ProfilSiswa from "./pages/student/ProfilSiswa";
 import KoreksiTugas from "./pages/teacher/KoreksiTugas";
 import KelolaProfil from "./pages/teacher/KelolaProfil";
 import BukuNilai from "./pages/teacher/BukuNilai";
@@ -55,7 +58,15 @@ function App() {
           }
         />
         <Route
-          path="/siswa/ar"
+          path="/siswa/wilayah/:mataPelajaran"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <DetailWilayah />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/ar/:id"
           element={
             <ProtectedRoute allowedRoles={["siswa"]}>
               <ModulAR />
@@ -91,6 +102,22 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["siswa"]}>
               <LembarKerja />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/prestasi"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <Prestasi />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/profil"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <ProfilSiswa />
             </ProtectedRoute>
           }
         />
