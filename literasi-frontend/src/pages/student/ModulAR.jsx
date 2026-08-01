@@ -16,6 +16,7 @@ import { apiEndpoint } from "../../config/api";
 // IMPORT STATIS A-FRAME & MINDAR
 // ============================================================
 import "aframe";
+import "aframe-extras";
 import "mind-ar/dist/mindar-image-aframe.prod.js";
 
 // ============================================================
@@ -55,6 +56,7 @@ export default function ModulAR() {
   const [scriptsReady, setScriptsReady] = useState(false);
   const [deviceType, setDeviceType] = useState("other");
   const [arContentType, setArContentType] = useState(""); // Tipe konten AR yang aktif
+  const [modelLoadError, setModelLoadError] = useState(false);
 
   const arContainerRef = useRef(null);
   const sceneRef = useRef(null);
@@ -196,6 +198,7 @@ export default function ModulAR() {
 
     sceneRef.current = null;
     setIsSceneReady(false);
+    setModelLoadError(false);
   }, []);
 
   // ============================================================
@@ -258,7 +261,7 @@ export default function ModulAR() {
     }
 
     // ============================================
-    // MODEL 3D STATIS (.glb)
+    // MODEL 3D STATIS (.glb) - PERBAIKAN
     // ============================================
     if (outputMedia.type === "model_3d") {
       const scale = config.scale || "0.5 0.5 0.5";
@@ -267,10 +270,31 @@ export default function ModulAR() {
       const animation = config.animation || "none";
       const animSpeed = config.animationSpeed || 5000;
 
+      // Pastikan URL valid
+      const modelUrl = outputMedia.url;
+      if (!modelUrl) {
+        return `
+          <a-box
+            position="0 0 0.1"
+            scale="0.6 0.6 0.6"
+            color="#FF0000"
+            material="emissive: #FF0000; emissiveIntensity: 0.5"
+          ></a-box>
+          <a-text
+            value="Model tidak tersedia"
+            color="#FFFFFF"
+            align="center"
+            position="0 0.75 0.1"
+            scale="0.4 0.4 0.4"
+          ></a-text>
+        `;
+      }
+
+      // Gunakan a-entity dengan gltf-model
       if (animation === "rotate") {
         return `
           <a-entity
-            gltf-model="${outputMedia.url}"
+            gltf-model="${modelUrl}"
             position="${position}"
             scale="${scale}"
             rotation="${rotation}"
@@ -280,7 +304,7 @@ export default function ModulAR() {
       } else {
         return `
           <a-entity
-            gltf-model="${outputMedia.url}"
+            gltf-model="${modelUrl}"
             position="${position}"
             scale="${scale}"
             rotation="${rotation}"
@@ -290,7 +314,7 @@ export default function ModulAR() {
     }
 
     // ============================================
-    // MODEL 3D DENGAN ANIMASI BAWAAN (.glb)
+    // MODEL 3D DENGAN ANIMASI BAWAAN (.glb) - PERBAIKAN
     // ============================================
     if (outputMedia.type === "model_3d_animated") {
       const scale = config.scale || "0.5 0.5 0.5";
@@ -298,10 +322,29 @@ export default function ModulAR() {
       const rotation = config.rotation || "0 0 0";
       const autoRotate = config.autoRotate || false;
 
+      const modelUrl = outputMedia.url;
+      if (!modelUrl) {
+        return `
+          <a-box
+            position="0 0 0.1"
+            scale="0.6 0.6 0.6"
+            color="#FF0000"
+            material="emissive: #FF0000; emissiveIntensity: 0.5"
+          ></a-box>
+          <a-text
+            value="Model tidak tersedia"
+            color="#FFFFFF"
+            align="center"
+            position="0 0.75 0.1"
+            scale="0.4 0.4 0.4"
+          ></a-text>
+        `;
+      }
+
       if (autoRotate) {
         return `
           <a-entity
-            gltf-model="${outputMedia.url}"
+            gltf-model="${modelUrl}"
             position="${position}"
             scale="${scale}"
             rotation="${rotation}"
@@ -312,7 +355,7 @@ export default function ModulAR() {
       } else {
         return `
           <a-entity
-            gltf-model="${outputMedia.url}"
+            gltf-model="${modelUrl}"
             position="${position}"
             scale="${scale}"
             rotation="${rotation}"
@@ -439,12 +482,24 @@ export default function ModulAR() {
     if (targetEntity) {
       targetEntity.addEventListener("targetFound", () => {
         setMarkerFound(true);
+        setModelLoadError(false);
         setTimeout(() => setMarkerFound(false), 3000);
       });
       targetEntity.addEventListener("targetLost", () => {
         setMarkerFound(false);
       });
     }
+
+    // Event listener untuk model 3D
+    scene.addEventListener('model-error', (e) => {
+      console.error('[ModulAR] Model 3D error:', e.detail);
+      setModelLoadError(true);
+    });
+    
+    scene.addEventListener('model-loaded', (e) => {
+      console.log('[ModulAR] Model 3D loaded:', e.detail);
+      setModelLoadError(false);
+    });
 
     // Fallback: jika cameraStart tidak pernah terjadi
     cameraStartTimeoutRef.current = setTimeout(() => {
@@ -465,6 +520,8 @@ export default function ModulAR() {
       scene.removeEventListener("renderstart", onRenderStart);
       scene.removeEventListener("cameraStart", onCameraStart);
       scene.removeEventListener("cameraError", onCameraError);
+      scene.removeEventListener('model-error', () => {});
+      scene.removeEventListener('model-loaded', () => {});
       if (cameraStartTimeoutRef.current) {
         clearTimeout(cameraStartTimeoutRef.current);
         cameraStartTimeoutRef.current = null;
@@ -722,6 +779,8 @@ export default function ModulAR() {
               className={`px-5 py-2.5 rounded-full backdrop-blur-md transition-all duration-500 flex items-center gap-2.5
                 ${markerFound 
                   ? 'bg-green-500/90 text-white' 
+                  : modelLoadError
+                  ? 'bg-red-500/90 text-white'
                   : 'bg-black/60 text-white/80'
                 }`}
             >
@@ -732,6 +791,13 @@ export default function ModulAR() {
                     {arContentType === "model_3d" || arContentType === "model_3d_animated"
                       ? "Model 3D Terdeteksi"
                       : "Marker Terdeteksi"}
+                  </span>
+                </>
+              ) : modelLoadError ? (
+                <>
+                  <X className="w-5 h-5" />
+                  <span className="text-sm font-medium">
+                    Gagal Memuat Model
                   </span>
                 </>
               ) : (

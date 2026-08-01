@@ -45,20 +45,30 @@ try {
     $stmt_media->execute();
     $media = $stmt_media->fetchAll(PDO::FETCH_ASSOC);
 
-    // Decode model_config dari JSON string ke array
+    // Proses setiap media: konversi is_ar_output ke integer dan decode model_config
     foreach ($media as &$item) {
-        if (isset($item['model_config']) && is_string($item['model_config'])) {
-            $item['model_config'] = json_decode($item['model_config'], true);
-        }
-        // Konversi is_ar_output ke integer
+        // Konversi is_ar_output ke integer (0/1) agar jelas di frontend
         $item['is_ar_output'] = (int)$item['is_ar_output'];
+        
+        // Decode model_config jika ada dan berupa string JSON
+        if (isset($item['model_config']) && is_string($item['model_config'])) {
+            $decoded = json_decode($item['model_config'], true);
+            // Jika decode berhasil, gunakan array; jika gagal, set null
+            $item['model_config'] = ($decoded !== null) ? $decoded : null;
+        } else {
+            $item['model_config'] = null;
+        }
     }
-    unset($item); // Hapus referensi
+    unset($item); // Hapus referensi untuk menghindari efek samping
 
+    // Sertakan media ke dalam data materi
     $materi['media'] = $media;
 
+    // Kirim respons sukses dengan data
     echo json_encode(["status" => "success", "data" => $materi]);
+
 } catch (Throwable $e) {
+    // Tangani error dan kirim pesan
     echo json_encode(["status" => "error", "message" => "Gagal memuat data: " . $e->getMessage()]);
 }
 ?>

@@ -306,13 +306,16 @@ export default function FormMateri() {
     }
   };
 
-  // ✅ UPLOAD MODEL 3D (.glb) KE CLOUDINARY
+  // ✅ UPLOAD MODEL 3D (.glb / .gltf) KE CLOUDINARY - DIPERBAIKI
   const handleModel3DUpload = async (e, index) => {
     const file = e.target.files[0];
     if (!file) return;
 
     // Validasi format
-    if (!file.name.endsWith(".glb") && !file.name.endsWith(".gltf")) {
+    const validExtensions = ['.glb', '.gltf', '.GLB', '.GLTF'];
+    const isValidExtension = validExtensions.some(ext => file.name.endsWith(ext));
+    
+    if (!isValidExtension) {
       Swal.fire({
         icon: "error",
         title: "Format Tidak Didukung",
@@ -335,6 +338,7 @@ export default function FormMateri() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", UPLOAD_PRESET);
+    formData.append("resource_type", "auto"); // Penting: biarkan Cloudinary mendeteksi tipe
 
     try {
       Swal.fire({
@@ -344,9 +348,9 @@ export default function FormMateri() {
         didOpen: () => Swal.showLoading(),
       });
 
-      // Gunakan endpoint raw/upload untuk file .glb
+      // Gunakan endpoint auto/upload untuk mendeteksi tipe file secara otomatis
       const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`,
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`,
         {
           method: "POST",
           body: formData,
@@ -356,8 +360,18 @@ export default function FormMateri() {
       Swal.close();
 
       if (data.secure_url) {
+        // Ambil URL yang dihasilkan Cloudinary
+        let modelUrl = data.secure_url;
+        
+        // Jika URL tidak memiliki ekstensi .glb atau .gltf, kita tetap gunakan karena Cloudinary akan serve file yang benar
+        // Namun kita bisa memastikan dengan menambahkan parameter jika perlu
+        if (!modelUrl.endsWith('.glb') && !modelUrl.endsWith('.gltf')) {
+          // Cloudinary kadang mengembalikan URL tanpa ekstensi, tapi tetap valid
+          console.log('Model URL (tanpa ekstensi):', modelUrl);
+        }
+        
         const updated = [...mediaList];
-        updated[index].url = data.secure_url;
+        updated[index].url = modelUrl;
         updated[index].nama_file = file.name;
         setMediaList(updated);
 
@@ -378,6 +392,7 @@ export default function FormMateri() {
       }
     } catch (err) {
       Swal.close();
+      console.error('Upload error:', err);
       Swal.fire({
         icon: "error",
         title: "Gagal Upload",
@@ -685,7 +700,7 @@ export default function FormMateri() {
                                   media.type === "model_3d" ||
                                   media.type === "model_3d_animated"
                                 ) {
-                                  // ✅ Trigger upload .glb
+                                  // ✅ Trigger upload .glb / .gltf
                                   const tempInput =
                                     document.createElement("input");
                                   tempInput.type = "file";
@@ -958,7 +973,7 @@ export default function FormMateri() {
                 agar muncul di atas marker saat siswa melakukan scan.
               </li>
               <li>
-                <span className="font-semibold">Model 3D (.glb)</span> akan
+                <span className="font-semibold">Model 3D (.glb/.gltf)</span> akan
                 tampil interaktif di atas marker dan bisa dilihat dari
                 berbagai sudut. Gunakan konfigurasi untuk mengatur skala,
                 posisi, dan animasi.
