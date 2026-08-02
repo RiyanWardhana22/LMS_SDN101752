@@ -24,6 +24,8 @@ import KoreksiTugas from "./pages/teacher/KoreksiTugas";
 import KelolaProfil from "./pages/teacher/KelolaProfil";
 import BukuNilai from "./pages/teacher/BukuNilai";
 import ManajemenSiswa from "./pages/teacher/ManajemenSiswa";
+import Reports from "./pages/admin/Reports";
+import EmergencyMode from "./pages/admin/EmergencyMode";
 
 // 1. BARU DITAMBAHKAN: Import komponen UserManagement
 import UserManagement from "./pages/admin/UserManagement";
@@ -58,6 +60,8 @@ function App() {
 
         {/* ================= ADMIN ================= */}
         <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={["admin"]}><DashboardAdmin /></ProtectedRoute>} />
+        <Route path="/admin/reports" element={<ProtectedRoute allowedRoles={["admin"]}><Reports /></ProtectedRoute>} />
+        <Route path="/admin/emergency" element={<ProtectedRoute allowedRoles={["admin"]}><EmergencyMode /></ProtectedRoute>} />
         
         {/* 2. BARU DITAMBAHKAN: Route Manajemen Pengguna */}
         <Route 
