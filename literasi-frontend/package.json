@@ -11,13 +11,24 @@
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
+<<<<<<< HEAD
     "papaparse": "^5.5.4",
+=======
+    "aframe": "^1.8.0",
+    "aframe-extras": "^7.7.0",
+    "lucide-react": "^1.27.0",
+    "mind-ar": "^1.2.5",
+>>>>>>> 95f40ad99bbece2ed356200c53fc2923382f84df
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-icons": "^5.6.0",
     "react-quill-new": "^3.8.3",
     "react-router-dom": "^7.15.1",
+<<<<<<< HEAD
     "recharts": "^3.10.0"
+=======
+    "sweetalert2": "^11.26.25"
+>>>>>>> 95f40ad99bbece2ed356200c53fc2923382f84df
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
