@@ -5,10 +5,7 @@ import Papa from 'papaparse';
 
 export default function UserManagement() {
     const [users, setUsers] = useState([]);
-    
-    // STATE BARU UNTUK MENYIMPAN DAFTAR KELAS (ROMBEL)
     const [rombels, setRombels] = useState([]); 
-    
     const [loading, setLoading] = useState(true);
     const [filterRole, setFilterRole] = useState('');
     
@@ -19,13 +16,11 @@ export default function UserManagement() {
     
     const fileInputRef = useRef(null);
     
+    // TAMBAHKAN EMAIL DI SINI
     const [formData, setFormData] = useState({
-        nama: '', role: 'siswa', username: '', password: '', pin: '', rombel_id: ''
+        nama: '', role: 'siswa', username: '', email: '', password: '', pin: '', rombel_id: ''
     });
 
-    // ==========================================
-    // 1. AMBIL DATA PENGGUNA & DATA KELAS
-    // ==========================================
     const fetchUsers = async () => {
         setLoading(true);
         try {
@@ -43,7 +38,6 @@ export default function UserManagement() {
         }
     };
 
-    // FUNGSI BARU UNTUK MENGAMBIL DAFTAR KELAS
     const fetchRombels = async () => {
         try {
             const response = await fetch('http://localhost/LMS_SDN101752/literasi-backend/api/admin/rombels.php');
@@ -56,7 +50,7 @@ export default function UserManagement() {
 
     useEffect(() => { 
         fetchUsers(); 
-        fetchRombels(); // Panggil saat halaman pertama dimuat
+        fetchRombels(); 
     }, [filterRole]);
 
     const handleInputChange = (e) => {
@@ -68,7 +62,7 @@ export default function UserManagement() {
         setIsModalOpen(false);
         setIsEditMode(false);
         setEditId(null);
-        setFormData({ nama: '', role: 'siswa', username: '', password: '', pin: '', rombel_id: '' });
+        setFormData({ nama: '', role: 'siswa', username: '', email: '', password: '', pin: '', rombel_id: '' });
     };
 
     const handleAddClick = () => {
@@ -83,6 +77,7 @@ export default function UserManagement() {
             nama: user.nama,
             role: user.role,
             username: user.username || '',
+            email: user.email || '', // MASUKKAN DATA EMAIL LAMA
             password: '',
             pin: user.pin || '',
             rombel_id: user.rombel_id || '' 
@@ -90,16 +85,14 @@ export default function UserManagement() {
         setIsModalOpen(true);
     };
 
-    // ==========================================
-    // 2. SUBMIT FORM (TAMBAH / EDIT)
-    // ==========================================
     const handleSubmitForm = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
 
+        // PAYLOAD DIPERBARUI UNTUK MEMBAWA EMAIL
         const payload = formData.role === 'siswa' 
             ? { nama: formData.nama, role: formData.role, pin: formData.pin, rombel_id: formData.rombel_id }
-            : { nama: formData.nama, role: formData.role, username: formData.username, password: formData.password };
+            : { nama: formData.nama, role: formData.role, username: formData.username, email: formData.email, password: formData.password };
 
         if (isEditMode) payload.id = editId;
         const method = isEditMode ? 'PUT' : 'POST';
@@ -126,9 +119,6 @@ export default function UserManagement() {
         }
     };
 
-    // ==========================================
-    // 3. HAPUS PENGGUNA
-    // ==========================================
     const handleDeleteUser = async (id, nama) => {
         if (!window.confirm(`Apakah Anda yakin ingin menghapus data "${nama}"?`)) return;
 
@@ -149,9 +139,6 @@ export default function UserManagement() {
         }
     };
 
-    // ==========================================
-    // 4. DOWNLOAD TEMPLATE & IMPORT CSV
-    // ==========================================
     const handleDownloadTemplate = () => {
         const csvContent = "data:text/csv;charset=utf-8,Nama,PIN,ID_Kelas\nBudi Santoso,1234,1\nSiti Aminah,5678,1";
         const encodedUri = encodeURI(csvContent);
@@ -259,7 +246,9 @@ export default function UserManagement() {
                                     <tr key={user.id} className="bg-white border-b border-neutral-50 hover:bg-gray-50">
                                         <td className="px-6 py-4">
                                             <div className="font-bold text-gray-900">{user.nama}</div>
+                                            {/* TAMPILKAN EMAIL DI TABEL JIKA ADA */}
                                             {user.username && <div className="text-xs text-gray-500">@{user.username}</div>}
+                                            {user.email && <div className="text-xs text-blue-500">{user.email}</div>}
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' : user.role === 'guru' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
@@ -313,7 +302,6 @@ export default function UserManagement() {
                                     <option value="guru">👨‍🏫 Guru</option>
                                     <option value="admin">👨‍💻 Admin</option>
                                 </select>
-                                {isEditMode && <span className="text-xs text-red-500 mt-1 block">*Peran tidak dapat diubah saat mode edit.</span>}
                             </div>
 
                             <div>
@@ -325,23 +313,12 @@ export default function UserManagement() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-bold text-gray-700 mb-1">Pilih Kelas</label>
-                                        
-                                        {/* INI BAGIAN DROPDOWN KELAS YANG BARU */}
-                                        <select 
-                                            name="rombel_id" 
-                                            required 
-                                            value={formData.rombel_id} 
-                                            onChange={handleInputChange} 
-                                            className="w-full p-2.5 bg-gray-50 border rounded-lg focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                                        >
+                                        <select name="rombel_id" required value={formData.rombel_id} onChange={handleInputChange} className="w-full p-2.5 bg-gray-50 border rounded-lg focus:ring-2 focus:ring-blue-500 cursor-pointer">
                                             <option value="" disabled>-- Pilih Kelas --</option>
                                             {rombels.map((rombel) => (
-                                                <option key={rombel.id} value={rombel.id}>
-                                                    {rombel.nama_kelas}
-                                                </option>
+                                                <option key={rombel.id} value={rombel.id}>{rombel.nama_kelas}</option>
                                             ))}
                                         </select>
-                                        
                                     </div>
                                     <div>
                                         <label className="block text-sm font-bold text-gray-700 mb-1">PIN (4 Digit)</label>
@@ -350,6 +327,11 @@ export default function UserManagement() {
                                 </div>
                             ) : (
                                 <div className="space-y-4">
+                                    {/* INPUT EMAIL DITAMBAHKAN DI SINI */}
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Email (Untuk OTP)</label>
+                                        <input type="email" name="email" required value={formData.email} onChange={handleInputChange} className="w-full p-2.5 bg-gray-50 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="guru@sekolah.com" />
+                                    </div>
                                     <div>
                                         <label className="block text-sm font-bold text-gray-700 mb-1">Username</label>
                                         <input type="text" name="username" required value={formData.username} onChange={handleInputChange} className="w-full p-2.5 bg-gray-50 border rounded-lg" placeholder="guru_budi" />

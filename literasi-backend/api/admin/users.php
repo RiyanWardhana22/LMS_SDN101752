@@ -1,6 +1,6 @@
 <?php
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS"); // Tambahkan PUT
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 header("Content-Type: application/json; charset=UTF-8");
 
@@ -39,22 +39,17 @@ try {
     elseif ($method === 'POST') {
         $data = json_decode(file_get_contents("php://input"));
         
-        // 1. LOGIKA IMPORT CSV MASSAL
+        // 1. LOGIKA IMPORT CSV MASSAL (SISWA)
         if (isset($data->action) && $data->action === 'import_siswa') {
+            // ... (logika import siswa tetap sama)
             if (!isset($data->siswa) || !is_array($data->siswa)) {
-                http_response_code(400);
-                echo json_encode(["status" => "error", "message" => "Data CSV tidak valid."]);
-                exit;
+                http_response_code(400); echo json_encode(["status" => "error", "message" => "Data CSV tidak valid."]); exit;
             }
-
             $inserted = 0;
             $stmt = $conn->prepare("INSERT INTO users (nama, role, pin, rombel_id) VALUES (?, 'siswa', ?, ?)");
-            
             foreach ($data->siswa as $s) {
                 if (!empty($s->nama) && !empty($s->pin) && !empty($s->rombel_id)) {
-                    if ($stmt->execute([$s->nama, $s->pin, $s->rombel_id])) {
-                        $inserted++;
-                    }
+                    if ($stmt->execute([$s->nama, $s->pin, $s->rombel_id])) $inserted++;
                 }
             }
             echo json_encode(["status" => "success", "message" => "$inserted data siswa berhasil diimpor!"]);
@@ -63,28 +58,24 @@ try {
 
         // 2. LOGIKA TAMBAH MANUAL (SATUAN)
         if (empty($data->nama) || empty($data->role)) {
-            http_response_code(400);
-            echo json_encode(["status" => "error", "message" => "Nama dan Role wajib diisi."]);
-            exit;
+            http_response_code(400); echo json_encode(["status" => "error", "message" => "Nama dan Role wajib diisi."]); exit;
         }
 
         if ($data->role === 'siswa') {
             if (empty($data->pin) || empty($data->rombel_id)) {
-                http_response_code(400);
-                echo json_encode(["status" => "error", "message" => "PIN dan ID Kelas wajib diisi."]);
-                exit;
+                http_response_code(400); echo json_encode(["status" => "error", "message" => "PIN dan ID Kelas wajib diisi."]); exit;
             }
             $stmt = $conn->prepare("INSERT INTO users (nama, role, pin, rombel_id) VALUES (?, ?, ?, ?)");
             if ($stmt->execute([$data->nama, $data->role, $data->pin, $data->rombel_id])) {
                 echo json_encode(["status" => "success", "message" => "Siswa berhasil ditambahkan."]);
             } else {
-                http_response_code(500);
-                echo json_encode(["status" => "error", "message" => "Gagal menyimpan data siswa."]);
+                http_response_code(500); echo json_encode(["status" => "error", "message" => "Gagal menyimpan data siswa."]);
             }
         } else {
-            if (empty($data->username) || empty($data->password)) {
+            // TAMBAHAN EMAIL UNTUK GURU/ADMIN
+            if (empty($data->username) || empty($data->password) || empty($data->email)) {
                 http_response_code(400);
-                echo json_encode(["status" => "error", "message" => "Username dan Password wajib diisi."]);
+                echo json_encode(["status" => "error", "message" => "Username, Email, dan Password wajib diisi."]);
                 exit;
             }
 
@@ -92,19 +83,24 @@ try {
             $check_stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
             $check_stmt->execute([$data->username]);
             if ($check_stmt->rowCount() > 0) {
-                http_response_code(409);
-                echo json_encode(["status" => "error", "message" => "Username sudah digunakan."]);
-                exit;
+                http_response_code(409); echo json_encode(["status" => "error", "message" => "Username sudah digunakan."]); exit;
+            }
+
+            // Cek email bentrok
+            $check_email = $conn->prepare("SELECT id FROM users WHERE email = ?");
+            $check_email->execute([$data->email]);
+            if ($check_email->rowCount() > 0) {
+                http_response_code(409); echo json_encode(["status" => "error", "message" => "Email sudah digunakan oleh akun lain."]); exit;
             }
 
             $password_hash = password_hash($data->password, PASSWORD_BCRYPT);
-            $stmt = $conn->prepare("INSERT INTO users (nama, role, username, password_hash) VALUES (?, ?, ?, ?)");
+            // Query INSERT ditambah kolom email
+            $stmt = $conn->prepare("INSERT INTO users (nama, role, username, email, password_hash) VALUES (?, ?, ?, ?, ?)");
             
-            if ($stmt->execute([$data->nama, $data->role, $data->username, $password_hash])) {
-                echo json_encode(["status" => "success", "message" => "Pengguna berhasil ditambahkan."]);
+            if ($stmt->execute([$data->nama, $data->role, $data->username, $data->email, $password_hash])) {
+                echo json_encode(["status" => "success", "message" => "Akun staf berhasil ditambahkan."]);
             } else {
-                http_response_code(500);
-                echo json_encode(["status" => "error", "message" => "Gagal menyimpan data pengguna."]);
+                http_response_code(500); echo json_encode(["status" => "error", "message" => "Gagal menyimpan data pengguna."]);
             }
         }
     }
@@ -116,31 +112,28 @@ try {
         $data = json_decode(file_get_contents("php://input"));
         
         if (empty($data->id) || empty($data->nama)) {
-            http_response_code(400);
-            echo json_encode(["status" => "error", "message" => "ID dan Nama wajib diisi."]);
-            exit;
+            http_response_code(400); echo json_encode(["status" => "error", "message" => "ID dan Nama wajib diisi."]); exit;
         }
 
         if ($data->role === 'siswa') {
             $stmt = $conn->prepare("UPDATE users SET nama = ?, pin = ?, rombel_id = ? WHERE id = ?");
             $success = $stmt->execute([$data->nama, $data->pin, $data->rombel_id, $data->id]);
         } else {
-            // Update password hanya jika diisi (tidak kosong)
+            // Update data Guru/Admin termasuk Email
             if (!empty($data->password)) {
                 $password_hash = password_hash($data->password, PASSWORD_BCRYPT);
-                $stmt = $conn->prepare("UPDATE users SET nama = ?, username = ?, password_hash = ? WHERE id = ?");
-                $success = $stmt->execute([$data->nama, $data->username, $password_hash, $data->id]);
+                $stmt = $conn->prepare("UPDATE users SET nama = ?, username = ?, email = ?, password_hash = ? WHERE id = ?");
+                $success = $stmt->execute([$data->nama, $data->username, $data->email, $password_hash, $data->id]);
             } else {
-                $stmt = $conn->prepare("UPDATE users SET nama = ?, username = ? WHERE id = ?");
-                $success = $stmt->execute([$data->nama, $data->username, $data->id]);
+                $stmt = $conn->prepare("UPDATE users SET nama = ?, username = ?, email = ? WHERE id = ?");
+                $success = $stmt->execute([$data->nama, $data->username, $data->email, $data->id]);
             }
         }
 
         if ($success) {
             echo json_encode(["status" => "success", "message" => "Data berhasil diperbarui."]);
         } else {
-            http_response_code(500);
-            echo json_encode(["status" => "error", "message" => "Gagal memperbarui data."]);
+            http_response_code(500); echo json_encode(["status" => "error", "message" => "Gagal memperbarui data."]);
         }
     }
 
@@ -155,12 +148,10 @@ try {
             if ($stmt->execute([$id])) {
                 echo json_encode(["status" => "success", "message" => "Pengguna berhasil dihapus."]);
             } else {
-                http_response_code(500);
-                echo json_encode(["status" => "error", "message" => "Gagal menghapus pengguna."]);
+                http_response_code(500); echo json_encode(["status" => "error", "message" => "Gagal menghapus pengguna."]);
             }
         } else {
-            http_response_code(400);
-            echo json_encode(["status" => "error", "message" => "ID Pengguna tidak valid."]);
+            http_response_code(400); echo json_encode(["status" => "error", "message" => "ID Pengguna tidak valid."]);
         }
     }
     
