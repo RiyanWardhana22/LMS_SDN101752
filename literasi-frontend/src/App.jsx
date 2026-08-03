@@ -52,16 +52,56 @@ function App() {
         <Route path="/" element={<LoginSiswa />} />
         {/* LOGIN STAF */}
         <Route path="/login-staf" element={<Login />} />
-
-<<<<<<< HEAD
         {/* ================= SISWA ================= */}
-        <Route path="/siswa/beranda" element={<ProtectedRoute allowedRoles={["siswa"]}><BerandaSiswa /></ProtectedRoute>} />
-        <Route path="/siswa/ar" element={<ProtectedRoute allowedRoles={["siswa"]}><ModulAR /></ProtectedRoute>} />
-        <Route path="/siswa/materi" element={<ProtectedRoute allowedRoles={["siswa"]}><PustakaBelajar /></ProtectedRoute>} />
-        <Route path="/siswa/materi/:id" element={<ProtectedRoute allowedRoles={["siswa"]}><RuangBaca /></ProtectedRoute>} />
-        <Route path="/siswa/evaluasi" element={<ProtectedRoute allowedRoles={["siswa"]}><RuangEvaluasi /></ProtectedRoute>} />
-        <Route path="/siswa/kerjakan/:id" element={<ProtectedRoute allowedRoles={["siswa"]}><LembarKerja /></ProtectedRoute>} />
-=======
+        <Route
+          path="/siswa/beranda"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <BerandaSiswa />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/ar"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <ModulAR />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/materi"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <PustakaBelajar />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/materi/:id"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <RuangBaca />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/evaluasi"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <RuangEvaluasi />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/kerjakan/:id"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <LembarKerja />
+            </ProtectedRoute>
+          }
+        />
+
         {/* SISWA */}
         <Route
           path="/siswa/beranda"
@@ -135,35 +175,132 @@ function App() {
             </ProtectedRoute>
           }
         />
->>>>>>> 95f40ad99bbece2ed356200c53fc2923382f84df
 
         {/* ================= ADMIN ================= */}
-        <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={["admin"]}><DashboardAdmin /></ProtectedRoute>} />
-        <Route path="/admin/reports" element={<ProtectedRoute allowedRoles={["admin"]}><Reports /></ProtectedRoute>} />
-        <Route path="/admin/emergency" element={<ProtectedRoute allowedRoles={["admin"]}><EmergencyMode /></ProtectedRoute>} />
-        
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <DashboardAdmin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/reports"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <Reports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/emergency"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <EmergencyMode />
+            </ProtectedRoute>
+          }
+        />
+
         {/* 2. BARU DITAMBAHKAN: Route Manajemen Pengguna */}
-        <Route 
-          path="/admin/users" 
+        <Route
+          path="/admin/users"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <UserManagement />
             </ProtectedRoute>
-          } 
+          }
         />
 
         {/* ================= GURU ================= */}
-        <Route path="/guru/dashboard" element={<ProtectedRoute allowedRoles={["guru"]}><DashboardGuru /></ProtectedRoute>} />
-        <Route path="/guru/materi" element={<ProtectedRoute allowedRoles={["guru"]}><ManajemenMateri /></ProtectedRoute>} />
-        <Route path="/guru/materi/tambah" element={<ProtectedRoute allowedRoles={["guru"]}><FormMateri /></ProtectedRoute>} />
-        <Route path="/guru/materi/edit/:id" element={<ProtectedRoute allowedRoles={["guru"]}><EditMateri /></ProtectedRoute>} />
-        <Route path="/guru/tugas" element={<ProtectedRoute allowedRoles={["guru"]}><ManajemenTugas /></ProtectedRoute>} />
-        <Route path="/guru/tugas/tambah" element={<ProtectedRoute allowedRoles={["guru"]}><FormTugas /></ProtectedRoute>} />
-        <Route path="/guru/tugas/koreksi/:id" element={<ProtectedRoute allowedRoles={["guru"]}><KoreksiTugas /></ProtectedRoute>} />
-        <Route path="/guru/pengaturan" element={<ProtectedRoute allowedRoles={["guru"]}><KelolaProfil /></ProtectedRoute>} />
-        <Route path="/guru/workshop-ai" element={<ProtectedRoute allowedRoles={["guru"]}><WorkshopAI /></ProtectedRoute>} />
-        <Route path="/guru/buku-nilai" element={<ProtectedRoute allowedRoles={["guru"]}><BukuNilai /></ProtectedRoute>} />
-        <Route path="/guru/siswa" element={<ProtectedRoute allowedRoles={["guru"]}><ManajemenSiswa /></ProtectedRoute>} />
+        <Route
+          path="/guru/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <DashboardGuru />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/materi"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <ManajemenMateri />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/materi/tambah"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <FormMateri />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/materi/edit/:id"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <EditMateri />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/tugas"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <ManajemenTugas />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/tugas/tambah"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <FormTugas />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/tugas/koreksi/:id"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <KoreksiTugas />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/pengaturan"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <KelolaProfil />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/workshop-ai"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <WorkshopAI />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/buku-nilai"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <BukuNilai />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/guru/siswa"
+          element={
+            <ProtectedRoute allowedRoles={["guru"]}>
+              <ManajemenSiswa />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );
