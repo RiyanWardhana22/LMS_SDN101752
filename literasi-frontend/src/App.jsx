@@ -27,6 +27,7 @@ import KoreksiTugas from "./pages/teacher/KoreksiTugas";
 import KelolaProfil from "./pages/teacher/KelolaProfil";
 import BukuNilai from "./pages/teacher/BukuNilai";
 import ManajemenSiswa from "./pages/teacher/ManajemenSiswa";
+import ClassManagement from "./pages/admin/ClassManagement";
 import Reports from "./pages/admin/Reports";
 import EmergencyMode from "./pages/admin/EmergencyMode";
 
@@ -102,6 +103,13 @@ function App() {
           }
         />
 
+        {/* ================= SISWA ================= */}
+        <Route path="/siswa/beranda" element={<ProtectedRoute allowedRoles={["siswa"]}><BerandaSiswa /></ProtectedRoute>} />
+        <Route path="/siswa/ar" element={<ProtectedRoute allowedRoles={["siswa"]}><ModulAR /></ProtectedRoute>} />
+        <Route path="/siswa/materi" element={<ProtectedRoute allowedRoles={["siswa"]}><PustakaBelajar /></ProtectedRoute>} />
+        <Route path="/siswa/materi/:id" element={<ProtectedRoute allowedRoles={["siswa"]}><RuangBaca /></ProtectedRoute>} />
+        <Route path="/siswa/evaluasi" element={<ProtectedRoute allowedRoles={["siswa"]}><RuangEvaluasi /></ProtectedRoute>} />
+        <Route path="/siswa/kerjakan/:id" element={<ProtectedRoute allowedRoles={["siswa"]}><LembarKerja /></ProtectedRoute>} />
         {/* SISWA */}
         <Route
           path="/siswa/beranda"
@@ -201,7 +209,11 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+        
+        <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={["admin"]}><DashboardAdmin /></ProtectedRoute>} />
+        <Route path="/admin/reports" element={<ProtectedRoute allowedRoles={["admin"]}><Reports /></ProtectedRoute>} />
+        <Route path="/admin/emergency" element={<ProtectedRoute allowedRoles={["admin"]}><EmergencyMode /></ProtectedRoute>} />
+        <Route path="/admin/classes" element={<ProtectedRoute allowedRoles={["admin"]}><ClassManagement /></ProtectedRoute>} />
         {/* 2. BARU DITAMBAHKAN: Route Manajemen Pengguna */}
         <Route
           path="/admin/users"

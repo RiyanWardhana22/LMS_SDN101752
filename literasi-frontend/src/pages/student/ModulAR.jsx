@@ -64,6 +64,22 @@ export default function ModulAR() {
   const mountRef = useRef(true);
   const cameraStartTimeoutRef = useRef(null);
 
+  // State & refs untuk gesture zoom/rotate model 3D
+  const [modelInteractive, setModelInteractive] = useState(false);
+  const gestureRef = useRef({
+    modelEl: null,
+    baseScale: [0.5, 0.5, 0.5],
+    baseRotation: [0, 0, 0],
+    scaleFactor: 1,
+    rotX: 0,
+    rotY: 0,
+    isDragging: false,
+    lastX: 0,
+    lastY: 0,
+    lastPinchDist: null,
+    cleanup: null,
+  });
+
   // ============================================================
   // FETCH DATA MATERI
   // ============================================================
@@ -169,6 +185,12 @@ export default function ModulAR() {
   // CLEANUP
   // ============================================================
   const cleanupAR = useCallback(() => {
+    if (gestureRef.current.cleanup) {
+      gestureRef.current.cleanup();
+      gestureRef.current.cleanup = null;
+    }
+    setModelInteractive(false);
+
     if (cameraStartTimeoutRef.current) {
       clearTimeout(cameraStartTimeoutRef.current);
       cameraStartTimeoutRef.current = null;
@@ -207,174 +229,372 @@ export default function ModulAR() {
   const generateEntityHTML = useCallback((outputMedia) => {
     if (!outputMedia) {
       // Fallback: Kotak default
-      return `
-        <a-box
-          position="0 0 0.1"
-          scale="0.6 0.6 0.6"
-          color="#FF6B35"
-          material="emissive: #FF6B35; emissiveIntensity: 0.5; metalness: 0.1; roughness: 0.6"
-          animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear"
-        ></a-box>
-        <a-text
-          value="Materi AR"
-          color="#FFFFFF"
-          align="center"
-          position="0 0.75 0.1"
-          scale="0.5 0.5 0.5"
-          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"
-          material="transparent: true; opacity: 1"
-        ></a-text>
-      `;
+      return {
+        html: `
+          <a-box
+            position="0 0 0.1"
+            scale="0.6 0.6 0.6"
+            color="#FF6B35"
+            material="emissive: #FF6B35; emissiveIntensity: 0.5; metalness: 0.1; roughness: 0.6"
+            animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear"
+          ></a-box>
+          <a-text
+            value="Materi AR"
+            color="#FFFFFF"
+            align="center"
+            position="0 0.75 0.1"
+            scale="0.5 0.5 0.5"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"
+            material="transparent: true; opacity: 1"
+          ></a-text>
+        `,
+        isModel: false,
+        baseScale: [0.6, 0.6, 0.6],
+        baseRotation: [0, 0, 0],
+      };
     }
 
     const config = outputMedia.model_config || {};
-    
+
+    // Helper: parse string "x y z" menjadi array angka
+    const parseVec3 = (str, fallback) => {
+      if (!str) return fallback;
+      const parts = String(str).trim().split(/\s+/).map(Number);
+      if (parts.length !== 3 || parts.some(isNaN)) return fallback;
+      return parts;
+    };
+
     // ============================================
     // VIDEO CLOUD / VIDEO LINK
     // ============================================
     if (outputMedia.type === "video_cloud" || outputMedia.type === "video_link") {
-      return `
-        <a-video 
-          src="${outputMedia.url}" 
-          position="0 0 0.1" 
-          scale="0.8 0.6 0.6" 
-          autoplay="true" 
-          loop="true" 
-          muted="false"
-          crossOrigin="anonymous"
-        ></a-video>
-      `;
+      return {
+        html: `
+          <a-video 
+            src="${outputMedia.url}" 
+            position="0 0 0.1" 
+            scale="0.8 0.6 0.6" 
+            autoplay="true" 
+            loop="true" 
+            muted="false"
+            crossOrigin="anonymous"
+          ></a-video>
+        `,
+        isModel: false,
+        baseScale: [0.8, 0.6, 0.6],
+        baseRotation: [0, 0, 0],
+      };
     }
 
     // ============================================
     // IMAGE CLOUD
     // ============================================
     if (outputMedia.type === "image_cloud") {
-      return `
-        <a-image 
-          src="${outputMedia.url}" 
-          position="0 0 0.1" 
-          scale="0.8 0.6 0.6"
-          crossOrigin="anonymous"
-        ></a-image>
-      `;
+      return {
+        html: `
+          <a-image 
+            src="${outputMedia.url}" 
+            position="0 0 0.1" 
+            scale="0.8 0.6 0.6"
+            crossOrigin="anonymous"
+          ></a-image>
+        `,
+        isModel: false,
+        baseScale: [0.8, 0.6, 0.6],
+        baseRotation: [0, 0, 0],
+      };
     }
 
     // ============================================
-    // MODEL 3D STATIS (.glb) - PERBAIKAN
+    // MODEL 3D STATIS (.glb) - PERBAIKAN + GESTURE
     // ============================================
     if (outputMedia.type === "model_3d") {
-      const scale = config.scale || "0.5 0.5 0.5";
+      const scaleStr = config.scale || "0.5 0.5 0.5";
       const position = config.position || "0 0.1 0.1";
-      const rotation = config.rotation || "0 0 0";
-      const animation = config.animation || "none";
-      const animSpeed = config.animationSpeed || 5000;
+      const rotationStr = config.rotation || "0 0 0";
+      const baseScale = parseVec3(scaleStr, [0.5, 0.5, 0.5]);
+      const baseRotation = parseVec3(rotationStr, [0, 0, 0]);
 
       // Pastikan URL valid
       const modelUrl = outputMedia.url;
       if (!modelUrl) {
-        return `
-          <a-box
-            position="0 0 0.1"
-            scale="0.6 0.6 0.6"
-            color="#FF0000"
-            material="emissive: #FF0000; emissiveIntensity: 0.5"
-          ></a-box>
-          <a-text
-            value="Model tidak tersedia"
-            color="#FFFFFF"
-            align="center"
-            position="0 0.75 0.1"
-            scale="0.4 0.4 0.4"
-          ></a-text>
-        `;
+        return {
+          html: `
+            <a-box
+              position="0 0 0.1"
+              scale="0.6 0.6 0.6"
+              color="#FF0000"
+              material="emissive: #FF0000; emissiveIntensity: 0.5"
+            ></a-box>
+            <a-text
+              value="Model tidak tersedia"
+              color="#FFFFFF"
+              align="center"
+              position="0 0.75 0.1"
+              scale="0.4 0.4 0.4"
+            ></a-text>
+          `,
+          isModel: false,
+          baseScale: [0.6, 0.6, 0.6],
+          baseRotation: [0, 0, 0],
+        };
       }
 
-      // Gunakan a-entity dengan gltf-model
-      if (animation === "rotate") {
-        return `
+      // Catatan: animasi auto-rotate dari admin dinonaktifkan otomatis
+      // begitu user mulai melakukan gesture rotasi manual (lihat setupModelGestures).
+      return {
+        html: `
           <a-entity
+            id="ar-model-entity"
             gltf-model="${modelUrl}"
             position="${position}"
-            scale="${scale}"
-            rotation="${rotation}"
-            animation="property: rotation; to: 0 360 0; loop: true; dur: ${animSpeed}; easing: linear"
+            scale="${scaleStr}"
+            rotation="${rotationStr}"
+            class="ar-interactive-model"
           ></a-entity>
-        `;
-      } else {
-        return `
-          <a-entity
-            gltf-model="${modelUrl}"
-            position="${position}"
-            scale="${scale}"
-            rotation="${rotation}"
-          ></a-entity>
-        `;
-      }
+        `,
+        isModel: true,
+        baseScale,
+        baseRotation,
+      };
     }
 
     // ============================================
-    // MODEL 3D DENGAN ANIMASI BAWAAN (.glb) - PERBAIKAN
+    // MODEL 3D DENGAN ANIMASI BAWAAN (.glb) - PERBAIKAN + GESTURE
     // ============================================
     if (outputMedia.type === "model_3d_animated") {
-      const scale = config.scale || "0.5 0.5 0.5";
+      const scaleStr = config.scale || "0.5 0.5 0.5";
       const position = config.position || "0 0.1 0.1";
-      const rotation = config.rotation || "0 0 0";
-      const autoRotate = config.autoRotate || false;
+      const rotationStr = config.rotation || "0 0 0";
+      const baseScale = parseVec3(scaleStr, [0.5, 0.5, 0.5]);
+      const baseRotation = parseVec3(rotationStr, [0, 0, 0]);
 
       const modelUrl = outputMedia.url;
       if (!modelUrl) {
-        return `
-          <a-box
-            position="0 0 0.1"
-            scale="0.6 0.6 0.6"
-            color="#FF0000"
-            material="emissive: #FF0000; emissiveIntensity: 0.5"
-          ></a-box>
-          <a-text
-            value="Model tidak tersedia"
-            color="#FFFFFF"
-            align="center"
-            position="0 0.75 0.1"
-            scale="0.4 0.4 0.4"
-          ></a-text>
-        `;
+        return {
+          html: `
+            <a-box
+              position="0 0 0.1"
+              scale="0.6 0.6 0.6"
+              color="#FF0000"
+              material="emissive: #FF0000; emissiveIntensity: 0.5"
+            ></a-box>
+            <a-text
+              value="Model tidak tersedia"
+              color="#FFFFFF"
+              align="center"
+              position="0 0.75 0.1"
+              scale="0.4 0.4 0.4"
+            ></a-text>
+          `,
+          isModel: false,
+          baseScale: [0.6, 0.6, 0.6],
+          baseRotation: [0, 0, 0],
+        };
       }
 
-      if (autoRotate) {
-        return `
+      return {
+        html: `
           <a-entity
+            id="ar-model-entity"
             gltf-model="${modelUrl}"
             position="${position}"
-            scale="${scale}"
-            rotation="${rotation}"
+            scale="${scaleStr}"
+            rotation="${rotationStr}"
             animation-mixer="clip: *; loop: repeat"
-            animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"
+            class="ar-interactive-model"
           ></a-entity>
-        `;
-      } else {
-        return `
-          <a-entity
-            gltf-model="${modelUrl}"
-            position="${position}"
-            scale="${scale}"
-            rotation="${rotation}"
-            animation-mixer="clip: *; loop: repeat"
-          ></a-entity>
-        `;
-      }
+        `,
+        isModel: true,
+        baseScale,
+        baseRotation,
+      };
     }
 
     // Fallback
-    return `
-      <a-box
-        position="0 0 0.1"
-        scale="0.6 0.6 0.6"
-        color="#FF6B35"
-        material="emissive: #FF6B35; emissiveIntensity: 0.5"
-        animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear"
-      ></a-box>
-    `;
+    return {
+      html: `
+        <a-box
+          position="0 0 0.1"
+          scale="0.6 0.6 0.6"
+          color="#FF6B35"
+          material="emissive: #FF6B35; emissiveIntensity: 0.5"
+          animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear"
+        ></a-box>
+      `,
+      isModel: false,
+      baseScale: [0.6, 0.6, 0.6],
+      baseRotation: [0, 0, 0],
+    };
+  }, []);
+
+  // ============================================================
+  // GESTURE: ZOOM (PINCH) & ROTASI 360° (DRAG) UNTUK MODEL 3D
+  // ============================================================
+  const MIN_SCALE_FACTOR = 0.03;
+  const MAX_SCALE_FACTOR = 3;
+  const DRAG_SENSITIVITY = 0.5; // derajat per px
+  const PINCH_SENSITIVITY = 1;
+
+  const setupModelGestures = useCallback((container, modelEl, baseScale, baseRotation) => {
+    // Bersihkan listener gesture sebelumnya (kalau ada)
+    if (gestureRef.current.cleanup) {
+      gestureRef.current.cleanup();
+      gestureRef.current.cleanup = null;
+    }
+
+    if (!container || !modelEl) {
+      setModelInteractive(false);
+      return;
+    }
+
+    gestureRef.current.modelEl = modelEl;
+    gestureRef.current.baseScale = baseScale;
+    gestureRef.current.baseRotation = baseRotation;
+    gestureRef.current.scaleFactor = 1;
+    gestureRef.current.rotX = baseRotation[0];
+    gestureRef.current.rotY = baseRotation[1];
+    setModelInteractive(true);
+
+    const applyTransform = () => {
+      const g = gestureRef.current;
+      const el = g.modelEl;
+      if (!el) return;
+      const s = g.scaleFactor;
+      el.setAttribute(
+        "scale",
+        `${g.baseScale[0] * s} ${g.baseScale[1] * s} ${g.baseScale[2] * s}`
+      );
+      el.setAttribute("rotation", `${g.rotX} ${g.rotY} ${g.baseRotation[2]}`);
+    };
+
+    // Hentikan animasi auto-rotate/mixer bawaan begitu user mulai interaksi manual
+    const stopAutoAnimation = () => {
+      const el = gestureRef.current.modelEl;
+      if (!el) return;
+      if (el.hasAttribute("animation")) el.removeAttribute("animation");
+      if (el.hasAttribute("animation__rotate")) el.removeAttribute("animation__rotate");
+    };
+
+    const getTouchDist = (touches) => {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    const onTouchStart = (e) => {
+      const g = gestureRef.current;
+      if (e.touches.length === 1) {
+        g.isDragging = true;
+        g.lastX = e.touches[0].clientX;
+        g.lastY = e.touches[0].clientY;
+        g.lastPinchDist = null;
+      } else if (e.touches.length === 2) {
+        g.isDragging = false;
+        g.lastPinchDist = getTouchDist(e.touches);
+      }
+    };
+
+    const onTouchMove = (e) => {
+      const g = gestureRef.current;
+      if (e.touches.length === 2) {
+        // PINCH TO ZOOM
+        e.preventDefault();
+        const dist = getTouchDist(e.touches);
+        if (g.lastPinchDist != null) {
+          const delta = (dist - g.lastPinchDist) * 0.005 * PINCH_SENSITIVITY;
+          g.scaleFactor = Math.min(
+            MAX_SCALE_FACTOR,
+            Math.max(MIN_SCALE_FACTOR, g.scaleFactor + delta)
+          );
+          applyTransform();
+        }
+        g.lastPinchDist = dist;
+      } else if (e.touches.length === 1 && g.isDragging) {
+        // DRAG UNTUK ROTASI 360°
+        e.preventDefault();
+        stopAutoAnimation();
+        const x = e.touches[0].clientX;
+        const y = e.touches[0].clientY;
+        const deltaX = x - g.lastX;
+        const deltaY = y - g.lastY;
+        g.rotY = (g.rotY + deltaX * DRAG_SENSITIVITY) % 360;
+        g.rotX = (g.rotX + deltaY * DRAG_SENSITIVITY) % 360;
+        g.lastX = x;
+        g.lastY = y;
+        applyTransform();
+      }
+    };
+
+    const onTouchEnd = (e) => {
+      const g = gestureRef.current;
+      if (e.touches.length === 0) {
+        g.isDragging = false;
+        g.lastPinchDist = null;
+      } else if (e.touches.length === 1) {
+        g.lastPinchDist = null;
+        g.isDragging = true;
+        g.lastX = e.touches[0].clientX;
+        g.lastY = e.touches[0].clientY;
+      }
+    };
+
+    // Dukungan mouse untuk testing di desktop
+    let mouseDragging = false;
+    const onMouseDown = (e) => {
+      mouseDragging = true;
+      gestureRef.current.lastX = e.clientX;
+      gestureRef.current.lastY = e.clientY;
+    };
+    const onMouseMove = (e) => {
+      if (!mouseDragging) return;
+      stopAutoAnimation();
+      const g = gestureRef.current;
+      const deltaX = e.clientX - g.lastX;
+      const deltaY = e.clientY - g.lastY;
+      g.rotY = (g.rotY + deltaX * DRAG_SENSITIVITY) % 360;
+      g.rotX = (g.rotX + deltaY * DRAG_SENSITIVITY) % 360;
+      g.lastX = e.clientX;
+      g.lastY = e.clientY;
+      applyTransform();
+    };
+    const onMouseUp = () => { mouseDragging = false; };
+    const onWheel = (e) => {
+      e.preventDefault();
+      const g = gestureRef.current;
+      const delta = -e.deltaY * 0.0008 * PINCH_SENSITIVITY;
+      g.scaleFactor = Math.min(
+        MAX_SCALE_FACTOR,
+        Math.max(MIN_SCALE_FACTOR, g.scaleFactor + delta)
+      );
+      applyTransform();
+    };
+
+    container.addEventListener("touchstart", onTouchStart, { passive: true });
+    container.addEventListener("touchmove", onTouchMove, { passive: false });
+    container.addEventListener("touchend", onTouchEnd, { passive: true });
+    container.addEventListener("touchcancel", onTouchEnd, { passive: true });
+    container.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    container.addEventListener("wheel", onWheel, { passive: false });
+    // Izinkan container menerima sentuhan (di-override dari pointer-events default)
+    container.style.touchAction = "none";
+    container.style.pointerEvents = "auto";
+
+    gestureRef.current.cleanup = () => {
+      container.removeEventListener("touchstart", onTouchStart);
+      container.removeEventListener("touchmove", onTouchMove);
+      container.removeEventListener("touchend", onTouchEnd);
+      container.removeEventListener("touchcancel", onTouchEnd);
+      container.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      container.removeEventListener("wheel", onWheel);
+    };
+
+    // Terapkan transform awal
+    applyTransform();
   }, []);
 
   // ============================================================
@@ -395,7 +615,8 @@ export default function ModulAR() {
     }
 
     // Generate entity HTML berdasarkan output media
-    const entityHTML = generateEntityHTML(arOutputMedia);
+    const entityData = generateEntityHTML(arOutputMedia);
+    const entityHTML = entityData.html;
 
     // Konfigurasi MindAR
     const mindarConfig = [
@@ -501,6 +722,23 @@ export default function ModulAR() {
       setModelLoadError(false);
     });
 
+    // Pasang gesture zoom (pinch) & rotasi 360° (drag) khusus untuk model 3D
+    if (entityData.isModel) {
+      const modelEl = scene.querySelector("#ar-model-entity");
+      setupModelGestures(
+        arContainerRef.current,
+        modelEl,
+        entityData.baseScale,
+        entityData.baseRotation
+      );
+    } else {
+      setModelInteractive(false);
+      if (gestureRef.current.cleanup) {
+        gestureRef.current.cleanup();
+        gestureRef.current.cleanup = null;
+      }
+    }
+
     // Fallback: jika cameraStart tidak pernah terjadi
     cameraStartTimeoutRef.current = setTimeout(() => {
       if (isLoading) {
@@ -515,6 +753,28 @@ export default function ModulAR() {
       }
     }, 8000);
 
+    // ============================================================
+    // FIX ANDROID: paksa MindAR menghitung ulang ukuran video/canvas
+    // saat viewport berubah (address bar muncul/hilang, rotasi layar).
+    // Ini penyebab umum video kamera tidak sejajar dengan box marker.
+    // ============================================================
+    let resizeDebounce = null;
+    const handleViewportResize = () => {
+      if (resizeDebounce) clearTimeout(resizeDebounce);
+      resizeDebounce = setTimeout(() => {
+        try {
+          const mindar = scene.systems['mindar-image'];
+          // beberapa versi mindar-image-aframe expose controller.resize()
+          mindar?.controller?.resize?.();
+          // trigger native resize supaya a-frame renderer & mindar
+          // internal recalculation ikut jalan
+          window.dispatchEvent(new Event('resize'));
+        } catch (_) {}
+      }, 150);
+    };
+    window.addEventListener("resize", handleViewportResize);
+    window.addEventListener("orientationchange", handleViewportResize);
+
     // Cleanup ref
     cleanupRef.current = () => {
       scene.removeEventListener("renderstart", onRenderStart);
@@ -522,13 +782,16 @@ export default function ModulAR() {
       scene.removeEventListener("cameraError", onCameraError);
       scene.removeEventListener('model-error', () => {});
       scene.removeEventListener('model-loaded', () => {});
+      window.removeEventListener("resize", handleViewportResize);
+      window.removeEventListener("orientationchange", handleViewportResize);
+      if (resizeDebounce) clearTimeout(resizeDebounce);
       if (cameraStartTimeoutRef.current) {
         clearTimeout(cameraStartTimeoutRef.current);
         cameraStartTimeoutRef.current = null;
       }
     };
 
-  }, [arTargetUrl, arOutputMedia, facingMode, cleanupAR, generateEntityHTML]);
+  }, [arTargetUrl, arOutputMedia, facingMode, cleanupAR, generateEntityHTML, setupModelGestures]);
 
   // ============================================================
   // SWITCH CAMERA
@@ -827,22 +1090,74 @@ export default function ModulAR() {
               )}
             </div>
           )}
+
+          {/* Hint gesture: pinch zoom & drag rotate untuk model 3D */}
+          {modelInteractive && (
+            <div className="absolute bottom-24 left-1/2 -translate-x-1/2 pointer-events-none">
+              <div className="flex items-center gap-2 bg-black/50 backdrop-blur-sm text-white/80 text-xs font-medium px-4 py-2 rounded-full">
+                <Maximize2 className="w-3.5 h-3.5" />
+                <span>Geser untuk putar &bull; Cubit untuk zoom</span>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
       {/* CONTAINER A-FRAME */}
       <div
+        id="ar-container"
         ref={arContainerRef}
         className="absolute inset-0 z-0"
-        style={{ width: "100%", height: "100%" }}
+        style={{ width: "100%", height: "100%", overflow: "hidden" }}
       />
 
-      {/* ANIMASI SCANLINE */}
+      {/* ANIMASI SCANLINE + FIX POSISI KAMERA MINDAR */}
       <style>{`
+        html, body, #root {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
+
         @keyframes scanline {
           0% { top: 10%; opacity: 0.3; }
           50% { top: 80%; opacity: 1; }
           100% { top: 10%; opacity: 0.3; }
+        }
+
+        /* ============================================================
+           FIX: Video kamera & canvas MindAR sering tidak full-screen
+           di Android karena tidak diberi CSS eksplisit oleh library.
+           Paksa keduanya menutupi seluruh container & sejajar dgn
+           box scan marker (yang posisinya absolute inset-0).
+        ============================================================ */
+        #ar-container,
+        #ar-container a-scene {
+          position: absolute !important;
+          inset: 0 !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          overflow: hidden !important;
+        }
+
+        #ar-container video,
+        #ar-container canvas.a-canvas,
+        #ar-container canvas {
+          position: absolute !important;
+          top: 50% !important;
+          left: 50% !important;
+          transform: translate(-50%, -50%) !important;
+          width: 100% !important;
+          height: 100% !important;
+          min-width: 100% !important;
+          min-height: 100% !important;
+          max-width: none !important;
+          object-fit: cover !important;
+          -o-object-fit: cover !important;
         }
       `}</style>
     </div>
