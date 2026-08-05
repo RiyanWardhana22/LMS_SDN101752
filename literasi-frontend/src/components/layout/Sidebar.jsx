@@ -2,16 +2,14 @@ import { NavLink, useNavigate } from "react-router-dom";
 import {
   SquaresFour,
   Users,
+  Chalkboard, // Ikon untuk kelas
   BookOpen,
   ChalkboardTeacher,
   WarningCircle,
-  SignOut,
-  ShieldCheck,
   X,
   ChartLineUp,
 } from "@phosphor-icons/react";
 import { BsPersonFillGear } from "react-icons/bs";
-import { FaClipboardList } from "react-icons/fa";
 
 export default function Sidebar({ role, isOpen, onClose }) {
   const navigate = useNavigate();
@@ -20,49 +18,67 @@ export default function Sidebar({ role, isOpen, onClose }) {
     localStorage.removeItem("user");
     navigate("/");
   };
+
+  // Menu Admin (Sudah ditambahkan Manajemen Kelas & Ikon)
   const adminMenu = [
     {
       name: "Dasbor Utama",
       path: "/admin/dashboard",
+      icon: <SquaresFour size={24} weight="bold" />,
     },
     {
       name: "Manajemen Pengguna",
       path: "/admin/users",
+      icon: <Users size={24} weight="bold" />,
+    },
+    {
+      name: "Manajemen Kelas",
+      path: "/admin/classes",
+      icon: <Chalkboard size={24} weight="bold" />,
     },
     {
       name: "Laporan Sekolah",
       path: "/admin/reports",
+      icon: <ChartLineUp size={24} weight="bold" />,
     },
     {
       name: "Mode Darurat",
       path: "/admin/emergency",
+      icon: <WarningCircle size={24} weight="bold" />,
     },
   ];
 
+  // Menu Guru (Sudah dilengkapi Ikon)
   const guruMenu = [
     {
       name: "Dashboard",
       path: "/guru/dashboard",
+      icon: <SquaresFour size={24} weight="bold" />,
     },
     {
       name: "Pusat Pembelajaran",
       path: "/guru/materi",
+      icon: <BookOpen size={24} weight="bold" />,
     },
     {
       name: "Buku Nilai & Analitik",
       path: "/guru/buku-nilai",
+      icon: <ChartLineUp size={24} weight="bold" />,
     },
     {
       name: "Siswa & Peringkat",
       path: "/guru/siswa",
+      icon: <Users size={24} weight="bold" />,
     },
     {
       name: "Workshop AI",
       path: "/guru/workshop-ai",
+      icon: <ChalkboardTeacher size={24} weight="bold" />,
     },
     {
       name: "Pengaturan Profil",
       path: "/guru/pengaturan",
+      icon: <BsPersonFillGear size={24} />,
     },
   ];
 
