@@ -431,7 +431,7 @@ export default function ModulAR() {
   // ============================================================
   // GESTURE: ZOOM (PINCH) & ROTASI 360° (DRAG) UNTUK MODEL 3D
   // ============================================================
-  const MIN_SCALE_FACTOR = 0.3;
+  const MIN_SCALE_FACTOR = 0.03;
   const MAX_SCALE_FACTOR = 3;
   const DRAG_SENSITIVITY = 0.5; // derajat per px
   const PINCH_SENSITIVITY = 1;
