@@ -9,6 +9,7 @@ import DashboardAdmin from "./pages/admin/DashboardAdmin";
 import DashboardGuru from "./pages/teacher/DashboardGuru";
 import LoginSiswa from "./components/LoginSiswa";
 import BerandaSiswa from "./pages/student/BerandaSiswa";
+import DetailWilayah from "./pages/student/DetailWilayah";
 import ModulAR from "./pages/student/ModulAR";
 import ManajemenMateri from "./pages/teacher/ManajemenMateri";
 import WorkshopAI from "./pages/teacher/WorkshopAI";
@@ -20,6 +21,8 @@ import PustakaBelajar from "./pages/student/PustakaBelajar";
 import RuangBaca from "./pages/student/RuangBaca";
 import RuangEvaluasi from "./pages/student/RuangEvaluasi";
 import LembarKerja from "./pages/student/LembarKerja";
+import Prestasi from "./pages/student/Prestasi";
+import ProfilSiswa from "./pages/student/ProfilSiswa";
 import KoreksiTugas from "./pages/teacher/KoreksiTugas";
 import KelolaProfil from "./pages/teacher/KelolaProfil";
 import BukuNilai from "./pages/teacher/BukuNilai";
@@ -50,6 +53,7 @@ function App() {
         {/* LOGIN STAF */}
         <Route path="/login-staf" element={<Login />} />
 
+<<<<<<< HEAD
         {/* ================= SISWA ================= */}
         <Route path="/siswa/beranda" element={<ProtectedRoute allowedRoles={["siswa"]}><BerandaSiswa /></ProtectedRoute>} />
         <Route path="/siswa/ar" element={<ProtectedRoute allowedRoles={["siswa"]}><ModulAR /></ProtectedRoute>} />
@@ -57,6 +61,81 @@ function App() {
         <Route path="/siswa/materi/:id" element={<ProtectedRoute allowedRoles={["siswa"]}><RuangBaca /></ProtectedRoute>} />
         <Route path="/siswa/evaluasi" element={<ProtectedRoute allowedRoles={["siswa"]}><RuangEvaluasi /></ProtectedRoute>} />
         <Route path="/siswa/kerjakan/:id" element={<ProtectedRoute allowedRoles={["siswa"]}><LembarKerja /></ProtectedRoute>} />
+=======
+        {/* SISWA */}
+        <Route
+          path="/siswa/beranda"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <BerandaSiswa />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/wilayah/:mataPelajaran"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <DetailWilayah />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/ar/:id"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <ModulAR />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/materi"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <PustakaBelajar />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/materi/:id"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <RuangBaca />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/evaluasi"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <RuangEvaluasi />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/kerjakan/:id"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <LembarKerja />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/prestasi"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <Prestasi />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/profil"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <ProfilSiswa />
+            </ProtectedRoute>
+          }
+        />
+>>>>>>> 95f40ad99bbece2ed356200c53fc2923382f84df
 
         {/* ================= ADMIN ================= */}
         <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={["admin"]}><DashboardAdmin /></ProtectedRoute>} />
