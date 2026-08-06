@@ -308,9 +308,6 @@ export default function DashboardGuru() {
             <h3 className="text-xl font-black text-slate-800">
               Aktivitas Kelas Terbaru
             </h3>
-            <span className="px-3 py-1 bg-slate-100 text-slate-500 text-xs font-bold rounded-lg flex items-center gap-1.5">
-              <Clock size={14} /> Real-time
-            </span>
           </div>
 
           {isLoading ? (
