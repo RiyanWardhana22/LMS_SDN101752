@@ -4,6 +4,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
 import Login from "./components/Login";
 import DashboardAdmin from "./pages/admin/DashboardAdmin";
 import DashboardGuru from "./pages/teacher/DashboardGuru";
@@ -50,10 +51,9 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LoginSiswa />} />
-        {/* LOGIN STAF */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login-siswa" element={<LoginSiswa />} />
         <Route path="/login-staf" element={<Login />} />
-        {/* ================= SISWA ================= */}
         <Route
           path="/siswa/beranda"
           element={
@@ -104,12 +104,54 @@ function App() {
         />
 
         {/* ================= SISWA ================= */}
-        <Route path="/siswa/beranda" element={<ProtectedRoute allowedRoles={["siswa"]}><BerandaSiswa /></ProtectedRoute>} />
-        <Route path="/siswa/ar" element={<ProtectedRoute allowedRoles={["siswa"]}><ModulAR /></ProtectedRoute>} />
-        <Route path="/siswa/materi" element={<ProtectedRoute allowedRoles={["siswa"]}><PustakaBelajar /></ProtectedRoute>} />
-        <Route path="/siswa/materi/:id" element={<ProtectedRoute allowedRoles={["siswa"]}><RuangBaca /></ProtectedRoute>} />
-        <Route path="/siswa/evaluasi" element={<ProtectedRoute allowedRoles={["siswa"]}><RuangEvaluasi /></ProtectedRoute>} />
-        <Route path="/siswa/kerjakan/:id" element={<ProtectedRoute allowedRoles={["siswa"]}><LembarKerja /></ProtectedRoute>} />
+        <Route
+          path="/siswa/beranda"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <BerandaSiswa />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/ar"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <ModulAR />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/materi"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <PustakaBelajar />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/materi/:id"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <RuangBaca />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/evaluasi"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <RuangEvaluasi />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/siswa/kerjakan/:id"
+          element={
+            <ProtectedRoute allowedRoles={["siswa"]}>
+              <LembarKerja />
+            </ProtectedRoute>
+          }
+        />
         {/* SISWA */}
         <Route
           path="/siswa/beranda"
@@ -209,11 +251,39 @@ function App() {
             </ProtectedRoute>
           }
         />
-        
-        <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={["admin"]}><DashboardAdmin /></ProtectedRoute>} />
-        <Route path="/admin/reports" element={<ProtectedRoute allowedRoles={["admin"]}><Reports /></ProtectedRoute>} />
-        <Route path="/admin/emergency" element={<ProtectedRoute allowedRoles={["admin"]}><EmergencyMode /></ProtectedRoute>} />
-        <Route path="/admin/classes" element={<ProtectedRoute allowedRoles={["admin"]}><ClassManagement /></ProtectedRoute>} />
+
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <DashboardAdmin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/reports"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <Reports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/emergency"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <EmergencyMode />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/classes"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <ClassManagement />
+            </ProtectedRoute>
+          }
+        />
         {/* 2. BARU DITAMBAHKAN: Route Manajemen Pengguna */}
         <Route
           path="/admin/users"

@@ -11,32 +11,38 @@ import {
   BookBookmark,
   ArrowLeft,
   FolderOpen,
-  FileText,
-  ListChecks,
 } from "@phosphor-icons/react";
 
 export default function ManajemenMateri() {
   const navigate = useNavigate();
   const [materiList, setMateriList] = useState([]);
   const [tugasList, setTugasList] = useState([]);
+  const [rombelList, setRombelList] = useState([]); // Menampung daftar kelas
   const [isLoading, setIsLoading] = useState(true);
+
   const [selectedFolder, setSelectedFolder] = useState(null);
+  const [selectedRombelId, setSelectedRombelId] = useState(""); // Menyimpan kelas yang dipilih
   const [activeTab, setActiveTab] = useState("materi");
+
   const user = JSON.parse(localStorage.getItem("user")) || {};
+
   const fetchSemuaData = async () => {
     setIsLoading(true);
     try {
-      const resMateri = await fetch(
-        apiEndpoint(`api/materi/read.php?guru_id=${user.id}`),
-      );
-      const dataMateri = await resMateri.json();
-      if (dataMateri.status === "success") setMateriList(dataMateri.data);
+      // Fetch materi, tugas, dan daftar rombel secara bersamaan
+      const [resMateri, resTugas, resRombel] = await Promise.all([
+        fetch(apiEndpoint(`api/materi/read.php?guru_id=${user.id}`)),
+        fetch(apiEndpoint(`api/tugas/read.php?guru_id=${user.id}`)),
+        fetch(apiEndpoint("api/kelas/read_rombel.php")),
+      ]);
 
-      const resTugas = await fetch(
-        apiEndpoint(`api/tugas/read.php?guru_id=${user.id}`),
-      );
+      const dataMateri = await resMateri.json();
       const dataTugas = await resTugas.json();
+      const dataRombel = await resRombel.json();
+
+      if (dataMateri.status === "success") setMateriList(dataMateri.data);
       if (dataTugas.status === "success") setTugasList(dataTugas.data);
+      if (dataRombel.status === "success") setRombelList(dataRombel.data);
     } catch (error) {
       console.error("Gagal memuat data:", error);
     } finally {
@@ -47,9 +53,17 @@ export default function ManajemenMateri() {
   useEffect(() => {
     if (user.id) fetchSemuaData();
   }, [user.id]);
-  const albumMap = {};
 
-  materiList.forEach((m) => {
+  // Filter data berdasarkan kelas yang dipilih
+  const filteredMateri = selectedRombelId
+    ? materiList.filter((m) => m.rombel_id == selectedRombelId)
+    : [];
+  const filteredTugas = selectedRombelId
+    ? tugasList.filter((t) => t.rombel_id == selectedRombelId)
+    : [];
+
+  const albumMap = {};
+  filteredMateri.forEach((m) => {
     const key = `${m.mata_pelajaran || "Umum"}_${m.rombel_id}`;
     if (!albumMap[key])
       albumMap[key] = {
@@ -63,7 +77,7 @@ export default function ManajemenMateri() {
     albumMap[key].materi_items.push(m);
   });
 
-  tugasList.forEach((t) => {
+  filteredTugas.forEach((t) => {
     const key = `${t.mata_pelajaran || "Umum"}_${t.rombel_id}`;
     if (!albumMap[key])
       albumMap[key] = {
@@ -78,6 +92,7 @@ export default function ManajemenMateri() {
   });
 
   const albumList = Object.values(albumMap);
+
   const handleDuplicateMateri = async (id, judul) => {
     Swal.fire({
       title: "Gandakan Materi?",
@@ -207,7 +222,6 @@ export default function ManajemenMateri() {
               </div>
             </div>
           </div>
-
           <button
             onClick={() =>
               activeTab === "materi"
@@ -220,6 +234,7 @@ export default function ManajemenMateri() {
             {activeTab === "materi" ? "Materi" : "Tugas"}
           </button>
         </div>
+
         <div className="flex bg-white border border-neutral-200 p-1.5 rounded-2xl w-fit shadow-sm">
           <button
             onClick={() => setActiveTab("materi")}
@@ -377,24 +392,57 @@ export default function ManajemenMateri() {
 
   const renderAlbumView = () => (
     <div className="animate-fade-in flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      {/* Header Baru dengan Fitur Dropdown Pilihan Kelas */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-neutral-100 shadow-sm">
         <div>
           <h2 className="text-2xl font-black text-neutral-900 mb-1">
             Pusat Pembelajaran
           </h2>
           <p className="text-sm font-bold text-neutral-500">
-            Pilih album kelas untuk mengelola materi dan tugas.
+            Pilih kelas untuk mengelola materi dan tugas.
           </p>
         </div>
-        <button
-          onClick={() => navigate("/guru/materi/tambah")}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#ff6b35] hover:bg-[#e0531f] text-white font-bold rounded-xl shadow-[0_4px_0_#b83f12] active:translate-y-1 active:shadow-none transition-all cursor-pointer"
-        >
-          <Plus weight="bold" size={20} /> Materi Baru
-        </button>
+
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <select
+            value={selectedRombelId}
+            onChange={(e) => setSelectedRombelId(e.target.value)}
+            className="bg-neutral-50 border-2 border-neutral-100 text-neutral-700 text-sm rounded-xl focus:ring-0 focus:border-[#3498db] p-3 font-bold cursor-pointer w-full sm:w-64 outline-none transition-all appearance-none"
+          >
+            <option value="" disabled>
+              -- Pilih Kelas --
+            </option>
+            {rombelList.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.nama_kelas} {r.kode_unik ? `(Kode: ${r.kode_unik})` : ""}
+              </option>
+            ))}
+          </select>
+
+          <button
+            onClick={() => navigate("/guru/materi/tambah")}
+            className="flex items-center justify-center gap-2 px-5 py-3 bg-[#ff6b35] hover:bg-[#e0531f] text-white font-bold rounded-xl shadow-[0_4px_0_#b83f12] active:translate-y-1 active:shadow-none transition-all cursor-pointer w-full sm:w-auto shrink-0"
+          >
+            <Plus weight="bold" size={20} /> Materi Baru
+          </button>
+        </div>
       </div>
 
-      {albumList.length === 0 ? (
+      {/* Tampilan Konten Berdasarkan Status Pilihan Kelas */}
+      {!selectedRombelId ? (
+        <div className="bg-white rounded-3xl p-16 text-center border border-neutral-100 shadow-sm flex flex-col items-center mt-4">
+          <div className="p-4 bg-blue-50 rounded-full mb-4">
+            <UsersThree size={48} weight="duotone" className="text-[#3498db]" />
+          </div>
+          <h3 className="text-xl font-black text-neutral-900 mb-2">
+            Pilih Kelas Terlebih Dahulu
+          </h3>
+          <p className="font-bold text-neutral-500">
+            Silakan pilih kelas pada menu dropdown di atas untuk menampilkan
+            daftar mata pelajaran.
+          </p>
+        </div>
+      ) : albumList.length === 0 ? (
         <div className="bg-white rounded-3xl p-16 text-center border border-neutral-100 shadow-sm flex flex-col items-center mt-4">
           <BookBookmark
             size={64}
@@ -402,11 +450,11 @@ export default function ManajemenMateri() {
             className="text-neutral-300 mb-4"
           />
           <h3 className="text-xl font-black text-neutral-900 mb-2">
-            Belum Ada Kelas Aktif
+            Belum Ada Mata Pelajaran
           </h3>
           <p className="font-bold text-neutral-500">
-            Buat materi atau tugas pertama Anda untuk membangun album secara
-            otomatis.
+            Buat materi atau tugas pertama Anda di kelas ini untuk membangun
+            album secara otomatis.
           </p>
         </div>
       ) : (
