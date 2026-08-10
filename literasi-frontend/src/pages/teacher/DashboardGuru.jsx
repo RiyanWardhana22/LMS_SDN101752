@@ -143,9 +143,8 @@ export default function DashboardGuru() {
   }, [user.id]);
 
   return (
-    <DashboardLayout role="guru" title="Meja Kerja Digital">
+    <DashboardLayout role="guru" title="Dashboard">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Card 1: Total Siswa */}
         <div className="bg-white rounded-3xl shadow-sm p-6 border border-slate-100 hover:shadow-md transition-all">
           <div className="flex items-center gap-3 text-slate-500 mb-4">
             <div className="p-2.5 bg-emerald-50 rounded-xl text-emerald-500">

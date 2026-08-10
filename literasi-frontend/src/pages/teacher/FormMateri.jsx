@@ -31,7 +31,7 @@ export default function FormMateri() {
   const [rombelId, setRombelId] = useState("");
   const [rombelList, setRombelList] = useState([]);
   const [isUploadingCloud, setIsUploadingCloud] = useState(false);
-  const [showModelConfig, setShowModelConfig] = useState(null); // Index media yang sedang dikonfigurasi
+  const [showModelConfig, setShowModelConfig] = useState(null);
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
   const arInputRef = useRef(null);
@@ -73,15 +73,17 @@ export default function FormMateri() {
       return;
     }
 
-    // Validasi: pastikan ada minimal satu media bertipe ar_mind (target)
-    const hasArTarget = mediaList.some((m) => m.type === "ar_mind" && m.url);
-    if (!hasArTarget) {
-      Swal.fire({
-        icon: "warning",
-        title: "Target AR Belum Diunggah",
-        text: "Silakan tambahkan file .mind sebagai target AR.",
-      });
-      return;
+    const needsArTarget = mediaList.some((m) => m.is_ar_output);
+    if (needsArTarget) {
+      const hasArTarget = mediaList.some((m) => m.type === "ar_mind" && m.url);
+      if (!hasArTarget) {
+        Swal.fire({
+          icon: "warning",
+          title: "Target AR Belum Diunggah",
+          text: "Ada media yang ditandai sebagai Output AR, jadi kamu perlu menambahkan file .mind sebagai target AR.",
+        });
+        return;
+      }
     }
 
     setIsSaving(true);
@@ -260,7 +262,7 @@ export default function FormMateri() {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
       const data = await res.json();
       Swal.close();
@@ -305,15 +307,15 @@ export default function FormMateri() {
     }
   };
 
-  // ✅ UPLOAD MODEL 3D (.glb / .gltf) KE CLOUDINARY - DIPERBAIKI
   const handleModel3DUpload = async (e, index) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validasi format
-    const validExtensions = ['.glb', '.gltf', '.GLB', '.GLTF'];
-    const isValidExtension = validExtensions.some(ext => file.name.endsWith(ext));
-    
+    const validExtensions = [".glb", ".gltf", ".GLB", ".GLTF"];
+    const isValidExtension = validExtensions.some((ext) =>
+      file.name.endsWith(ext),
+    );
+
     if (!isValidExtension) {
       Swal.fire({
         icon: "error",
@@ -337,7 +339,7 @@ export default function FormMateri() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", UPLOAD_PRESET);
-    formData.append("resource_type", "auto"); // Penting: biarkan Cloudinary mendeteksi tipe
+    formData.append("resource_type", "auto");
 
     try {
       Swal.fire({
@@ -346,29 +348,22 @@ export default function FormMateri() {
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
       });
-
-      // Gunakan endpoint auto/upload untuk mendeteksi tipe file secara otomatis
       const res = await fetch(
         `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`,
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
       const data = await res.json();
       Swal.close();
 
       if (data.secure_url) {
-        // Ambil URL yang dihasilkan Cloudinary
         let modelUrl = data.secure_url;
-        
-        // Jika URL tidak memiliki ekstensi .glb atau .gltf, kita tetap gunakan karena Cloudinary akan serve file yang benar
-        // Namun kita bisa memastikan dengan menambahkan parameter jika perlu
-        if (!modelUrl.endsWith('.glb') && !modelUrl.endsWith('.gltf')) {
-          // Cloudinary kadang mengembalikan URL tanpa ekstensi, tapi tetap valid
-          console.log('Model URL (tanpa ekstensi):', modelUrl);
+        if (!modelUrl.endsWith(".glb") && !modelUrl.endsWith(".gltf")) {
+          console.log("Model URL (tanpa ekstensi):", modelUrl);
         }
-        
+
         const updated = [...mediaList];
         updated[index].url = modelUrl;
         updated[index].nama_file = file.name;
@@ -391,7 +386,7 @@ export default function FormMateri() {
       }
     } catch (err) {
       Swal.close();
-      console.error('Upload error:', err);
+      console.error("Upload error:", err);
       Swal.fire({
         icon: "error",
         title: "Gagal Upload",
@@ -469,7 +464,7 @@ export default function FormMateri() {
                 onChange={(e) => {
                   setRombelId(e.target.value);
                   const selected = rombelList.find(
-                    (r) => r.id == e.target.value
+                    (r) => r.id == e.target.value,
                   );
                   if (selected) setKelas(selected.nama_kelas);
                 }}
@@ -532,8 +527,8 @@ export default function FormMateri() {
               <p className="text-xs font-medium text-neutral-400 mt-0.5">
                 Sematkan video, gambar, model 3D, atau berkas Augmented Reality
                 (.mind). Tandai media sebagai{" "}
-                <span className="font-bold text-[#ff6b35]">Output AR</span>{" "}
-                agar muncul saat marker discan.
+                <span className="font-bold text-[#ff6b35]">Output AR</span> agar
+                muncul saat marker discan.
               </p>
             </div>
 
@@ -608,9 +603,6 @@ export default function FormMateri() {
             className="hidden"
           />
 
-          {/* ============================================ */}
-          {/* LIST RENDERING MEDIA DINAMIS */}
-          {/* ============================================ */}
           {mediaList.length === 0 ? (
             <div className="text-center py-8 text-neutral-300 font-bold text-sm border-2 border-dashed border-neutral-100 rounded-2xl">
               Belum ada media interaktif yang disematkan.
@@ -621,17 +613,16 @@ export default function FormMateri() {
                 <div key={index} className="flex flex-col gap-3">
                   {/* Card Media */}
                   <div className="flex items-center gap-4 p-4 bg-neutral-50 rounded-2xl border border-neutral-200 animate-fade-in">
-                    {/* Icon berdasarkan tipe */}
                     <div
                       className={`p-3 rounded-xl ${
                         media.type.includes("video")
                           ? "bg-[#ebf5fb] text-[#3498db]"
                           : media.type === "image_cloud"
-                          ? "bg-[#fef9e7] text-[#f39c12]"
-                          : media.type === "model_3d" ||
-                            media.type === "model_3d_animated"
-                          ? "bg-[#f0e6ff] text-[#8e44ad]"
-                          : "bg-[#fff3ee] text-[#ff6b35]"
+                            ? "bg-[#fef9e7] text-[#f39c12]"
+                            : media.type === "model_3d" ||
+                                media.type === "model_3d_animated"
+                              ? "bg-[#f0e6ff] text-[#8e44ad]"
+                              : "bg-[#fff3ee] text-[#ff6b35]"
                       }`}
                     >
                       {media.type.includes("video") ? (
@@ -651,14 +642,14 @@ export default function FormMateri() {
                         {media.type === "video_link"
                           ? "YouTube Link"
                           : media.type === "video_cloud"
-                          ? "Cloud Video"
-                          : media.type === "image_cloud"
-                          ? "Gambar"
-                          : media.type === "model_3d"
-                          ? "Model 3D"
-                          : media.type === "model_3d_animated"
-                          ? "Model 3D Animasi"
-                          : "AR (.mind)"}
+                            ? "Cloud Video"
+                            : media.type === "image_cloud"
+                              ? "Gambar"
+                              : media.type === "model_3d"
+                                ? "Model 3D"
+                                : media.type === "model_3d_animated"
+                                  ? "Model 3D Animasi"
+                                  : "AR (.mind)"}
                       </span>
 
                       {media.type === "video_link" ? (
@@ -746,9 +737,7 @@ export default function FormMateri() {
                         ) : (
                           <Circle weight="fill" size={14} />
                         )}
-                        {media.is_ar_output
-                          ? "Output AR"
-                          : "Jadikan Output AR"}
+                        {media.is_ar_output ? "Output AR" : "Jadikan Output AR"}
                       </button>
                     )}
 
@@ -760,7 +749,7 @@ export default function FormMateri() {
                           type="button"
                           onClick={() =>
                             setShowModelConfig(
-                              showModelConfig === index ? null : index
+                              showModelConfig === index ? null : index,
                             )
                           }
                           className={`p-2 rounded-lg transition-colors ${
@@ -801,14 +790,12 @@ export default function FormMateri() {
                             </label>
                             <input
                               type="text"
-                              value={
-                                media.model_config?.scale || "0.5 0.5 0.5"
-                              }
+                              value={media.model_config?.scale || "0.5 0.5 0.5"}
                               onChange={(e) =>
                                 updateModelConfig(
                                   index,
                                   "scale",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                               className="w-full bg-white border border-purple-200 rounded-lg p-2 text-xs font-medium outline-none focus:border-purple-500"
@@ -824,14 +811,13 @@ export default function FormMateri() {
                             <input
                               type="text"
                               value={
-                                media.model_config?.position ||
-                                "0 0.1 0.1"
+                                media.model_config?.position || "0 0.1 0.1"
                               }
                               onChange={(e) =>
                                 updateModelConfig(
                                   index,
                                   "position",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                               className="w-full bg-white border border-purple-200 rounded-lg p-2 text-xs font-medium outline-none focus:border-purple-500"
@@ -846,14 +832,12 @@ export default function FormMateri() {
                             </label>
                             <input
                               type="text"
-                              value={
-                                media.model_config?.rotation || "0 0 0"
-                              }
+                              value={media.model_config?.rotation || "0 0 0"}
                               onChange={(e) =>
                                 updateModelConfig(
                                   index,
                                   "rotation",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                               className="w-full bg-white border border-purple-200 rounded-lg p-2 text-xs font-medium outline-none focus:border-purple-500"
@@ -868,14 +852,12 @@ export default function FormMateri() {
                                 Animasi
                               </label>
                               <select
-                                value={
-                                  media.model_config?.animation || "none"
-                                }
+                                value={media.model_config?.animation || "none"}
                                 onChange={(e) =>
                                   updateModelConfig(
                                     index,
                                     "animation",
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                                 className="w-full bg-white border border-purple-200 rounded-lg p-2 text-xs font-medium outline-none focus:border-purple-500"
@@ -896,14 +878,13 @@ export default function FormMateri() {
                                 <input
                                   type="number"
                                   value={
-                                    media.model_config?.animationSpeed ||
-                                    5000
+                                    media.model_config?.animationSpeed || 5000
                                   }
                                   onChange={(e) =>
                                     updateModelConfig(
                                       index,
                                       "animationSpeed",
-                                      parseInt(e.target.value)
+                                      parseInt(e.target.value),
                                     )
                                   }
                                   className="w-full bg-white border border-purple-200 rounded-lg p-2 text-xs font-medium outline-none focus:border-purple-500"
@@ -929,7 +910,7 @@ export default function FormMateri() {
                                   updateModelConfig(
                                     index,
                                     "autoRotate",
-                                    e.target.value === "true"
+                                    e.target.value === "true",
                                   )
                                 }
                                 className="w-full bg-white border border-purple-200 rounded-lg p-2 text-xs font-medium outline-none focus:border-purple-500"
@@ -968,18 +949,18 @@ export default function FormMateri() {
                   video, gambar, atau model 3D
                 </span>{" "}
                 sebagai{" "}
-                <span className="font-bold text-[#ff6b35]">Output AR</span>{" "}
-                agar muncul di atas marker saat siswa melakukan scan.
+                <span className="font-bold text-[#ff6b35]">Output AR</span> agar
+                muncul di atas marker saat siswa melakukan scan.
               </li>
               <li>
-                <span className="font-semibold">Model 3D (.glb/.gltf)</span> akan
-                tampil interaktif di atas marker dan bisa dilihat dari
+                <span className="font-semibold">Model 3D (.glb/.gltf)</span>{" "}
+                akan tampil interaktif di atas marker dan bisa dilihat dari
                 berbagai sudut. Gunakan konfigurasi untuk mengatur skala,
                 posisi, dan animasi.
               </li>
               <li>
-                Jika tidak ditandai, media akan tampil di halaman detail
-                materi biasa (Ruang Baca).
+                Jika tidak ditandai, media akan tampil di halaman detail materi
+                biasa (Ruang Baca).
               </li>
             </ul>
           </div>
