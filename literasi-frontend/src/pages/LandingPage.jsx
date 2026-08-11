@@ -146,16 +146,16 @@ export default function LandingPage() {
             className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight drop-shadow-lg"
             style={{ fontFamily: "'Fredoka One', sans-serif" }}
           >
-            Eksplorasi Dunia Belajar <br className="hidden md:block" />
+            Cara Seru Jadi <br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#FF8C5A]">
-              Tanpa Batas
+              Anak Hebat
             </span>
           </h1>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-5 w-full sm:w-auto">
             <Link
               to="/login-siswa"
-              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#FF6B35] to-[#FF8C5A] text-white font-black rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3 text-lg"
+              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#FF6B35] to-[#FF8C5A] text-white font-black rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 text-lg"
             >
               {" "}
               Masuk Kelas
@@ -188,7 +188,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-xl border border-slate-100 flex flex-col md:flex-row justify-around items-center gap-10">
             <div className="flex flex-col items-center text-center group">
-              <div className="p-5 bg-blue-50 text-blue-500 rounded-2xl mb-4 group-hover:-translate-y-2 transition-transform">
+              <div className="p-5 bg-blue-50 text-blue-500 rounded-2xl mb-4 transition-transform">
                 <FaUserGraduate size={32} />
               </div>
               <h3 className="text-4xl font-black text-slate-800 mb-1">
@@ -202,7 +202,7 @@ export default function LandingPage() {
             <div className="hidden md:block w-px h-24 bg-slate-100"></div>
 
             <div className="flex flex-col items-center text-center group">
-              <div className="p-5 bg-emerald-50 text-emerald-500 rounded-2xl mb-4 group-hover:-translate-y-2 transition-transform">
+              <div className="p-5 bg-emerald-50 text-emerald-500 rounded-2xl mb-4 transition-transform">
                 <FaChalkboardTeacher size={32} />
               </div>
               <h3 className="text-4xl font-black text-slate-800 mb-1">
@@ -216,7 +216,7 @@ export default function LandingPage() {
             <div className="hidden md:block w-px h-24 bg-slate-100"></div>
 
             <div className="flex flex-col items-center text-center group">
-              <div className="p-5 bg-orange-50 text-orange-500 rounded-2xl mb-4 group-hover:-translate-y-2 transition-transform">
+              <div className="p-5 bg-orange-50 text-orange-500 rounded-2xl mb-4 transition-transform">
                 <FaChartLine size={32} />
               </div>
               <h3 className="text-4xl font-black text-slate-800 mb-1">
@@ -367,6 +367,37 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ================= SPONSOR / PENGABDIAN MASYARAKAT ================= */}
+      <section className="py-12 bg-[#FCF9F6] border-t border-slate-200">
+        <div className="max-w-5xl mx-auto px-6 lg:px-8 flex flex-col items-center text-center">
+          <div className="flex items-center justify-center gap-6 md:gap-12 mb-8">
+            <img
+              src="/images/footer/kampus_berdampak.png"
+              alt="Diktisaintek Berdampak"
+              className="h-16 md:h-20 object-contain drop-shadow-sm"
+            />
+            <img
+              src="/images/footer/unimed.png"
+              alt="Universitas Negeri Medan"
+              className="h-16 md:h-20 object-contain drop-shadow-sm"
+            />
+            <img
+              src="/images/footer/bima.png"
+              alt="BIMA"
+              className="h-12 md:h-16 object-contain drop-shadow-sm"
+            />
+          </div>
+          <h3 className="text-xl md:text-2xl font-black text-[#A05A35] mb-3">
+            Pengabdian Kepada Masyarakat - Pemberdayaan Kemitraan Masyarakat
+          </h3>
+          <p className="text-slate-700 font-medium text-sm md:text-base max-w-4xl leading-relaxed">
+            HIBAH DPPM – Direktorat Penelitian dan Pengabdian Kepada Masyarakat
+            Anggaran Tahun 2025 Bekerja Sama Dengan Lembaga Pengabdian Kepada
+            Masyarakat Universitas Negeri Medan
+          </p>
+        </div>
+      </section>
+
       {/* ================= FOOTER PROFESIONAL ================= */}
       <footer className="bg-slate-900 pt-20 pb-10 border-t-4 border-[#FF6B35]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -429,11 +460,11 @@ export default function LandingPage() {
                 </li>
                 <li className="flex items-center gap-4 text-slate-400 font-medium">
                   <FaPhoneAlt size={18} className="text-[#3498db] shrink-0" />
-                  <span>(061) 1234-5678</span>
+                  <span>-</span>
                 </li>
                 <li className="flex items-center gap-4 text-slate-400 font-medium">
                   <FaEnvelope size={18} className="text-[#ff6b35] shrink-0" />
-                  <span>info@sdn101752.sch.id</span>
+                  <span>sdnegeri101752klambirlima@gmail.com</span>
                 </li>
               </ul>
             </div>
