@@ -367,37 +367,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ================= SPONSOR / PENGABDIAN MASYARAKAT ================= */}
-      <section className="py-12 bg-[#FCF9F6] border-t border-slate-200">
-        <div className="max-w-5xl mx-auto px-6 lg:px-8 flex flex-col items-center text-center">
-          <div className="flex items-center justify-center gap-6 md:gap-12 mb-8">
-            <img
-              src="/images/footer/kampus_berdampak.png"
-              alt="Diktisaintek Berdampak"
-              className="h-16 md:h-20 object-contain drop-shadow-sm"
-            />
-            <img
-              src="/images/footer/unimed.png"
-              alt="Universitas Negeri Medan"
-              className="h-16 md:h-20 object-contain drop-shadow-sm"
-            />
-            <img
-              src="/images/footer/bima.png"
-              alt="BIMA"
-              className="h-12 md:h-16 object-contain drop-shadow-sm"
-            />
-          </div>
-          <h3 className="text-xl md:text-2xl font-black text-[#A05A35] mb-3">
-            Pengabdian Kepada Masyarakat - Pemberdayaan Kemitraan Masyarakat
-          </h3>
-          <p className="text-slate-700 font-medium text-sm md:text-base max-w-4xl leading-relaxed">
-            HIBAH DPPM – Direktorat Penelitian dan Pengabdian Kepada Masyarakat
-            Anggaran Tahun 2025 Bekerja Sama Dengan Lembaga Pengabdian Kepada
-            Masyarakat Universitas Negeri Medan
-          </p>
-        </div>
-      </section>
-
       {/* ================= FOOTER PROFESIONAL ================= */}
       <footer className="bg-slate-900 pt-20 pb-10 border-t-4 border-[#FF6B35]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -470,7 +439,35 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left text-slate-500 text-sm font-bold">
+          <div className="max-w-5xl py-8 mx-auto px-6 lg:px-8 flex flex-col items-center text-center">
+            <div className="flex items-center justify-center gap-6 md:gap-12 mb-8">
+              <img
+                src="/images/footer/kampus_berdampak.png"
+                alt="Diktisaintek Berdampak"
+                className="h-16 md:h-20 object-contain drop-shadow-sm"
+              />
+              <img
+                src="/images/footer/unimed.png"
+                alt="Universitas Negeri Medan"
+                className="h-16 md:h-20 object-contain drop-shadow-sm"
+              />
+              <img
+                src="/images/footer/bima.png"
+                alt="BIMA"
+                className="h-12 md:h-16 object-contain drop-shadow-sm"
+              />
+            </div>
+            <h3 className="text-xl md:text-2xl font-black text-white mb-3">
+              Pengabdian Kepada Masyarakat - Pemberdayaan Kemitraan Masyarakat
+            </h3>
+            <p className="text-slate-400 font-medium text-sm md:text-base max-w-4xl leading-relaxed">
+              HIBAH DPPM – Direktorat Penelitian dan Pengabdian Kepada
+              Masyarakat Anggaran Tahun 2025 Bekerja Sama Dengan Lembaga
+              Pengabdian Kepada Masyarakat Universitas Negeri Medan
+            </p>
+          </div>
+
+          <div className="flex mt-5 flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left text-slate-500 text-sm font-bold">
             <p>
               &copy; {new Date().getFullYear()} LMS SDN 101752 Kelambir Lima.
               Hak Cipta Dilindungi.
