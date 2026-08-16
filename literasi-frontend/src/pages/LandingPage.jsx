@@ -47,6 +47,7 @@ export default function LandingPage() {
   const heroSlides = [
     "/images/bgsklh.jpg",
     "/images/kelas.jpg",
+    "/images/loginLentera.jpg",
     "/images/ar.jpg",
   ];
 
@@ -95,6 +96,11 @@ export default function LandingPage() {
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-8 flex justify-between items-center">
           <div className="flex items-center gap-3">
+            <img
+              src="/images/loginLentera-removebg-preview.png"
+              alt=""
+              className="w-12 h-12"
+            />
             <span
               className={`text-2xl font-black tracking-tight ${isScrolled ? "text-slate-800" : "text-white"}`}
               style={{ fontFamily: "'Fredoka One', sans-serif" }}
@@ -373,8 +379,13 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 border-b border-slate-800 pb-16 mb-8">
             <div className="col-span-1 md:col-span-1">
               <div className="flex items-center gap-3 mb-6">
+                <img
+                  src="/images/loginLentera-removebg-preview.png"
+                  alt="Logo SDN 101752"
+                  className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain flex-shrink-0 drop-shadow-sm"
+                />
                 <span
-                  className="text-3xl font-black tracking-tight text-white"
+                  className="text-2xl sm:text-3xl md:text-[2rem] font-black tracking-tight text-white leading-none"
                   style={{ fontFamily: "'Fredoka One', sans-serif" }}
                 >
                   SDN 101752
@@ -462,7 +473,7 @@ export default function LandingPage() {
             </h3>
             <p className="text-slate-400 font-medium text-sm md:text-base max-w-4xl leading-relaxed">
               HIBAH DPPM – Direktorat Penelitian dan Pengabdian Kepada
-              Masyarakat Anggaran Tahun 2025 Bekerja Sama Dengan Lembaga
+              Masyarakat Anggaran Tahun 2026 Bekerja Sama Dengan Lembaga
               Pengabdian Kepada Masyarakat Universitas Negeri Medan
             </p>
           </div>
