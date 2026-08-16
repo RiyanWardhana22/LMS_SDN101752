@@ -40,24 +40,14 @@ export default function DashboardGuru() {
     const fetchDashboardData = async () => {
       try {
         setIsLoading(true);
-
-        // 1. Fetch Materi Aktif Milik Guru
-        const resMateri = await fetch(
-          apiEndpoint(`api/materi/read.php?guru_id=${user.id}`),
-        );
+        const resMateri = await fetch(apiEndpoint("api/materi/read.php"));
         const dataMateri = await resMateri.json();
         const materiCount =
           dataMateri.status === "success" ? dataMateri.data.length : 0;
-
-        // 2. Fetch Tugas/Kuis Aktif Milik Guru
-        const resTugas = await fetch(
-          apiEndpoint(`api/tugas/read.php?guru_id=${user.id}`),
-        );
+        const resTugas = await fetch(apiEndpoint("api/tugas/read.php"));
         const dataTugas = await resTugas.json();
         const tugasList = dataTugas.status === "success" ? dataTugas.data : [];
         const tugasCount = tugasList.length;
-
-        // 3. Fetch Rombel, Siswa, dan Nilai untuk Rata-rata & Total Siswa
         const resRombel = await fetch(apiEndpoint("api/kelas/read_rombel.php"));
         const dataRombel = await resRombel.json();
         const rombelList =
@@ -120,8 +110,6 @@ export default function DashboardGuru() {
             });
           }
         }
-
-        // Urutkan aktivitas dari yang paling baru
         allSubmissions.sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
 
         setStats({
@@ -131,7 +119,7 @@ export default function DashboardGuru() {
           rataRata: rataRataKelas,
         });
 
-        setRecentActivities(allSubmissions.slice(0, 5)); // Ambil 5 aktivitas teratas
+        setRecentActivities(allSubmissions.slice(0, 5));
       } catch (error) {
         console.error("Gagal memuat data dashboard:", error);
       } finally {

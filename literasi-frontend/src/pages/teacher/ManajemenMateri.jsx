@@ -17,11 +17,11 @@ export default function ManajemenMateri() {
   const navigate = useNavigate();
   const [materiList, setMateriList] = useState([]);
   const [tugasList, setTugasList] = useState([]);
-  const [rombelList, setRombelList] = useState([]); // Menampung daftar kelas
+  const [rombelList, setRombelList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const [selectedFolder, setSelectedFolder] = useState(null);
-  const [selectedRombelId, setSelectedRombelId] = useState(""); // Menyimpan kelas yang dipilih
+  const [selectedRombelId, setSelectedRombelId] = useState("");
   const [activeTab, setActiveTab] = useState("materi");
 
   const user = JSON.parse(localStorage.getItem("user")) || {};
@@ -29,10 +29,9 @@ export default function ManajemenMateri() {
   const fetchSemuaData = async () => {
     setIsLoading(true);
     try {
-      // Fetch materi, tugas, dan daftar rombel secara bersamaan
       const [resMateri, resTugas, resRombel] = await Promise.all([
-        fetch(apiEndpoint(`api/materi/read.php?guru_id=${user.id}`)),
-        fetch(apiEndpoint(`api/tugas/read.php?guru_id=${user.id}`)),
+        fetch(apiEndpoint("api/materi/read.php")),
+        fetch(apiEndpoint("api/tugas/read.php")),
         fetch(apiEndpoint("api/kelas/read_rombel.php")),
       ]);
 
