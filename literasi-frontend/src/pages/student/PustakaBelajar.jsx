@@ -55,7 +55,15 @@ export default function PustakaBelajar() {
   useEffect(() => {
     const fetchMateri = async () => {
       try {
-        const response = await fetch(apiEndpoint("api/materi/read_public.php"));
+        const user = JSON.parse(localStorage.getItem("user")) || {};
+        const rombelId = user.rombel_id || "";
+
+        let url = apiEndpoint("api/materi/read_public.php");
+        if (rombelId) {
+          url += `?rombel_id=${rombelId}`;
+        }
+
+        const response = await fetch(url);
         const data = await response.json();
         if (data.status === "success") {
           setMateriList(data.data);

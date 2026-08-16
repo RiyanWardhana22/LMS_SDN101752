@@ -12,8 +12,26 @@ error_reporting(E_ALL);
 include_once '../../config/database.php';
 try {
             $db = $conn;
-            $query = "SELECT id, mata_pelajaran, kelas, judul, created_at FROM materi WHERE visibilitas = 'publik' ORDER BY created_at DESC";
+
+            $rombelId = isset($_GET['rombel_id']) && $_GET['rombel_id'] !== ''
+                ? (int) $_GET['rombel_id']
+                : null;
+
+            $query = "SELECT id, mata_pelajaran, kelas, judul, created_at FROM materi WHERE visibilitas = 'publik'";
+
+            if ($rombelId) {
+                        // rombel_id IS NULL = materi umum, tetap tampil untuk semua kelas
+                        $query .= " AND (rombel_id = :rombel_id OR rombel_id IS NULL)";
+            }
+
+            $query .= " ORDER BY created_at DESC";
+
             $stmt = $db->prepare($query);
+
+            if ($rombelId) {
+                        $stmt->bindParam(':rombel_id', $rombelId, PDO::PARAM_INT);
+            }
+
             $stmt->execute();
             $materi = $stmt->fetchAll(PDO::FETCH_ASSOC);
             echo json_encode(["status" => "success", "data" => $materi]);
