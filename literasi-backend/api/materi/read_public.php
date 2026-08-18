@@ -21,7 +21,7 @@ try {
 
             if ($rombelId) {
                         // rombel_id IS NULL = materi umum, tetap tampil untuk semua kelas
-                        $query .= " AND (rombel_id = :rombel_id OR rombel_id IS NULL)";
+                        $query .= " AND rombel_id = :rombel_id ";
             }
 
             $query .= " ORDER BY created_at DESC";
