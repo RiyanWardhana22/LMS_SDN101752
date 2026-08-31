@@ -36,11 +36,12 @@ import EmergencyMode from "./pages/admin/EmergencyMode";
 import UserManagement from "./pages/admin/UserManagement";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const userStr =
+    localStorage.getItem("user") || sessionStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
   if (!user) {
     return <Navigate to="/" replace />;
   }
-
   if (!allowedRoles.includes(user.role)) {
     return <Navigate to="/" replace />;
   }
