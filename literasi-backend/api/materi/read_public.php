@@ -20,6 +20,7 @@ try {
     $query = "SELECT id, mata_pelajaran, kelas, judul, created_at FROM materi WHERE visibilitas = 'publik'";
 
     if ($rombelId) {
+        // rombel_id IS NULL = materi umum, tetap tampil untuk semua kelas
         $query .= " AND rombel_id = :rombel_id ";
     }
 
